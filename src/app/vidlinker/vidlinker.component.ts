@@ -23,9 +23,15 @@ export class VidlinkerComponent implements OnInit {
 		this.links.push(new VidLinkModel());
 	};
 
+	removeLink(index: number) {
+		if (index > 0 || this.links.length > 1) {
+			this.links.splice(index, 1);
+		}
+	};
+
 	processLinks() {
 		this.links.forEach(element => {
 			element.processLink();
 		});
 	};
-}
+};

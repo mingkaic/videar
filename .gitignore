@@ -92,3 +92,7 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# media files
+*.mp4
+*.mp3

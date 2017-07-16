@@ -9,4 +9,4 @@ import { Router } from '@angular/router';
 export class AppComponent {
 	title = 'Videar';
 	constructor(private router: Router) {};
-}
+};
