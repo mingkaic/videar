@@ -4,11 +4,10 @@ import * as ss from 'socket.io-stream';
 enum linkStatus {
 	unprocessed = 0,
 	processing,
-	processed,
 	rejected
 };
 
-const linkString: string[] = ["unprocessed", "processing", "processed", "rejected"];
+const linkString: string[] = ["unprocessed", "processing", "rejected"];
 const utubeReg: RegExp = /^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
 
 export class VidLinkModel {
@@ -28,34 +27,27 @@ export class VidLinkModel {
 		this.status = linkStatus.processing;
 		return Promise.resolve(this.link)
 		.then((link) => {
+			// perform client side link test
 			if (utubeReg.test(link)) {
 				let vidId = utubeReg.exec(link)[1];
 				this.socket.emit('client-audio-request', vidId);
-				ss(this.socket).on('audio-stream', (stream, data) => {
-					if (data.id === vidId) {
-						let sound_data = [];
-						stream.on('data', (chunk) => {
-							sound_data.push(chunk);
-						});
-						stream.on('end', () => {
-							console.log(new Blob(sound_data));
-							this.status = linkStatus.processed;
-						});
-					}
-				});
+				// discovered invalid id on server side
 				this.socket.on('invalid-ytid', (id) => {
-					if (id === vidId) {
-						this.status = linkStatus.rejected;
-					}
+					this.status = linkStatus.rejected;
 				});
+				return this.socket;
 			}
-			else {
-				this.status = linkStatus.rejected;
-			}
+			this.status = linkStatus.rejected;
+			return null;
 		})
 		.catch((err) => {
 			console.log(err);
 			this.status = linkStatus.rejected;
 		});
 	};
+
+	clear() {
+		this.link = "";
+		this.status = linkStatus.unprocessed;
+	}
 };

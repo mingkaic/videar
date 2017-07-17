@@ -41,14 +41,14 @@ server.listen(port, () => console.log(`API running on localhost:${port}`));
 // Socket events
 io.sockets.on('connection', (socket) => {
 	console.log('Socket connected');
-	
 	socket.on('client-audio-request', (vidId) => {
-		var stream = ss.createStream();
 		try {
+			var stream = ss.createStream();
 			yt_service(vidId, stream);
+			ss(socket).emit('audio-stream', stream, vidId);
 		} catch (exception) {
+			console.log(exception);
 			socket.emit('invalid-ytid', vidId);
 		}
-		ss(socket).emit('audio-stream', stream, { id: vidId });
 	});
 });
