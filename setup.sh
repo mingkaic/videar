@@ -1,4 +1,2 @@
-wget http://78.129.170.254/ffmpeg/ffmpeginstaller.tar.gz
-tar -zxvf ffmpeginstaller.tar.gz
-cd ffmpeginstaller/
-./install
+apt-get update && apt-get -y dist-upgrade
+apt-get install -y ffmpeg
