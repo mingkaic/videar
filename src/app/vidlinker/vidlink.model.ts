@@ -24,6 +24,7 @@ export class VidLinkModel {
 	};
 
 	processLink() {
+		if (this.status === linkStatus.processing) return;
 		this.status = linkStatus.processing;
 		return Promise.resolve(this.link)
 		.then((link) => {

@@ -1,14 +1,16 @@
-apt-get update && apt-get -y dist-upgrade
-apt-get install build-essential
+# install essentials
+apt-get update \
+    && apt-get -qq update \
+    && apt-get clean \
+    && apt-get -y dist-upgrade \
+    && apt-get install -y curl \
+    && apt-get install -y build-essential
 
-# install nodejs
+# install node and npm
 apt-get install -y python-software-properties
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_8.x | bash -
 apt-get install -y nodejs
+mv /usr/bin/nodejs /usr/bin/node
 
-# install npm dependencies
-npm i
-npm i -g @angular/cli@1.0.0
-
-# install ffmpeg
+# install ffmpegççç 
 apt-get install -y ffmpeg

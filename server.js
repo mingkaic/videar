@@ -11,6 +11,9 @@ const api = require('./server/routes/api');
 
 const yt_service = require('./server/services/yt_audio');
 
+const default_port = '8080';
+const default_host = '0.0.0.0';
+
 // Create HTTP server.
 const app = express();
 const server = http.createServer(app);
@@ -32,11 +35,13 @@ app.get('/*', function (req, res) {
 });
 
 // Set port
-const port = process.env.PORT || '3000';
+const port = process.env.PORT || default_port;
 app.set('port', port);
 
 // Listen on provided port, on all network interfaces.
-server.listen(port, () => console.log(`API running on localhost:${port}`));
+server.listen(port, default_host, () => {
+	console.log(`API running on localhost:${port}`)
+});
 
 // Socket events
 io.sockets.on('connection', (socket) => {
