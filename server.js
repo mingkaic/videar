@@ -9,7 +9,9 @@ const ss = require('socket.io-stream');
 // API routes
 const api = require('./server/routes/api');
 
+// services
 const yt_service = require('./server/services/yt_audio');
+const db = require('./server/services/aws_storage');
 
 const default_port = '8080';
 const default_host = '0.0.0.0';
@@ -48,9 +50,15 @@ io.sockets.on('connection', (socket) => {
 	console.log('Socket connected');
 	socket.on('client-audio-request', (vidId) => {
 		try {
-			var stream = ss.createStream();
-			yt_service(vidId, stream);
-			ss(socket).emit('audio-stream', stream, vidId);
+			// check if vidId already exists in our database
+			var outStream = db.getYTStream(vidId);
+			if (!outStream) {
+				var dbStream = ss.createStream();
+				yt_service(vidId, outStream);
+				yt_service(vidId, dbStream);
+				db.setYTStream(vidId, dbStream);
+			}
+			ss(socket).emit('audio-stream', outStream, vidId);
 		} catch (exception) {
 			console.log(exception);
 			socket.emit('invalid-ytid', vidId);
