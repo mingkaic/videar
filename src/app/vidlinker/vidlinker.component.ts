@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { VidLinkModel } from './vidlink.model';
+import { VidLinkModel } from '../models/vidlink.model';
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 
 

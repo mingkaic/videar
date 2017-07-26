@@ -53,6 +53,7 @@ io.sockets.on('connection', (socket) => {
 			// check if vidId already exists in our database
 			var outStream = db.getYTStream(vidId);
 			if (!outStream) {
+				outStream = ss.createStream();
 				var dbStream = ss.createStream();
 				yt_service(vidId, outStream);
 				yt_service(vidId, dbStream);
