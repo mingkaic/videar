@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  videar:
+    build: ./Dockerfile
+    volumes:
+      - /usr/src/app
+    image: mkaichen/videar:latest
+    

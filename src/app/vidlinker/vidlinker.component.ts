@@ -49,14 +49,14 @@ export class VidlinkerComponent implements OnInit {
 			.then((audioSocket) => {
 				if (audioSocket) {
 					ss(audioSocket).on('audio-stream', (stream, vidId: string) => {
-						let sound_data = [];
+						let soundData = [];
 						stream.on('data', (chunk) => {
-							sound_data.push(chunk);
+							soundData.push(chunk);
 						});
 						stream.on('end', () => {
 							this.removeLink(index);
 							this.soundIds.push(vidId);
-							let soundBlob = new Blob(sound_data);
+							let soundBlob = new Blob(soundData);
 							this.sounds[vidId] = URL.createObjectURL(soundBlob)
 						});
 					});
