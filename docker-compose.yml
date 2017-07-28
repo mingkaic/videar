@@ -6,3 +6,5 @@ services:
     volumes:
       - /usr/src/app
     image: mkaichen/videar:latest
+    ports: 
+      - "3000:8080"
