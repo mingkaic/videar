@@ -11,4 +11,5 @@ COPY . /usr/src/app/
 RUN bash setup.sh
 
 EXPOSE 8080
+EXPOSE 80
 CMD [ "npm", "start" ]

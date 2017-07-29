@@ -6,12 +6,9 @@ const path = require('path');
 const socketio = require('socket.io');
 const ss = require('socket.io-stream');
 
-// API routes
-const api = require('./server/routes/api');
-
 // services
-const yt_service = require('./server/services/yt_audio');
-const db = require('./server/services/aws_storage');
+const yt = require('./server/services/yt_conv');
+const db = require('./server/services/vidb');
 
 const default_port = '8080';
 const default_host = '0.0.0.0';
@@ -27,9 +24,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Point static path to dist
 app.use(express.static(path.join(__dirname, 'dist')));
-
-// API route
-app.use('/api', api);
 
 // Any standard route
 app.get('/*', function (req, res) {
@@ -55,8 +49,8 @@ io.sockets.on('connection', (socket) => {
 			if (!outStream) {
 				outStream = ss.createStream();
 				var dbStream = ss.createStream();
-				yt_service(vidId, outStream);
-				yt_service(vidId, dbStream);
+				yt(vidId, outStream);
+				yt(vidId, dbStream);
 				db.setYTStream(vidId, dbStream);
 			}
 			ss(socket).emit('audio-stream', outStream, vidId);
