@@ -3,16 +3,43 @@ version: '2'
 services:
   videar:
     image: mkaichen/videar:latest
-    build: ./services/main
+    build: 
+      context: .
+      dockerfile: dockerbuilds/Dockerfile-main
     volumes:
-      - /usr/src/app
+      - /usr/src/videar
     environment:
+      - DB_HOST=videar_mongodb
       - PORT=80
     ports:
       - "80:80"
+    depends_on: 
+      - videar_mongodb
+
+  videar-test:
+    image: mkaichen/videar-test:latest
+    build: 
+      context: .
+      dockerfile: dockerbuilds/Dockerfile-maintest
+    volumes:
+      - /usr/src/videar
+    environment:
+      - DB_HOST=videar_mongodb
+    depends_on:
+      - videar_mongodb
 
   speech2text:
     image: mkaichen/rocnnet-s2t:latest
-    build: ./services/speech2text
+    build: 
+      context: .
+      dockerfile: dockerbuilds/Dockerfile-s2t
     volumes:
-      - /usr/src/app
+      - /usr/src/s2t
+
+  videar_mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes: 
+      - /data/db
+    restart: always

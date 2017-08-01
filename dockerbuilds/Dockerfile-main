@@ -1,0 +1,18 @@
+FROM ubuntu:latest
+
+ENV NODE_ENV=production
+ENV VIDEAR_DIR /usr/src/videar
+
+# Create app directory
+RUN mkdir -p $VIDEAR_DIR
+WORKDIR $VIDEAR_DIR
+
+# move everything
+COPY ./services/main $VIDEAR_DIR
+
+# setup everything
+RUN bash setup.sh
+
+EXPOSE 8080
+EXPOSE 80
+CMD [ "npm", "start" ]

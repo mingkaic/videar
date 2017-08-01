@@ -36,13 +36,13 @@ module.exports = {
 	},
 	"entry": {
 		"main": [
-			"./src/main.ts"
+			"./front/main.ts"
 		],
 		"polyfills": [
-			"./src/polyfills.ts"
+			"./front/polyfills.ts"
 		],
 		"styles": [
-			"./src/styles.css"
+			"./front/styles.css"
 		]
 	},
 	"output": {
@@ -78,7 +78,7 @@ module.exports = {
 			},
 			{
 				"exclude": [
-					path.join(process.cwd(), "src/styles.css")
+					path.join(process.cwd(), "front/styles.css")
 				],
 				"test": /\.css$/,
 				"loaders": [
@@ -89,7 +89,7 @@ module.exports = {
 			},
 			{
 				"exclude": [
-					path.join(process.cwd(), "src/styles.css")
+					path.join(process.cwd(), "front/styles.css")
 				],
 				"test": /\.scss$|\.sass$/,
 				"loaders": [
@@ -101,7 +101,7 @@ module.exports = {
 			},
 			{
 				"exclude": [
-					path.join(process.cwd(), "src/styles.css")
+					path.join(process.cwd(), "front/styles.css")
 				],
 				"test": /\.less$/,
 				"loaders": [
@@ -113,7 +113,7 @@ module.exports = {
 			},
 			{
 				"exclude": [
-					path.join(process.cwd(), "src/styles.css")
+					path.join(process.cwd(), "front/styles.css")
 				],
 				"test": /\.styl$/,
 				"loaders": [
@@ -125,7 +125,7 @@ module.exports = {
 			},
 			{
 				"include": [
-					path.join(process.cwd(), "src/styles.css")
+					path.join(process.cwd(), "front/styles.css")
 				],
 				"test": /\.css$/,
 				"loaders": ExtractTextPlugin.extract({
@@ -139,7 +139,7 @@ module.exports = {
 			},
 			{
 				"include": [
-					path.join(process.cwd(), "src/styles.css")
+					path.join(process.cwd(), "front/styles.css")
 				],
 				"test": /\.scss$|\.sass$/,
 				"loaders": ExtractTextPlugin.extract({
@@ -154,7 +154,7 @@ module.exports = {
 			},
 			{
 				"include": [
-					path.join(process.cwd(), "src/styles.css")
+					path.join(process.cwd(), "front/styles.css")
 				],
 				"test": /\.less$/,
 				"loaders": ExtractTextPlugin.extract({
@@ -169,7 +169,7 @@ module.exports = {
 			},
 			{
 				"include": [
-					path.join(process.cwd(), "src/styles.css")
+					path.join(process.cwd(), "front/styles.css")
 				],
 				"test": /\.styl$/,
 				"loaders": ExtractTextPlugin.extract({
@@ -196,14 +196,14 @@ module.exports = {
 				"favicon.ico"
 			],
 			"globOptions": {
-				"cwd": "/Users/cmk/Developer/webspace/video_ear/src",
+				"cwd": "/Users/cmk/Developer/webspace/video_ear/front",
 				"dot": true,
 				"ignore": "**/.gitkeep"
 			}
 		}),
 		new ProgressPlugin(),
 		new HtmlWebpackPlugin({
-			"template": "./src/index.html",
+			"template": "./front/index.html",
 			"filename": "./index.html",
 			"hash": false,
 			"inject": true,
@@ -283,7 +283,7 @@ module.exports = {
 				"environments/environment.ts": "environments/environment.ts"
 			},
 			"exclude": [],
-			"tsConfigPath": "src/tsconfig.app.json",
+			"tsConfigPath": "front/tsconfig.app.json",
 			"skipCodeGeneration": true
 		})
 	],

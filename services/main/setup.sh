@@ -16,4 +16,4 @@ mv /usr/bin/nodejs /usr/bin/node
 apt-get install -y ffmpeg
 
 # install npm dependencies
-npm i
+npm install
