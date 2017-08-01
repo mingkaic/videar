@@ -1,3 +1,5 @@
+set -e
+
 # install essentials
 apt-get update \
     && apt-get -qq update \

@@ -14,4 +14,4 @@ COPY ./services/main $VIDEAR_DIR
 RUN bash setup.sh
 RUN npm install mocha -g
 
-CMD [ "mocha", "tests", "--recursive", "--watch" ]
+CMD [ "mocha", "tests", "--recursive" ]

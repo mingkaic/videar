@@ -10,7 +10,7 @@ const dbHost = process.env.DB_HOST || '127.0.0.1';
 
 // setup grid and mongoose
 const mongoURL = 'mongodb://' + dbHost + ':27017/' + dbName;
-mongoose.connect(mongoURL);
+mongoose.connect(mongoURL, { useMongoClient: true });
 grid.mongo = mongoose.mongo;
 mongoose.Promise = require('bluebird');
 
