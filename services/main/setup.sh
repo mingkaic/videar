@@ -19,3 +19,4 @@ apt-get install -y ffmpeg
 
 # install npm dependencies
 npm install
+npm install webpack -g
