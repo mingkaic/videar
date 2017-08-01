@@ -10,7 +10,7 @@ jobs:
         - docker-compose push
     - stage: test
       script:
-        - docker run --rm $DOCKER_USERNAME/videar-test
+        - docker-compose run --rm videar-test
 
 # safelist
 branches:

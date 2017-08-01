@@ -7,7 +7,7 @@ RUN mkdir -p $S2T_DIR
 WORKDIR $S2T_DIR
 
 # move everything
-COPY ./services/main $S2T_DIR
+COPY ./services/speech2text $S2T_DIR
 
 EXPOSE 8000
 CMD [ "node", "server.js" ]

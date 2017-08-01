@@ -1,6 +1,5 @@
 # Videar
 
-## Purpose
 The user provides a series of youtube links and a text "script."
 The application extracts audio from the youtube links and synthesizes an audio for the provided script using the set of youtube audio. The synthesized audio provides timestamps.
 This application aims to facilitate content creators make interesting clips from other content.
