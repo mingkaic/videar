@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM mkaichen/node-ubuntu
 
 ENV NODE_ENV=production
 ENV VIDEAR_DIR /usr/src/videar

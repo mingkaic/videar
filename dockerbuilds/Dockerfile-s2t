@@ -1,4 +1,4 @@
-FROM node:latest
+FROM mkaichen/node-ubuntu
 
 ENV S2T_DIR /usr/src/s2t
 
