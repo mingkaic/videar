@@ -7,7 +7,7 @@ export enum linkStatus {
 };
 
 const linkString: string[] = ["unprocessed", "processing", "rejected"];
-const utubeReg: RegExp = /^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+const utubeReg: RegExp = /^.*youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?=]*)?.*/;
 
 export class VidLinkModel {
 	link: string = "";

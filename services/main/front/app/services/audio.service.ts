@@ -43,9 +43,9 @@ export class AudioHandleService {
 
 	setAdder(addId: ((_: string) => void)) {
 		this.soundAdder = addId;
-		for (let vidId in this.sounds.keys()) {
+		this.sounds.forEach((_: string, vidId: string) => {
 			addId(vidId);
-		}
+		});
 	}
 
 	hasAudio(vidId: string): boolean {
@@ -53,13 +53,14 @@ export class AudioHandleService {
 	};
 
 	getLocalAudioUrl(id: string) {
-		return this._sanitizer.bypassSecurityTrustResourceUrl(this.sounds[id]);
+		if (!this.hasAudio(id)) return null;
+		return this._sanitizer.bypassSecurityTrustResourceUrl(this.sounds.get(id));
 	};
 
 	private setAudioData(id: string, soundData) {
 		if (this.sounds.has(id)) return;
 		let soundBlob = new Blob(soundData);
-		this.sounds[id] = URL.createObjectURL(soundBlob);
+		this.sounds.set(id, URL.createObjectURL(soundBlob));
 		if (this.soundAdder) {
 			this.soundAdder(id);
 		}

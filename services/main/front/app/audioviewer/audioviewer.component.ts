@@ -12,6 +12,9 @@ export class AudioviewerComponent implements OnInit {
 	constructor(private _audioService: AudioHandleService)
 	{
 		this.soundIds = [];
+	};
+
+	ngOnInit() {
 		this._audioService.setAdder(
 		(vidId: string) => {
 			if (vidId) {
@@ -19,8 +22,6 @@ export class AudioviewerComponent implements OnInit {
 			}
 		});
 	};
-
-	ngOnInit() {};
 
 	getAudioURL(vid: string) {
 		return this._audioService.getLocalAudioUrl(vid);
