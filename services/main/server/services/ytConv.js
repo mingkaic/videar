@@ -13,6 +13,5 @@ module.exports = (vidId, audioStream) => {
 		return format.container === setting.vidFormat && format.audioEncoding;
 	}, quality: setting.quality});
 	var audio = ffmpeg(video);
-	var mp3 = audio.format(setting.audioFormat);
-	mp3.pipe(audioStream);
+	return audio.format(setting.audioFormat);
 };

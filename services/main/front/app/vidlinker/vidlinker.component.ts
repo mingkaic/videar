@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { VidLinkModel } from '../models/vidlink.model';
-import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
-
-
-import * as ss from 'socket.io-stream';
+import { AudioHandleService } from '../services/audio.service';
 
 @Component({
 	selector: 'app-vidlinker',
@@ -13,16 +10,10 @@ import * as ss from 'socket.io-stream';
 export class VidlinkerComponent implements OnInit {
 	links: VidLinkModel[];
 
-	soundIds: string[];
-	private sounds: Map<string, string>;
-
-	constructor(private _sanitizer: DomSanitizer) {
-		this.soundIds = [];
-		this.sounds = new Map<string, string>();
-	};
+	constructor(private _audioService: AudioHandleService) {};
 
 	ngOnInit() {
-		this.links = [new VidLinkModel()];
+		this.links = [ new VidLinkModel(this._audioService) ];
 	};
 
 	trackByIndex(index: number, obj: any): any {
@@ -30,7 +21,7 @@ export class VidlinkerComponent implements OnInit {
 	};
 
 	addLink() {
-		this.links.push(new VidLinkModel());
+		this.links.push(new VidLinkModel(this._audioService));
 	};
 
 	removeLink(index: number) {
@@ -38,34 +29,20 @@ export class VidlinkerComponent implements OnInit {
 			this.links.splice(index, 1);
 		}
 		else if (index == 0) {
-			this.links[index].clear();
+			this.links[0].clear();
 		}
 	};
 
 	processLinks() {
 		this.links.forEach((link: VidLinkModel, index: number) => {
-			// check if link is already in soundId
-			link.processLink()
-			.then((audioSocket) => {
-				if (audioSocket) {
-					ss(audioSocket).on('audio-stream', (stream, vidId: string) => {
-						let soundData = [];
-						stream.on('data', (chunk) => {
-							soundData.push(chunk);
-						});
-						stream.on('end', () => {
-							this.removeLink(index);
-							this.soundIds.push(vidId);
-							let soundBlob = new Blob(soundData);
-							this.sounds[vidId] = URL.createObjectURL(soundBlob);
-						});
-					});
-				}
-			});
+			if (this._audioService.hasAudio(link.getId())) {
+				this.removeLink(index);
+			}
+			else {
+				link.processLink(() => {
+					this.removeLink(index);
+				});
+			}
 		});
 	};
-
-	getAudioURL(vid: string) {
-		return this._sanitizer.bypassSecurityTrustResourceUrl(this.sounds[vid]);
-	}
 };

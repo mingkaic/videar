@@ -32,16 +32,19 @@ app.use(express.static(path.join(__dirname, 'dist')));
 const port = process.env.PORT || default_port;
 app.set('port', port);
 
+app.get('/api/vidinfos', (req, res) => {
+	db.getAllYTInfo()
+	.then((infos) => {
+		var ids = infos.map((info) => {
+			return info.vidId;
+		});
+		res.json(ids);
+	});
+});
+
 // Any standard route
 app.get('/*', function (req, res) {
 	res.sendFile(path.join(__dirname, 'dist/index.html'));
-});
-
-app.get('/api/vidinfos', (req, res) => { // todo: call on client side
-	db.getAllYTInfo()
-	.then((infos) => {
-		res.json(infos);
-	});
 });
 
 // Listen on provided port, on all network interfaces.
@@ -57,24 +60,27 @@ io.sockets.on('connection', (socket) => {
 		try {
 			// check if vidId already exists in our database
 			db.getYTStream(vidId)
-			.then((outStream) => {
-				if (outStream === null) {
-					outStream = ss.createStream();
-					var dbStream = ss.createStream();
-					yt(vidId, outStream);
-					yt(vidId, dbStream);
-					db.setYTStream(vidId, dbStream);
+			.then((dbStream) => {
+				var outStream = ss.createStream();
+				if (dbStream === null) {
+					yt(vidId).pipe(outStream);
+					var mp3 = yt(vidId);
+					// save in db
+					db.setYTStream(vidId, mp3);
 					// we just created a new vid record, notify clients, once data is written to db
-					dbStream.on('end', () => {
-						ss(socket).emit('audio-update', vidId); // todo: handle on client side
-					});
+					// dbStream.on('end', () => {
+					// 	ss(socket).emit('audio-update', vidId);
+					// });
+				}
+				else {
+					dbStream.pipe(outStream);
 				}
 				ss(socket).emit('audio-stream', outStream, vidId);
 			});
 		}
 		catch (err) {
 			console.log(err);
-			socket.emit('invalid-ytid', vidId);
+			socket.emit('invalid-ytid', vidId); 
 		}
 	});
 });

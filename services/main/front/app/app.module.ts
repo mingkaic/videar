@@ -9,6 +9,8 @@ import { VidlinkerComponent } from './vidlinker/vidlinker.component';
 import { AudioviewerComponent } from './audioviewer/audioviewer.component';
 import { ConcaterComponent } from './concater/concater.component';
 
+import { AudioHandleService } from './services/audio.service';
+
 const routes: Routes = [
 	// basic routes
 	{ path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -30,7 +32,7 @@ const routes: Routes = [
 		HttpModule,
 	    RouterModule.forRoot(routes)
 	],
-	providers: [],
+	providers: [AudioHandleService],
 	bootstrap: [AppComponent]
 })
 export class AppModule {};
