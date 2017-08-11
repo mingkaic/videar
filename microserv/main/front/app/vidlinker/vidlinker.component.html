@@ -1,0 +1,8 @@
+<tr>
+	<td scope="row"><input class="form-control" [(ngModel)]="link"
+		placeholder="paste link here: https://www.youtube.com/watch?v=..."/></td>
+	<td><label class="form-control-label">{{linkString[this.status]}}</label></td>
+	<td><button (click)="processLink()" class="btn btn-success">Process</button></td>
+	<td><button (click)="clear()" class="btn btn-warning">Clear</button></td>
+	<td><button (click)="removeLink()" class="btn btn-danger">Remove</button></td>
+</tr>

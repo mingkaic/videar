@@ -9,7 +9,7 @@ The final product is a video collage that conveys a unique message.
 Currently, this application only generates audio. The next version should generate video.
 
 ## Checklist
-[/] Extract Audio from youtube links
+[/] Upload audio files
 
 [] Construct a word/sound map (from a speech model)
 

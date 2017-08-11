@@ -1,0 +1,22 @@
+<div class="container">
+	<div class="dropzone" appDnd (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFileInvalids($event)" [allowed_extensions]="['mp3', 'mp4', 'wav', 'flac']" >
+		<div class="text-wrapper">
+			<div class="centered">Drop your file here! (mp3, mp4, wav, flac)</div>
+		</div>
+	</div>
+	<div class="dropzone-list">
+		<ul class="valid">
+			<li *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
+				{{ file.name }}
+			</li>
+			<button (click)="uploadFile(index)" class="btn btn-success">Process</button>
+			<button (click)="removeFile(index)" class="btn btn-danger">Remove</button>
+		</ul>
+		<ul class="invalid">
+			<li *ngFor="let file of invalidFiles">
+				{{ file.name }}
+			</li>
+		</ul>
+	</div>
+	<audioviewer-component></audioviewer-component>
+</div>

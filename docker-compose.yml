@@ -9,12 +9,12 @@ services:
     volumes:
       - /usr/src/videar
     environment:
-      - DB_HOST=videar_mongodb
+      - DB_HOST=central_mongodb
       - PORT=80
     ports:
       - "80:80"
     depends_on: 
-      - videar_mongodb
+      - central_mongodb
 
   videar-test:
     image: mkaichen/videar-test:latest
@@ -24,9 +24,10 @@ services:
     volumes:
       - /usr/src/videar
     environment:
-      - DB_HOST=videar_mongodb
+      - DB_HOST=central_mongodb
+      - SPEECH_HOST=speech2text
     depends_on:
-      - videar_mongodb
+      - central_mongodb
 
   speech2text:
     image: mkaichen/rocnnet-s2t:latest
@@ -36,7 +37,7 @@ services:
     volumes:
       - /usr/src/s2t
 
-  videar_mongodb:
+  central_mongodb:
     image: mongo:latest
     ports:
       - "27017:27017"
