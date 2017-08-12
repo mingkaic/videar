@@ -1,5 +1,5 @@
 <div class="container">
-	<div class="dropzone" appDnd (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFileInvalids($event)" [allowed_extensions]="['mp3', 'mp4', 'wav', 'flac']" >
+	<div class="dropzone" uploadDir (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFileInvalids($event)" [allowed_extensions]="['mp3', 'mp4', 'wav', 'flac']" >
 		<div class="text-wrapper">
 			<div class="centered">Drop your file here! (mp3, mp4, wav, flac)</div>
 		</div>

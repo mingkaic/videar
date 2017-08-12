@@ -3,30 +3,24 @@ version: '2'
 services:
   videar:
     image: mkaichen/videar:latest
-    build: 
-      context: .
-      dockerfile: dockerbuilds/Dockerfile-main
-    volumes:
-      - /usr/src/videar
+    extends:
+      file: common-services.yml
+      service: videar-setup
     environment:
-      - DB_HOST=central_mongodb
+      - NODE_ENV=production
       - PORT=80
     ports:
       - "80:80"
-    depends_on: 
-      - central_mongodb
 
   videar-test:
     image: mkaichen/videar-test:latest
-    build: 
-      context: .
-      dockerfile: dockerbuilds/Dockerfile-maintest
-    volumes:
-      - /usr/src/videar
+    extends:
+      file: common-services.yml
+      service: videar-setup
     environment:
-      - DB_HOST=central_mongodb
-      - SPEECH_HOST=speech2text
-    depends_on:
+      - NODE_ENV=test
+    command: [ "npm", "test" ]
+    depends_on: 
       - central_mongodb
 
   speech2text:

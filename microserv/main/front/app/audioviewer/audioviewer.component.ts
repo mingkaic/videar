@@ -24,6 +24,6 @@ export class AudioviewerComponent implements OnInit {
 	};
 
 	getAudioURL(vid: string) {
-		return this._audioService.getLocalAudioUrl(vid);
+		return this._audioService.getAudioUrl(vid);
 	};
 };

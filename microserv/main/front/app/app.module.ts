@@ -7,7 +7,11 @@ import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
 import { VidUploadComponent } from './viduploader/viduploader.component';
 import { VidLinkerListComponent } from './vidlinkerlist/vidlinkerlist.component';
+import { VidLinkerComponent } from './vidlinker/vidlinker.component';
 import { SynthesisComponent } from './synthesis/synthesis.component';
+import { AudioviewerComponent } from './audioviewer/audioviewer.component';
+
+import { VidUploaderDirective } from './viduploader/viduploader.directive';
 
 import { AudioHandleService } from './services/audio.service';
 
@@ -24,15 +28,21 @@ const routes: Routes = [
 		AppComponent,
 		VidUploadComponent,
 		VidLinkerListComponent,
-		SynthesisComponent
+		VidLinkerComponent,
+		SynthesisComponent,
+		AudioviewerComponent,
+		VidUploaderDirective
 	],
 	imports: [
 		BrowserModule,
 		FormsModule,
 		HttpModule,
-	    RouterModule.forRoot(routes)
+	    RouterModule.forRoot(
+			routes,
+			{ enableTracing: true }
+		)
 	],
-	providers: [AudioHandleService],
-	bootstrap: [AppComponent]
+	providers: [ AudioHandleService ],
+	bootstrap: [ AppComponent ]
 })
 export class AppModule {};

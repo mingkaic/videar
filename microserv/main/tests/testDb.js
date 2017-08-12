@@ -4,13 +4,13 @@ const fs = require('fs');
 const s2p = require('stream-to-promise');
 
 // connect mongoose to mongo then get service
-require('../../server/db/connectMongo');
-var db = require('../../server/services/vidDb');
+require('../server/db/connectMongo');
+var db = require('../server/services/vidDb');
 
 var expect = chai.expect; // we are using the "expect" style of Chai
 
 const testId = "TEST0:_fGx6K90TmCI";
-const source = __dirname + '/../data/test1.mp3';
+const source = __dirname + '/data/test1.mp3';
 
 describe('Database read, write, and removal:', function() {
 	beforeEach(function(done) {

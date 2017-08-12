@@ -3,11 +3,13 @@
 		<thead>
 			<tr>
 				<th class="col-md-7"></th>
-				<th class="col-md-2"><button (click)="addLink()" class="btn btn-primary">Link More Videos</button></th>
+				<th class="col-md-4"><button (click)="addLink()" class="btn btn-primary">Link More Videos</button></th>
 			</tr>
 		</thead>
 		<tbody *ngFor="let link of links; let index = index; trackBy: trackByIndex;">
-			<vidlinker-component [link]="link" (uploaded)="removeComponent(index)"></vidlinker-component>
+			<tr>
+				<vidlinker-component [link]="link" (uploaded)="removeComponent(index)"></vidlinker-component>
+			</tr>
 		<tbody>
 	</table>
 	<audioviewer-component></audioviewer-component>

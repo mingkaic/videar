@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  videar-setup:
+    build: 
+      context: .
+      dockerfile: dockerbuilds/Dockerfile-main
+    volumes:
+      - /usr/src/videar
+    environment:
+      - DB_HOST=central_mongodb
+      - SPEECH_HOST=speech2text

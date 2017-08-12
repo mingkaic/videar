@@ -33,7 +33,7 @@ export class VidLinkerComponent implements OnInit {
 		this.status = linkStatus.processing;
 		if (utubeReg.test(this.link)) {
 			let vidId = utubeReg.exec(this.link)[1];
-			this._audioService.getYTId(vidId, 
+			this._audioService.setYTId(vidId, 
 			() => {
 				this.uploaded.emit('complete');
 			}, 

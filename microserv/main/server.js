@@ -13,7 +13,7 @@ require('./server/db/connectMongo');
 // Services
 const yt = require('./server/services/ytConv');
 const db = require('./server/services/vidDb');
-const synthesize = require('./server/services/synthesis');
+const synthesize = require('./server/services/synthesize');
 
 const default_port = '8080';
 const default_host = '0.0.0.0';

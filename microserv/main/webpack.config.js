@@ -16,8 +16,6 @@ const baseHref = "";
 const deployUrl = "";
 
 
-
-
 module.exports = {
 	"devtool": "source-map",
 	"resolve": {

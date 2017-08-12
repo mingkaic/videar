@@ -31,11 +31,6 @@ export class AudioHandleService {
 	constructor(private _sanitizer: DomSanitizer, private _http: Http)
 	{
 		this.sounds = new Map<string, string>();
-		this._http.get('/api/vidinfos').subscribe((data) => {
-			data.json().forEach((vidId) => {
-				this.getYTId(vidId);
-			});
-		});
 		this.clientSocket = io();
 		this.clientSocket.on('new-audio', (vidId: string) => {
 			// todo: implement checking before requesting audio
@@ -43,17 +38,23 @@ export class AudioHandleService {
 			this.clientSocket.emit('client-get-audio');
 		});
 		socket_on_get_audio(this.clientSocket);
+		if (this._http) {
+			this._http.get('/api/vidinfos').subscribe((data) => {
+				data.json().forEach((vidId) => {
+					this.setYTId(vidId);
+				});
+			});
+		}
 	};
 
-	sendAudio(fpath, onSuccess?: (() => void)) {
-		
-
+	sendAudio(file: File, onSuccess?: (() => void)) {
+		let reader = new FileReader();
 		// send to server
 		let socket: Socket = io();
 		// ss(socket).emit('client-send-audio', soundStream);
-	}
+	};
 
-	getYTId(vidId: string, onSuccess?: (() => void), onFail?: (() => void)) {
+	setYTId(vidId: string, onSuccess?: (() => void), onFail?: (() => void)) {
 		if (this.sounds.has(vidId)) return;
 		// temporary socket for this one id
 		let socket: Socket = io();
@@ -78,7 +79,7 @@ export class AudioHandleService {
 		return this.sounds.has(vidId);
 	};
 
-	getLocalAudioUrl(id: string) {
+	getAudioUrl(id: string) {
 		if (!this.hasAudio(id)) return null;
 		return this._sanitizer.bypassSecurityTrustResourceUrl(this.sounds.get(id));
 	};

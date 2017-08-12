@@ -7,10 +7,9 @@ RUN mkdir -p $S2T_DIR
 WORKDIR $S2T_DIR
 
 # move everything
-COPY ./services/speech2text $S2T_DIR
+COPY ./microserv/speech2text $S2T_DIR
 
 # everything
 RUN npm i
 
-EXPOSE 8000
 CMD [ "npm", "start" ]
