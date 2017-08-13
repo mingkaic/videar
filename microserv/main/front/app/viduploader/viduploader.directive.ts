@@ -9,7 +9,7 @@ export class VidUploaderDirective {
 	private allowed_extensions : Array<string> = [];
 
 	@Output()
-	private fileChangeEmiter : EventEmitter<File[]> = new EventEmitter();
+	private filesChangeEmiter : EventEmitter<File[]> = new EventEmitter();
 	@Output()
 	private filesInvalidEmiter : EventEmitter<File[]> = new EventEmitter();
 	
@@ -44,6 +44,7 @@ export class VidUploaderDirective {
 			for (let i = 0; i < files.length; i++) {
 				let file = files[i];
 				let ext = file.name.split('.')[file.name.split('.').length - 1];
+				console.log(file);
 				if(this.allowed_extensions.lastIndexOf(ext) != -1) {
 					valid_files.push(file);
 				}
@@ -51,7 +52,7 @@ export class VidUploaderDirective {
 					invalid_files.push(file);
 				}
 			}
-			this.filesInvalidEmiter.emit(valid_files);
+			this.filesChangeEmiter.emit(valid_files);
 			this.filesInvalidEmiter.emit(invalid_files);
 		}
 	};

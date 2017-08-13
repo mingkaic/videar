@@ -19,10 +19,12 @@ export class VidUploadComponent implements OnInit {
 	};
 
 	onFilesChange(fileList : Array<File>) {
-    	this.files = fileList;
+		console.log("file change");
+		this.files = fileList;
 	};
 
 	onFileInvalids(fileList : Array<File>){
+		console.log("bad file change");
 		this.invalidFiles = fileList;
 	};
 

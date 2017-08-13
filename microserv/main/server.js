@@ -56,7 +56,6 @@ app.get('/api/vidinfos', (req, res) => {
 		var ids = infos.map((info) => {
 			return info.vidId;
 		});
-		console.log('got all ids ' + ids);
 		res.json(ids);
 	});
 });
@@ -73,7 +72,6 @@ app.get('/api/synthesize', (req, res) => {
 app.post('/api/req_audio', (req, res) => {
 	var socket = sockets[req.body.socketId];
 	var id = req.body.vidId;
-	console.log('checking if stream exist for id '+id);
 	dbCheckStreamExist(id, 
 	(dbStream) => {
 		// stream exists
@@ -90,11 +88,9 @@ app.post('/api/req_audio', (req, res) => {
 
 app.put('/api/verify_id', (req, res) => {
 	var id = req.body.vidId;
-	console.log('verifying if stream exist for id '+id);
 	// check if id already exists in our database
 	dbCheckStreamExist(id, 
 	(dbStream) => {
-		console.log('telling client stream exist for id '+id);
 		// stream exists, tell client
 		res.json({ "onDb": true, "exists": true });
 	},
@@ -107,7 +103,6 @@ app.put('/api/verify_id', (req, res) => {
 			console.log(err);
 			res.json({ "onDb": false, "exists": false });
 		}
-		console.log('processing stream for id '+id);
 		// save in db
 		db.setYTStream(id, mp3, 
 		() => {
@@ -117,7 +112,7 @@ app.put('/api/verify_id', (req, res) => {
 			io.sockets.emit('new-audio', id);
 		})
 		.then((data) => {
-			console.log('Saved ', data);
+			console.log('saved ', data);
 			return true;
 		});
 		res.json({ "onDb": false, "exists": true });
@@ -132,8 +127,8 @@ io.sockets.on('connection', (socket) => {
 
 	// POST-EQUIVALENT
 	ss(socket).on('post-audio-client',
-	(stream) => {
-		console.log('got audio');
+	(fname, stream) => {
+		console.log('got audio '+fname);
 		// process...
 			// // we just created a new vid record, notify clients, once data is written to db
 			// io.sockets.emit('new-audio', vidId);

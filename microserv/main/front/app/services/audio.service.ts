@@ -19,25 +19,20 @@ export class AudioHandleService {
 		this.clientSocket = io();
 
 		this._http.get('/api/vidinfos').subscribe((data) => {
-			console.log('got audio ids: '+data.json());
 			data.json().forEach((vidId) => {
 				console.log('requesting audio for '+vidId);
 				this.requestAudio(vidId);
 			});
 		});
 
-		console.log(this.clientSocket);
-
 		// socket listeners
 		this.clientSocket.on('new-audio', (vidId: string) => {
-			console.log('received new-audio broadcast for '+vidId);
 			// todo: implement checking before requesting audio
 			// audio streaming is expensive
 			this.requestAudio(vidId);
 		});
 		ss(this.clientSocket).on('audio-stream', 
 		(stream, vidId: string) => {
-			console.log('streaming for video '+vidId);
 			let soundData = [];
 			stream.on('data', (chunk) => {
 				soundData.push(chunk);
@@ -49,11 +44,9 @@ export class AudioHandleService {
 	};
 
 	sendAudio(file: File, onSuccess?: (() => void)) {
-		console.log(file);
-		// let reader = new FileReader();
-		// // send to server
-		// let socket: Socket = io();
-		// ss(socket).emit('post-audio-client', soundStream);
+		var outStream = ss.createStream();
+		ss(this.clientSocket).emit('post-audio-client', file.name, outStream);
+		ss.createBlobReadStream(file).pipe(outStream);
 	};
 
 	requestAudio(vidId: string) {

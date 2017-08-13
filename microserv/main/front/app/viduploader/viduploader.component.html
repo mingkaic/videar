@@ -4,19 +4,25 @@
 			<div class="centered">Drop your file here! (mp3, mp4, wav, flac)</div>
 		</div>
 	</div>
-	<div class="dropzone-list">
-		<ul class="valid">
-			<li *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
-				{{ file.name }}
-			</li>
-			<button (click)="uploadFile(index)" class="btn btn-success">Process</button>
-			<button (click)="removeFile(index)" class="btn btn-danger">Remove</button>
-		</ul>
-		<ul class="invalid">
-			<li *ngFor="let file of invalidFiles">
-				{{ file.name }}
-			</li>
-		</ul>
-	</div>
+	<table class="table table-striped dropzone-list">
+		<thead>
+			<tr>
+				<th class="col-md-4"></th>
+				<th class="col-md-1"></th>
+				<th class="col-md-1"></th>
+			</tr>
+		</thead>
+		<tbody class="valid" *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
+			<td scope="row">
+				<label>{{ file.name }}</label>
+			</td>
+			<td>
+				<button (click)="uploadFile(index)" class="btn btn-success">Process</button>
+			</td>
+			<td>
+				<button (click)="removeFile(index)" class="btn btn-danger">Remove</button>
+			</td>
+		<tbody>
+	</table>
 	<audioviewer-component></audioviewer-component>
 </div>
