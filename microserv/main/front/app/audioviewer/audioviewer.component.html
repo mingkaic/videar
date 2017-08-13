@@ -1,10 +1,10 @@
 <table class="table table-striped">
-	<tbody *ngFor="let sid of objectKeys(sounds)">
+	<tbody *ngFor="let sid of mapKeys(_audioService.sounds.keys())">
 		<tr>
-			<td><label class="form-control-label">http://www.youtube.com/watch?v={{sid}}</label></td>
+			<td><label class="form-control-label">{{_audioService.sounds.get(sid).name}}</label></td>
 			<td>
 				<audio controls="controls" preload='auto'>
-					<source [src]="sounds[sid]" type="audio/mp3"/>
+					<source [src]="_audioService.sounds.get(sid).ref" type="audio/mp3"/>
 				</audio>
 			</td>
 		</tr>

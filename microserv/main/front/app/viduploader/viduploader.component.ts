@@ -1,14 +1,23 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { AudioHandleService } from '../services/audio.service';
 
+class FileInfo {
+	processing: boolean = false;
+
+	constructor(public file: File) {};
+
+	getStatus() {
+		return this.processing ? "processing" : "unprocessed";
+	}
+}
+
 @Component({
 	selector: 'app-viduploader',
 	templateUrl: './viduploader.component.html',
 	styleUrls: ['./viduploader.component.css']
 })
 export class VidUploadComponent implements OnInit {
-	private files: any = [];
-	private invalidFiles : any = [];
+	private files: FileInfo[] = [];
 
 	constructor(private _audioService: AudioHandleService) {};
 
@@ -19,25 +28,25 @@ export class VidUploadComponent implements OnInit {
 	};
 
 	onFilesChange(fileList : Array<File>) {
-		console.log("file change");
-		this.files = fileList;
+		fileList.forEach((file: File) => {
+			this.files.push(new FileInfo(file));
+		});
 	};
 
 	onFileInvalids(fileList : Array<File>){
 		console.log("bad file change");
-		this.invalidFiles = fileList;
 	};
 
 	removeFile(index: number) {
-		if (index > 0 || this.files.length > 1) {
-			this.files.splice(index, 1);
-		}
+		this.files.splice(index, 1);
 	};
 
 	uploadFile(index: number) {
 		// todo: add users
 		// todo: limit user's number of uploads
-		this._audioService.sendAudio(this.files[index],
+		let file = this.files[index];
+		file.processing = true;
+		this._audioService.sendAudio(file.file,
 		() => {
 			this.removeFile(index);
 		});

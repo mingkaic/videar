@@ -10,11 +10,15 @@
 				<th class="col-md-4"></th>
 				<th class="col-md-1"></th>
 				<th class="col-md-1"></th>
+				<th class="col-md-1"></th>
 			</tr>
 		</thead>
 		<tbody class="valid" *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
 			<td scope="row">
-				<label>{{ file.name }}</label>
+				<label>{{ file.file.name }}</label>
+			</td>
+			<td>
+				<label class="form-control-label">{{file.getStatus()}}</label>
 			</td>
 			<td>
 				<button (click)="uploadFile(index)" class="btn btn-success">Process</button>

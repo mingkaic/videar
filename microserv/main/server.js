@@ -35,13 +35,13 @@ const port = process.env.PORT || default_port;
 app.set('port', port);
 
 function dbCheckStreamExist(vidId, exists, notexist) {
-	db.getYTStream(vidId)
-	.then((dbStream) => {
-		if (dbStream === null) {
+	db.getVidStream(vidId)
+	.then((streamInfo) => {
+		if (streamInfo === null) {
 			notexist();
 		}
 		else {
-			exists(dbStream);
+			exists(streamInfo);
 		}
 	});
 }
@@ -51,16 +51,38 @@ var sockets = {};
 // ===== API INDEPENDENT OF SOCKET =====
 app.get('/api/vidinfos', (req, res) => {
 	console.log('requesting all ids');
-	db.getAllYTInfo()
+	db.getAllVidInfo()
 	.then((infos) => {
-		var ids = infos.map((info) => {
-			return info.vidId;
-		});
-		res.json(ids);
+		res.json(infos); 
 	});
 });
 
-app.get('/api/synthesize', (req, res) => {
+app.get('/api/file/:vidId', (req, res) => {
+	var id = req.params.vidId;
+	console.log('getting file name for '+id);
+	db.getFileInfo(id).then((file) => res.json(file));
+});
+
+app.post('/api/req_audio', (req, res) => {
+	var socket = sockets[req.body.socketId];
+	var id = req.body.vidId;
+	console.log('checking if '+id+' exists');
+	dbCheckStreamExist(id, 
+	(streamInfo) => {
+		var dbStream = streamInfo.stream;
+		// stream exists
+		console.log('stream '+id+' found. transmitting...');
+		var outStream = ss.createStream();
+		ss(socket).emit('audio-stream', outStream, id);
+		dbStream.pipe(outStream);
+		res.json({ "source": streamInfo.source });
+	},
+	() => {
+		res.json({ "source": null });
+	});
+});
+
+app.put('/api/synthesize', (req, res) => {
 	var socket = sockets[req.body.socketId];
 	// synthesis handles params validation
 	synthesize(req.body.params)
@@ -69,30 +91,14 @@ app.get('/api/synthesize', (req, res) => {
 	});
 });
 
-app.post('/api/req_audio', (req, res) => {
-	var socket = sockets[req.body.socketId];
-	var id = req.body.vidId;
-	dbCheckStreamExist(id, 
-	(dbStream) => {
-		// stream exists
-		console.log('stream '+id+' found. transmitting...');
-		var outStream = ss.createStream();
-		ss(socket).emit('audio-stream', outStream, id);
-		dbStream.pipe(outStream);
-		res.json(true);
-	},
-	() => {
-		res.json(false);
-	});
-});
-
 app.put('/api/verify_id', (req, res) => {
 	var id = req.body.vidId;
 	// check if id already exists in our database
 	dbCheckStreamExist(id, 
-	(dbStream) => {
+	(streamInfo) => {
+		var dbStream = streamInfo.stream;
 		// stream exists, tell client
-		res.json({ "onDb": true, "exists": true });
+		res.json({ "onDb": true, "source": streamInfo.source });
 	},
 	() => {
 		// non-existent stream
@@ -101,37 +107,36 @@ app.put('/api/verify_id', (req, res) => {
 		}
 		catch (err) {
 			console.log(err);
-			res.json({ "onDb": false, "exists": false });
+			res.json({ "onDb": false, "source": null });
 		}
 		// save in db
-		db.setYTStream(id, mp3, 
+		db.setVidStream(id, 'youtube', mp3, 
 		() => {
 			// when streaming is complete
 			console.log('emitting new audio to all with id '+id);
 			// we just created a new record, notify clients, once data is written to db
 			io.sockets.emit('new-audio', id);
-		})
-		.then((data) => {
-			console.log('saved ', data);
-			return true;
 		});
-		res.json({ "onDb": false, "exists": true });
+		res.json({ "onDb": false, "source": 'youtube' });
 	});
 });
 
 // ===== SOCKET EVENTS & API DEPENDENT ON SOCKET =====
 io.sockets.on('connection', (socket) => {
-	let sid = socket.id;
+	var sid = socket.id;
 	console.log('Socket connected: '+sid);
 	sockets[sid] = socket;
 
 	// POST-EQUIVALENT
 	ss(socket).on('post-audio-client',
-	(fname, stream) => {
-		console.log('got audio '+fname);
-		// process...
-			// // we just created a new vid record, notify clients, once data is written to db
-			// io.sockets.emit('new-audio', vidId);
+	(stream, fname) => {
+		db.setVidFile(stream, fname,
+		(id) => {
+			// when streaming is complete
+			console.log('emitting new audio to all with id '+id);
+			// we just created a new record, notify clients, once data is written to db
+			io.sockets.emit('new-audio', id);
+		});
 	});
 
 	socket.on('disconnect', () => {

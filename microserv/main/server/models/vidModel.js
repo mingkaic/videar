@@ -1,10 +1,17 @@
 const mongoose = require('mongoose');
 
-const linkVidSchema = new mongoose.Schema({
+const VidSchema = new mongoose.Schema({
 	vidId: { type: String, unique: true },
-	offline: Boolean,
+	source: String,
 	updated: { type: Date, default: Date.now },
 	lastAccess: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('vidLinks', linkVidSchema);
+const VFileSchema = new mongoose.Schema({
+	vidId: { type: String, unique: true },
+	filename: String
+});
+
+exports.VidModel = mongoose.model('videos', VidSchema);
+
+exports.FileModel = mongoose.model('vidfiles', VFileSchema);

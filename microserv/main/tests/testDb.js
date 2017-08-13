@@ -20,19 +20,19 @@ describe('Database read, write, and removal:', function() {
 		});
 	});
 
-	it('getYTStream should return promise with value null', 
+	it('getVidStream should return promise with value null', 
 	function(done) {
-		db.getYTStream(testId)
-		.then((foundStream) => {
-			expect(foundStream).to.equal(null);
+		db.getVidStream(testId)
+		.then((foundInfo) => {
+			expect(foundInfo).to.equal(null);
 			done();
 		});
 	});
 
-	it('setYTStream should return promise with value true denoting success', 
+	it('setVidStream should return promise with value true denoting success', 
 	function(done) {
 		var rs = fs.createReadStream(source);
-		db.setYTStream(testId, rs)
+		db.setVidStream(testId, 'test', rs)
 		.then((written) => {
 			expect(written).to.equal(true);
 
@@ -42,31 +42,31 @@ describe('Database read, write, and removal:', function() {
 		});
 	});
 
-	it('getYTStream after successful setYTStream should return promise with non-null stream', 
+	it('getVidStream after successful setVidStream should return promise with non-null stream', 
 	function(done) {
 		var rs = fs.createReadStream(source);
-		db.setYTStream(testId, rs)
+		db.setVidStream(testId, 'test', rs)
 		.then((written) => {
 			expect(written).to.equal(true);
 			rs.on('close', function() {
 				// read from database again should succeed
-				db.getYTStream(testId)
-				.then((foundStream) => {
-					expect(foundStream).to.not.equal(null);
+				db.getVidStream(testId)
+				.then((foundInfo) => {
+					expect(foundInfo).to.not.equal(null);
 					done();
 				});
 			});
 		});
 	});
 
-	it('setYTStream after successful setYTStream should return promise with false denoting failed re-writing, tests for idempotency', 
+	it('setVidStream after successful setVidStream should return promise with false denoting failed re-writing, tests for idempotency', 
 	function(done) {
 		var rs = fs.createReadStream(source);
-		db.setYTStream(testId, rs)
+		db.setVidStream(testId, 'test', rs)
 		.then((written) => {
 			expect(written).to.equal(true);
-			// write from database again should fail
-			return db.setYTStream(testId);
+			// write from database again should return false, and undefined dbStream is not used
+			return db.setVidStream(testId, 'test');
 		})
 		.then((written) => {
 			expect(written).to.equal(false);

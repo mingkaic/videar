@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const grid = require('gridfs-stream');
+const uuidv1 = require('uuid/v1');
 
-var linkVidModel = require('../models/vidModel.js');
+var models = require('../models/vidModel.js');
+var vidModel = models.VidModel;
+var fileModel = models.FileModel;
 
 var connection = mongoose.connection;
 var gfs = null;
@@ -11,27 +14,65 @@ connection.once('connected', () => {
 });
 
 // get all ids
-exports.getAllYTInfo = () => {
-	return linkVidModel.find({}).exec();
+exports.getAllVidInfo = () => {
+	return vidModel.find({}).exec();
 };
 
+exports.getFileInfo = (vidId) => {
+	return fileModel.findOne({ 'vidId': vidId }).exec();
+}
+
 // read stream if it exists and return true, other return false for non-existent
-exports.getYTStream = (vidId) => {
+exports.getVidStream = (vidId) => {
 	// relies on query to wait until connection for gfs declaration
-	return linkVidModel.findOne({ 'vidId': vidId }).exec()
+	return vidModel.findOne({ 'vidId': vidId }).exec()
 	.then((vidInfo) => {
 		if (vidInfo) {
 			// vid exists, make a stream, read and return it
-			return gfs.createReadStream({ filename: vidId });
+			return {
+				"stream": gfs.createReadStream({ filename: vidId }), 
+				"source": vidInfo.source
+			};
 		}
 		return null;
 	});
 };
 
+exports.setVidFile = (fstream, fname, streamCb) => {
+	// generate vidId
+	var vidId = uuidv1();
+	// save to gridfs
+	var writestream = gfs.createWriteStream({ filename: vidId });
+	if (streamCb) {
+		writestream.on('finish', () => streamCb(vidId));
+	}
+
+	var finstance = new fileModel({
+		'vidId': vidId,
+		'filename': fname
+	})
+	var vinstance = new vidModel({
+		'vidId': vidId,
+		'source': 'upload'
+	});
+	fstream.pipe(writestream);
+
+	// save to models;
+	return finstance.save()
+	.then((file) => {
+		console.log('saved ', file);
+		return vinstance.save();
+	})
+	.then((data) => {
+		console.log('saved ', data);
+		return true;
+	});;
+}
+
 // write to gridfs if vidInfo is not found (idempotent)
-exports.setYTStream = (vidId, dbStream, streamCb) => {
+exports.setVidStream = (vidId, source, dbStream, streamCb) => {
 	// relies on query to wait until connection for gfs declaration
-	return linkVidModel.findOne({ 'vidId': vidId }).exec()
+	return vidModel.findOne({ 'vidId': vidId }).exec()
 	.then((vidInfo) => {
 		if (vidInfo !== null) {
 			// decide on update
@@ -41,25 +82,29 @@ exports.setYTStream = (vidId, dbStream, streamCb) => {
 
 		// save to gridfs
 		var writestream = gfs.createWriteStream({ filename: vidId });
-		dbStream.pipe(writestream);
 		if (streamCb) {
 			writestream.on('finish', streamCb);
 		}
 
-		var instance = new linkVidModel({
+		var instance = new vidModel({
 			'vidId': vidId,
-			'offline': false
+			'source': source
 		});
+		dbStream.pipe(writestream);
 
 		// save to models;
-		return instance.save();
+		return instance.save()
+		.then((data) => {
+			console.log('saved ', data);
+			return true;
+		});
 	});
 };
 
 // removes the vidId
 exports.removeYTStream = (vidId) => {
 	// relies on query to wait until connection for gfs declaration
-	return linkVidModel.findOne({ 'vidId': vidId })
+	return vidModel.findOne({ 'vidId': vidId })
 	.remove().exec()
 	.then((data) => {
 		gfs.remove({ filename: vidId }, (err) => {
