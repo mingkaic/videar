@@ -7,7 +7,7 @@ const setting = {
 	audioFormat: 'mp3'
 }
 
-module.exports = (vidId, audioStream) => {
+module.exports = (vidId) => {
 	const requestUrl = 'http://www.youtube.com/watch?v=' + vidId;
 	var video = ytdl(requestUrl, {filter: (format) => {
 		return format.container === setting.vidFormat && format.audioEncoding;

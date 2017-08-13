@@ -6,7 +6,6 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { VidUploadComponent } from './viduploader/viduploader.component';
-import { VidLinkerListComponent } from './vidlinkerlist/vidlinkerlist.component';
 import { VidLinkerComponent } from './vidlinker/vidlinker.component';
 import { SynthesisComponent } from './synthesis/synthesis.component';
 import { AudioviewerComponent } from './audioviewer/audioviewer.component';
@@ -19,7 +18,7 @@ const routes: Routes = [
 	// basic routes
 	{ path: '', redirectTo: 'home', pathMatch: 'full' },
 	{ path: 'home', component: VidUploadComponent },
-	{ path: 'vidlink', component: VidLinkerListComponent },
+	{ path: 'vidlink', component: VidLinkerComponent },
 	{ path: 'synthesis', component: SynthesisComponent }
 ];
 
@@ -27,7 +26,6 @@ const routes: Routes = [
 	declarations: [
 		AppComponent,
 		VidUploadComponent,
-		VidLinkerListComponent,
 		VidLinkerComponent,
 		SynthesisComponent,
 		AudioviewerComponent,

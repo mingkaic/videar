@@ -29,7 +29,7 @@ exports.getYTStream = (vidId) => {
 };
 
 // write to gridfs if vidInfo is not found (idempotent)
-exports.setYTStream = (vidId, dbStream) => {
+exports.setYTStream = (vidId, dbStream, streamCb) => {
 	// relies on query to wait until connection for gfs declaration
 	return linkVidModel.findOne({ 'vidId': vidId }).exec()
 	.then((vidInfo) => {
@@ -42,6 +42,9 @@ exports.setYTStream = (vidId, dbStream) => {
 		// save to gridfs
 		var writestream = gfs.createWriteStream({ filename: vidId });
 		dbStream.pipe(writestream);
+		if (streamCb) {
+			writestream.on('finish', streamCb);
+		}
 
 		var instance = new linkVidModel({
 			'vidId': vidId,
@@ -49,11 +52,7 @@ exports.setYTStream = (vidId, dbStream) => {
 		});
 
 		// save to models;
-		return instance.save()
-		.then((data) => {
-			console.log('Saved ', data);
-			return true;
-		});
+		return instance.save();
 	});
 };
 

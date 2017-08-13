@@ -1,79 +1,100 @@
 import { Http } from '@angular/http'
-import { Injectable } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Injectable, EventEmitter } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Socket } from 'socket.io-client';
 import * as io from 'socket.io-client';
 import * as ss from 'socket.io-stream';
 
-function socket_on_get_audio(socket: Socket, cb?: (() => void)) {
-	ss(socket).on('audio-stream', 
-	(stream, vidId: string) => {
-		let soundData = [];
-		stream.on('data', (chunk) => {
-			soundData.push(chunk);
-		});
-		stream.on('end', () => {
-			this.setAudioData(vidId, soundData);
-
-			if (cb) {
-				cb();
-			}
-		});
-	});
-}
-
 @Injectable()
 export class AudioHandleService {
-	private soundAdder: ((_: string) => void);
-	private sounds: Map<string, string>;
-	private clientSocket: Socket;
+	sounds: Map<string, string>;
+	clientSocket: Socket;
+
+	potentialAudio: EventEmitter<string> = new EventEmitter();
+	newAudio: EventEmitter<[string, SafeResourceUrl]> = new EventEmitter();
 	
 	constructor(private _sanitizer: DomSanitizer, private _http: Http)
 	{
 		this.sounds = new Map<string, string>();
 		this.clientSocket = io();
+
+		this._http.get('/api/vidinfos').subscribe((data) => {
+			console.log('got audio ids: '+data.json());
+			data.json().forEach((vidId) => {
+				console.log('requesting audio for '+vidId);
+				this.requestAudio(vidId);
+			});
+		});
+
+		console.log(this.clientSocket);
+
+		// socket listeners
 		this.clientSocket.on('new-audio', (vidId: string) => {
+			console.log('received new-audio broadcast for '+vidId);
 			// todo: implement checking before requesting audio
 			// audio streaming is expensive
-			this.clientSocket.emit('client-get-audio');
+			this.requestAudio(vidId);
 		});
-		socket_on_get_audio(this.clientSocket);
-		if (this._http) {
-			this._http.get('/api/vidinfos').subscribe((data) => {
-				data.json().forEach((vidId) => {
-					this.setYTId(vidId);
-				});
+		ss(this.clientSocket).on('audio-stream', 
+		(stream, vidId: string) => {
+			console.log('streaming for video '+vidId);
+			let soundData = [];
+			stream.on('data', (chunk) => {
+				soundData.push(chunk);
 			});
-		}
+			stream.on('end', () => {
+				this.setAudioData(vidId, soundData);
+			});
+		});
 	};
 
 	sendAudio(file: File, onSuccess?: (() => void)) {
-		let reader = new FileReader();
-		// send to server
-		let socket: Socket = io();
-		// ss(socket).emit('client-send-audio', soundStream);
+		console.log(file);
+		// let reader = new FileReader();
+		// // send to server
+		// let socket: Socket = io();
+		// ss(socket).emit('post-audio-client', soundStream);
 	};
+
+	requestAudio(vidId: string) {
+		if (this.sounds.has(vidId)) return;
+		this._http.post('/api/req_audio', { "socketId": this.clientSocket.id, "vidId": vidId })
+		.subscribe((data) => {
+			if (data.json()) {
+				this.potentialAudio.emit(vidId);
+			}
+			else {
+				console.log("notified of new id, but can't find video of id " + vidId);
+			}
+		});
+	}
 
 	setYTId(vidId: string, onSuccess?: (() => void), onFail?: (() => void)) {
 		if (this.sounds.has(vidId)) return;
-		// temporary socket for this one id
-		let socket: Socket = io();
-		socket.emit('client-verify-id', vidId);
-		socket.on('old-ytid', () => {
-			// id is old, but we haven't received audio yet, so request it
-			// todo: consider concurrency issue: A verifies link while B uploads link, both A and B verifies link
-			socket.emit("client-get-audio", vidId);
-			socket_on_get_audio(socket, onSuccess);
+		console.log('verifying id existence');
+		this._http.put('/api/verify_id', { "vidId": vidId })
+		.subscribe((data) => {
+			let idInfo = data.json();
+			if (idInfo.exists) {
+				console.log('id '+vidId+' definitely exists');
+				if (idInfo.onDb) {
+					// id is old, but we haven't received audio yet, so request it
+					this.requestAudio(vidId);
+				}
+				else {
+					// todo: consider concurrency issue: A verifies link while B uploads link, both A and B verifies link			
+				}
+				if (onSuccess) {
+					this.potentialAudio.emit(vidId);
+					onSuccess();
+				}
+			}
+			else {
+				console.log('id '+vidId+" doesn't exists");
+				onFail();
+			}
 		});
-		socket.on('invalid-ytid', onFail);
 	};
-
-	setAdder(addId: ((_: string) => void)) {
-		this.soundAdder = addId;
-		this.sounds.forEach((_: string, vidId: string) => {
-			addId(vidId);
-		});
-	}
 
 	hasAudio(vidId: string): boolean {
 		return this.sounds.has(vidId);
@@ -88,8 +109,6 @@ export class AudioHandleService {
 		if (this.sounds.has(id)) return;
 		let soundBlob = new Blob(soundData);
 		this.sounds.set(id, URL.createObjectURL(soundBlob));
-		if (this.soundAdder) {
-			this.soundAdder(id);
-		}
+		this.newAudio.emit([id, this.getAudioUrl(id)]);
 	};
 }

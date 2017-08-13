@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AudioHandleService } from '../services/audio.service';
 
 enum linkStatus {
@@ -7,51 +7,69 @@ enum linkStatus {
 	rejected
 };
 
+const linkString: string[] = ["unprocessed", "processing", "rejected"];
 const utubeReg: RegExp = /^.*youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?=]*)?.*/;
 
+class YtLink {
+	link: string = "";
+	status: linkStatus = linkStatus.unprocessed;
+
+	getStatus() {
+		return linkString[this.status];
+	}
+}
+
 @Component({
-	selector: 'vidlinker-component',
+	selector: 'app-vidlinker',
 	templateUrl: './vidlinker.component.html',
 	styleUrls: ['./vidlinker.component.css']
 })
 export class VidLinkerComponent implements OnInit {
-	@Input() 
-	link: string = "";
-
-	@Output()
-	uploaded: EventEmitter<string> = new EventEmitter();
-	
-	status: linkStatus = linkStatus.unprocessed;
-	linkString: string[] = ["unprocessed", "processing", "rejected"];
+	links: YtLink[];
 
 	constructor(private _audioService: AudioHandleService) {};
 
-	ngOnInit() {};
+	ngOnInit() {
+		this.links = [ new YtLink() ];
+	};
 
-	processLink() {
-		if (this.status === linkStatus.processing) return;
-		this.status = linkStatus.processing;
-		if (utubeReg.test(this.link)) {
-			let vidId = utubeReg.exec(this.link)[1];
+	trackByIndex(index: number, obj: any): any {
+		return index;
+	};
+
+	addLink() {
+		this.links.push(new YtLink());
+	};
+
+	processLink(index: number) {
+		let link = this.links[index];
+		if (link.status === linkStatus.processing) return;
+		link.status = linkStatus.processing;
+		if (utubeReg.test(link.link)) {
+			let vidId = utubeReg.exec(link.link)[1];
 			this._audioService.setYTId(vidId, 
 			() => {
-				this.uploaded.emit('complete');
+				this.removeLink(index);
 			}, 
 			() => {
-                this.status = linkStatus.rejected;
+                link.status = linkStatus.rejected;
             });
 		}
 		else {
-			this.status = linkStatus.rejected;
+			link.status = linkStatus.rejected;
 		}
 	};
 
-	removeLink() {
-		this.uploaded.emit('complete');
-	}
+	clearLink(index: number) {
+		let link = this.links[index];
+		link.link = "";
+		link.status = linkStatus.unprocessed;
+	};
 
-	clear() {
-		this.link = "";
-		this.status = linkStatus.unprocessed;
+	removeLink(index: number) {
+		this.links.splice(index, 1);
+		if (this.links.length === 0) {
+			this.addLink();
+		}
 	};
 };

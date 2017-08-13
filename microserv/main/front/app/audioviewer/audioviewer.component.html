@@ -1,10 +1,10 @@
 <table class="table table-striped">
-	<tbody *ngFor="let sid of soundIds">
+	<tbody *ngFor="let sid of objectKeys(sounds)">
 		<tr>
 			<td><label class="form-control-label">http://www.youtube.com/watch?v={{sid}}</label></td>
 			<td>
 				<audio controls="controls" preload='auto'>
-					<source [src]="getAudioURL(sid)" type="audio/mp3"/>
+					<source [src]="sounds[sid]" type="audio/mp3"/>
 				</audio>
 			</td>
 		</tr>

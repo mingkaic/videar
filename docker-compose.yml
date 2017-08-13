@@ -22,6 +22,7 @@ services:
     command: [ "npm", "test" ]
     depends_on: 
       - central_mongodb
+      - speech2text
 
   speech2text:
     image: mkaichen/rocnnet-s2t:latest
