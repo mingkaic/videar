@@ -34,7 +34,10 @@ export class VidUploadComponent implements OnInit {
 	};
 
 	onFileInvalids(fileList : Array<File>){
-		console.log("bad file change");
+		if (fileList.length > 0) {
+			// warn of bad files...
+			console.log("bad file change");
+		}
 	};
 
 	removeFile(index: number) {

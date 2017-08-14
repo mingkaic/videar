@@ -22,7 +22,7 @@ exports.getFileInfo = (vidId) => {
 	return fileModel.findOne({ 'vidId': vidId }).exec();
 }
 
-// read stream if it exists and return true, other return false for non-existent
+// read stream if it exists and return stream and source of video, other return null for non-existent
 exports.getVidStream = (vidId) => {
 	// relies on query to wait until connection for gfs declaration
 	return vidModel.findOne({ 'vidId': vidId }).exec()

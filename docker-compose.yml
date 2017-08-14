@@ -29,6 +29,8 @@ services:
     build: 
       context: .
       dockerfile: dockerbuilds/Dockerfile-s2t
+    environment:
+      - DB_HOST=central_mongodb
     volumes:
       - /usr/src/s2t
 
