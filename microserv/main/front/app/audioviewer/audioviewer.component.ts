@@ -2,7 +2,7 @@ import { Component, OnInit, SimpleChange } from '@angular/core';
 import { AudioHandleService } from '../services/audio.service';
 
 @Component({
-	selector: 'audioviewer-component',
+	selector: 'app-audioviewer',
 	templateUrl: './audioviewer.component.html',
 	styleUrls: ['./audioviewer.component.css']
 })

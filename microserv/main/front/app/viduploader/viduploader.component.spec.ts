@@ -5,7 +5,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VidUploadComponent } from './viduploader.component';
 import { AudioHandleService } from '../services/audio.service';
-import { AudioviewerComponent } from '../audioviewer/audioviewer.component';
 import { VidUploaderDirective } from '../viduploader/viduploader.directive';
 
 describe('VidUploadComponent', () => {
@@ -15,7 +14,7 @@ describe('VidUploadComponent', () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
   			imports: [HttpModule],
-			declarations: [ VidUploadComponent, AudioviewerComponent, VidUploaderDirective ],
+			declarations: [ VidUploadComponent, VidUploaderDirective ],
 			providers: [
 				AudioHandleService,
 				DomSanitizer,

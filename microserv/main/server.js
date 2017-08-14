@@ -85,9 +85,10 @@ app.post('/api/req_audio', (req, res) => {
 app.put('/api/synthesize', (req, res) => {
 	var socket = sockets[req.body.socketId];
 	// synthesis handles params validation
+	// params should be of form 
 	synthesize(req.body.params)
 	.then(() => {
-		res.json({});
+		res.json({ "message": 'synthesizing' });
 	});
 });
 

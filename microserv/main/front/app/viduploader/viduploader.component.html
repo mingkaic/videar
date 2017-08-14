@@ -1,32 +1,29 @@
-<div class="container">
-	<div class="dropzone" uploadDir (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFileInvalids($event)" [allowed_extensions]="['mp3', 'mp4', 'wav', 'flac']" >
-		<div class="text-wrapper">
-			<div class="centered">Drop your file here! (mp3, mp4, wav, flac)</div>
-		</div>
+<div class="dropzone" uploadDir (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFileInvalids($event)" [allowed_extensions]="['mp3', 'mp4', 'wav', 'flac']" >
+	<div class="text-wrapper">
+		<div class="centered">Drop your file here! (mp3, mp4, wav, flac)</div>
 	</div>
-	<table class="table table-striped dropzone-list">
-		<thead>
-			<tr>
-				<th class="col-md-4"></th>
-				<th class="col-md-1"></th>
-				<th class="col-md-1"></th>
-				<th class="col-md-1"></th>
-			</tr>
-		</thead>
-		<tbody class="valid" *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
-			<td scope="row">
-				<label>{{ file.file.name }}</label>
-			</td>
-			<td>
-				<label class="form-control-label">{{file.getStatus()}}</label>
-			</td>
-			<td>
-				<button (click)="uploadFile(index)" class="btn btn-success">Process</button>
-			</td>
-			<td>
-				<button (click)="removeFile(index)" class="btn btn-danger">Remove</button>
-			</td>
-		<tbody>
-	</table>
-	<audioviewer-component></audioviewer-component>
 </div>
+<table class="table table-striped dropzone-list">
+	<thead>
+		<tr>
+			<th class="col-md-4"></th>
+			<th class="col-md-1"></th>
+			<th class="col-md-1"></th>
+			<th class="col-md-1"></th>
+		</tr>
+	</thead>
+	<tbody class="valid" *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
+		<td scope="row">
+			<label>{{ file.file.name }}</label>
+		</td>
+		<td>
+			<label class="form-control-label">{{file.getStatus()}}</label>
+		</td>
+		<td>
+			<button (click)="uploadFile(index)" class="btn btn-success">Process</button>
+		</td>
+		<td>
+			<button (click)="removeFile(index)" class="btn btn-danger">Remove</button>
+		</td>
+	<tbody>
+</table>

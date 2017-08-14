@@ -1,7 +1,8 @@
-import { Http, RequestOptions } from '@angular/http'
+import { Http } from '@angular/http'
 import { Injectable, EventEmitter } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Socket } from 'socket.io-client';
+
 import * as io from 'socket.io-client';
 import * as ss from 'socket.io-stream';
 
