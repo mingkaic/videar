@@ -1,6 +1,5 @@
 FROM mkaichen/node-ubuntu
 
-ENV NODE_ENV=production
 ENV VIDEAR_DIR /usr/src/videar
 
 # Create app directory
@@ -8,11 +7,14 @@ RUN mkdir -p $VIDEAR_DIR
 WORKDIR $VIDEAR_DIR
 
 # move everything
-COPY ./services/main $VIDEAR_DIR
+COPY ./microserv/main $VIDEAR_DIR
 
 # setup everything
 RUN bash setup.sh
 
-EXPOSE 8080
-EXPOSE 80
+# todo: move to some test environment
+RUN npm install mocha -g
+RUN npm install phantomjs-prebuilt -g
+RUN npm install phantomjs-prebuilt
+
 CMD [ "npm", "start" ]
