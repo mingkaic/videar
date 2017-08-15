@@ -24,12 +24,13 @@ export class SynthesisComponent implements OnInit {
 
 	ngOnInit() {
 		this.param.script = "";
-		this.param.vidIds = Array.from(this._audioService.sounds.keys());
 	};
 
 	synthesize() {
+		this.param.vidIds = Array.from(this._audioService.sounds.keys());
 		// todo: move to service
 		let socket = io();
+		console.log(this.param);
 		this._http.put('/api/synthesize', { "socketId": socket.id, "params": this.param })
 		.subscribe((data) => {
 			console.log(data.json());

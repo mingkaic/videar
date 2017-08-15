@@ -33,7 +33,7 @@ connection.once('connected', () => {
 	gfs = grid(connection.db, mongoose.mongo);
 });
 
-var model = mongoose.model('videos', new Schema());
+var model = mongoose.model('videos', new mongoose.Schema());
 
 exports.getStream = (vidId) => {
 	return model.findOne({ 'vidId': vidId }).exec()
