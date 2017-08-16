@@ -1,0 +1,31 @@
+group 'mkaichen'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.6.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    compile 'com.google.code.gson:gson:2.4'
+    compile group: 'com.fasterxml', name: 'jackson-module-json-org', version: '0.9.1'
+    compile group: 'net.sf.phat', name: 'sphinx4-core', version: '5prealpha'
+    compile group: 'net.sf.phat', name: 'sphinx4-data', version: '5prealpha'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

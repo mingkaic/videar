@@ -27,7 +27,7 @@ export class SynthesisComponent implements OnInit {
 	};
 
 	synthesize() {
-		this.param.vidIds = Array.from(this._audioService.sounds.keys());
+		this.param.vidIds = this._audioService.getSelectedIds();
 		// todo: move to service
 		let socket = io();
 		console.log(this.param);

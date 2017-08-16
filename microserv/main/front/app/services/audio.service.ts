@@ -7,7 +7,17 @@ import * as io from 'socket.io-client';
 import * as ss from 'socket.io-stream';
 
 export class ViewableAudio {
+	selected: boolean = true;
+
 	constructor(public name: string, public ref: SafeResourceUrl) {}
+
+	getSelectionLabel(): String {
+		return this.selected ? "Deselect" : "Select";
+	}
+
+	toggleSelect() {
+		this.selected = !this.selected;
+	}
 }
 
 @Injectable()
@@ -104,6 +114,11 @@ export class AudioHandleService {
 	hasAudio(vidId: string): boolean {
 		return this.sounds.has(vidId);
 	};
+
+	getSelectedIds(): string[] {
+		let viewables = Array.from(this.sounds.keys());
+		return viewables.filter((vidId: string) => this.sounds.get(vidId).selected);
+	}
 
 	private setPotential(id: string, source: string) {
 		if (this.sounds.has(id)) return;
