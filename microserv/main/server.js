@@ -11,7 +11,7 @@ const s2p = require('stream-to-promise');
 require('./server/db/connectMongo');
 
 // Services
-const yt = require('./server/services/ytConv');
+const yt = require('./server/services/audioConv').ytExtract;
 const db = require('./server/services/vidDb');
 const synthesize = require('./server/services/synthesize');
 

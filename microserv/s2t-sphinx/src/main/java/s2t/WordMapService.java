@@ -3,19 +3,25 @@ package s2t;
 import edu.cmu.sphinx.api.Configuration;
 import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.api.StreamSpeechRecognizer;
+import edu.cmu.sphinx.linguist.dictionary.Word;
 import edu.cmu.sphinx.result.WordResult;
+import edu.cmu.sphinx.util.LogMath;
+import edu.cmu.sphinx.util.TimeFrame;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class WordMapService {
 
     private StreamSpeechRecognizer transcriber;
 
-    WordMapService() throws IOException {
+    private double confidenceThreshold = 0.75;
 
+    WordMapService() throws IOException {
         Configuration configuration = new Configuration();
 
         // Load model from the jar
@@ -26,36 +32,33 @@ public class WordMapService {
         this.transcriber = new StreamSpeechRecognizer(configuration);
     }
 
-    public ArrayList<String> process(InputStream transcriberStream) {
+    public HashMap<String, List<TimeFrame> > process(InputStream transcriberStream) {
         transcriber.startRecognition(transcriberStream);
-        List<WordResult> results = new ArrayList<>();
+        HashMap<String, List<TimeFrame> > wordMap = new HashMap<>();
+
         SpeechResult result;
         while ((result = transcriber.getResult()) != null) {
-
-            System.out.format("Hypothesis: %s\n", result.getHypothesis());
-
-            System.out.println("List of recognized words and their times:");
             for (WordResult r : result.getWords()) {
-                System.out.println(r);
-                results.add(r);
+                Word word = r.getWord();
+                double confidence = LogMath.getLogMath().logToLinear((float)r.getConfidence());
+                if (confidence >= confidenceThreshold && !r.isFiller() &&
+                    !word.isSentenceStartWord() && !word.isSentenceEndWord()) {
+                    String spelling = word.getSpelling();
+                    TimeFrame tf = r.getTimeFrame();
+                    List<TimeFrame> tfs;
+                    if (wordMap.containsKey(spelling)) {
+                        tfs = wordMap.get(spelling);
+                    } else {
+                        tfs = new ArrayList<>();
+                        wordMap.put(spelling, tfs);
+                    }
+                    tfs.add(tf);
+                }
             }
-
-            System.out.println("Best 3 hypothesis:");
-            for (String s : result.getNbest(3))
-                System.out.println(s);
-
         }
         transcriber.stopRecognition();
 
-        return wordMap(results);
-    }
-
-    private ArrayList<String> wordMap(List<WordResult> results) {
-        ArrayList<String> out = new ArrayList<>();
-        for (WordResult res : results) {
-            out.add(res.toString());
-        }
-        return out;
+        return wordMap;
     }
 
 }

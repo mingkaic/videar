@@ -9,4 +9,3 @@ services:
       - /usr/src/videar
     environment:
       - DB_HOST=central_mongodb
-      - SPEECH_HOST=speech2text

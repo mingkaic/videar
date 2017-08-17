@@ -30,7 +30,6 @@ export class AudioHandleService {
 	constructor(private _sanitizer: DomSanitizer, private _http: Http)
 	{
 		this.sounds = new Map<string, ViewableAudio>();
-		this.sounds["lastId"] = null;
 		this.clientSocket = io();
 
 		this._http.get('/api/vidinfos').subscribe((data) => {
@@ -43,6 +42,7 @@ export class AudioHandleService {
 
 		// socket listeners
 		this.clientSocket.on('new-audio', (vidId: string) => {
+			console.log('new audio notified '+vidId);
 			// todo: implement selective audio loading before requesting audio (not every audio needs to be viewed)
 			// audio streaming is expensive
 			this.requestAudio(vidId);
@@ -70,7 +70,7 @@ export class AudioHandleService {
 	};
 
 	requestAudio(vidId: string) {
-		if (this.sounds.has(vidId)) return;
+		if (this.sounds.has(vidId) && null != this.sounds.get(vidId).ref) return;
 		console.log('requesting stream for '+vidId);
 		this._http.post('/api/req_audio', { "socketId": this.clientSocket.id, "vidId": vidId })
 		.subscribe((data) => {

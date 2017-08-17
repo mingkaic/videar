@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const grid = require('gridfs-stream');
 const uuidv1 = require('uuid/v1');
+const audConvert = require('./audioConv').convert;
 
 var models = require('../models/vidModel.js');
 var vidModel = models.VidModel;
@@ -55,7 +56,8 @@ exports.setVidFile = (fstream, fname, streamCb) => {
 		'vidId': vidId,
 		'source': 'upload'
 	});
-	fstream.pipe(writestream);
+	// convert to wav before saving
+	audConvert(fstream).pipe(writestream);
 
 	// save to models;
 	return finstance.save()
@@ -90,6 +92,8 @@ exports.setVidStream = (vidId, source, dbStream, streamCb) => {
 			'vidId': vidId,
 			'source': source
 		});
+		// todo: check dbStream format before saving ...
+
 		dbStream.pipe(writestream);
 
 		// save to models;

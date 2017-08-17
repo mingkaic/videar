@@ -12,12 +12,17 @@ module.exports = function (synParam) {
     if (typeof(script) !== "string" || typeof(vidIds) != "object") {
         throw "bad synthesis parameter: " + synParam;
     }
-    console.log('got script: ' + script)
-    console.log('got ids: ' + vidIds)
-    
-    return request({ "url": speechURL + '/vid_wordmap', "form": { "vidIds": JSON.stringify(vidIds) }, "json": true})
+
+    // check which ids have maps on db
+    // var wordmapPromise;
+
+    return request({ 
+        "url": speechURL + '/vid_wordmap', 
+        "form": { "vidIds": JSON.stringify(vidIds) }, 
+        "json": true
+    })
     .then((response) => {
-        console.log('result from wordmap: ' + JSON.stringify(response));
+        console.log('result from wordmap: ' + JSON.stringify(response)).vidIds;
         return;
     })
     .catch(function (err) {

@@ -3,11 +3,14 @@ package s2t;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.*;
 import com.mongodb.gridfs.GridFSDBFile;
+import edu.cmu.sphinx.util.TimeFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -43,18 +46,22 @@ public class SpeechController {
         String jsonStr = bodyParse(params);
         JsonObject jsonObj = jsonParser.parse(jsonStr).getAsJsonObject();
         JsonArray vidIds = jsonObj.getAsJsonArray("vidIds");
-
-        ArrayList<String> dataEl = new ArrayList<>();
-        // verify ids exist on mongo
-        for (int i = 0; i < vidIds.size(); i++) {
-            String vId = vidIds.get(i).getAsString();
-            GridFSDBFile gridFSDBFile = mongoRetreive(vId);
-
-            InputStream gfsStream = gridFSDBFile.getInputStream();
-            ArrayList<String> wMap = wordMapService.process(gfsStream);
-            dataEl.addAll(wMap);
+        HashMap<String, HashMap<String, List<TimeFrame>>> dataEls = new HashMap<>();
+        if (null != vidIds) {
+            // verify ids exist on mongo
+            for (int i = 0; i < vidIds.size(); i++) {
+                String vId = vidIds.get(i).getAsString();
+                GridFSDBFile gridFSDBFile = mongoRetreive(vId);
+                if (null != gridFSDBFile) {
+                    InputStream gfsStream = gridFSDBFile.getInputStream();
+                    HashMap<String, List<TimeFrame>> wMap = wordMapService.process(gfsStream);
+                    dataEls.put(vId, wMap);
+                } else {
+                    // todo: error handle
+                }
+            }
         }
-        return new WordMapResponse(dataEl);
+        return new WordMapResponse(dataEls);
     }
 
     private String bodyParse(String body) {

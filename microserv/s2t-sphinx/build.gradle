@@ -1,6 +1,13 @@
 group 'mkaichen'
 version '1.0-SNAPSHOT'
 
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'application'
+apply plugin: 'org.springframework.boot'
+
+mainClassName = 's2t.Application'
+
 buildscript {
     repositories {
         mavenCentral()
@@ -10,9 +17,10 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
+jar {
+    baseName = 's2t-gradle'
+    version = '0.1.0'
+}
 
 sourceCompatibility = 1.8
 

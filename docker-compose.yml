@@ -8,6 +8,7 @@ services:
       service: videar-setup
     environment:
       - NODE_ENV=production
+      - SPEECH_HOST=java_speech2text
       - PORT=80
     ports:
       - "80:80"
@@ -19,6 +20,7 @@ services:
       service: videar-setup
     environment:
       - NODE_ENV=test
+      - SPEECH_HOST=speech2text
     command: [ "npm", "test" ]
     depends_on: 
       - central_mongodb
@@ -33,6 +35,21 @@ services:
       - DB_HOST=central_mongodb
     volumes:
       - /usr/src/s2t
+    depends_on: 
+      - central_mongodb
+
+  java_speech2text:
+    image: mkaichen/sphinx-s2t:latest
+    build: 
+      context: .
+      dockerfile: dockerbuilds/Dockerfile-java_s2t
+    environment:
+      - DB_HOST=central_mongodb
+      - DB_NAME=videar
+    volumes:
+      - /usr/src/s2t
+    depends_on: 
+      - central_mongodb
 
   central_mongodb:
     image: mongo:latest
