@@ -7,7 +7,6 @@ import edu.cmu.sphinx.linguist.dictionary.Word;
 import edu.cmu.sphinx.result.WordResult;
 import edu.cmu.sphinx.util.LogMath;
 import edu.cmu.sphinx.util.TimeFrame;
-import javafx.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +45,7 @@ public class WordMapService {
                     String spelling = word.getSpelling();
                     TimeFrame tf = r.getTimeFrame();
                     List<TimeFrame> tfs;
+                    System.out.println(spelling);
                     if (wordMap.containsKey(spelling)) {
                         tfs = wordMap.get(spelling);
                     } else {

@@ -1,6 +1,7 @@
 version: '2'
 
 services:
+  # main service
   videar:
     image: mkaichen/videar:latest
     extends:
@@ -12,7 +13,9 @@ services:
       - PORT=80
     ports:
       - "80:80"
-
+    depends_on: 
+      - central_mongodb
+      - java_speech2text
   videar-test:
     image: mkaichen/videar-test:latest
     extends:
@@ -24,33 +27,45 @@ services:
     command: [ "npm", "test" ]
     depends_on: 
       - central_mongodb
-      - speech2text
 
-  speech2text:
-    image: mkaichen/rocnnet-s2t:latest
-    build: 
-      context: .
-      dockerfile: dockerbuilds/Dockerfile-s2t
-    environment:
-      - DB_HOST=central_mongodb
-    volumes:
-      - /usr/src/s2t
-    depends_on: 
-      - central_mongodb
 
+  # temporary java service for speech using sphinx4
   java_speech2text:
     image: mkaichen/sphinx-s2t:latest
-    build: 
-      context: .
-      dockerfile: dockerbuilds/Dockerfile-java_s2t
+    extends:
+      file: common-services.yml
+      service: java_s2t-setup
     environment:
-      - DB_HOST=central_mongodb
-      - DB_NAME=videar
-    volumes:
-      - /usr/src/s2t
+      - SPRING_VIDEAR_DB_NAME=videar
+    depends_on: 
+      - central_mongodb
+  java_speech2text-test:
+    image: mkaichen/sphinx-s2t-test:latest
+    extends:
+      file: common-services.yml
+      service: java_s2t-setup
+    environment:
+      - SPRING_VIDEAR_DB_NAME=videar_test
+    command: [ "ls" ]
     depends_on: 
       - central_mongodb
 
+
+  # # placeholder for Rocnnet
+  # speech2text:
+  #   image: mkaichen/rocnnet-s2t:latest
+  #   build: 
+  #     context: .
+  #     dockerfile: dockerbuilds/Dockerfile-s2t
+  #   environment:
+  #     - DB_HOST=central_mongodb
+  #   volumes:
+  #     - /usr/src/s2t
+  #   depends_on: 
+  #     - central_mongodb
+  
+
+  # mongo
   central_mongodb:
     image: mongo:latest
     ports:

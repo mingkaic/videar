@@ -4,7 +4,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const ytSetting = {
 	vidFormat: 'mp4',
 	quality: 'lowest',
-	audioFormat: 'wav'
+	audioFormat: 'mp3'
 }
 
 exports.ytExtract = (vidId) => {
@@ -18,10 +18,12 @@ exports.ytExtract = (vidId) => {
 	});
 };
 
-exports.convert = (audioStream) => {
-    return ffmpeg(audioStream)
-    .format('wav')
-    .on('error', (err) => {
-        console.log(err);
-    });
-}
+exports.partition = (audioBuffer, start, duration) => {
+	return ffmpeg(audioBuffer)
+	.seekInput(start-0.5)
+	.format('wav')
+	.duration(duration+0.5)
+	.on('error', (err) => {
+		console.log(err);
+	});
+};

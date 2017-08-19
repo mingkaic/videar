@@ -7,11 +7,4 @@ const VidSchema = new mongoose.Schema({
 	lastAccess: { type: Date, default: Date.now }
 });
 
-const VFileSchema = new mongoose.Schema({
-	vidId: { type: String, unique: true },
-	filename: String
-});
-
-exports.VidModel = mongoose.model('videos', VidSchema);
-
-exports.FileModel = mongoose.model('vidfiles', VFileSchema);
+module.exports = mongoose.model('videos', VidSchema);

@@ -2,13 +2,9 @@ package s2t;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import com.google.gson.*;
 import com.mongodb.gridfs.GridFSDBFile;
 import edu.cmu.sphinx.util.TimeFrame;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +13,15 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-
 @RestController
 public class SpeechController {
-
-    @Autowired
-    AudioRepository audioRepository;
 
     @Autowired
     GridFsTemplate gridFsTemplate;
 
     WordMapService wordMapService;
 
-    public JsonParser jsonParser;
-
     SpeechController() {
-        this.jsonParser = new JsonParser();
         try {
             this.wordMapService = new WordMapService();
         } catch (IOException e) {
@@ -41,53 +29,17 @@ public class SpeechController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/vid_wordmap")
-    public WordMapResponse getWordMap(@Valid @RequestBody String params) {
-        String jsonStr = bodyParse(params);
-        JsonObject jsonObj = jsonParser.parse(jsonStr).getAsJsonObject();
-        JsonArray vidIds = jsonObj.getAsJsonArray("vidIds");
-        HashMap<String, HashMap<String, List<TimeFrame>>> dataEls = new HashMap<>();
-        if (null != vidIds) {
-            // verify ids exist on mongo
-            for (int i = 0; i < vidIds.size(); i++) {
-                String vId = vidIds.get(i).getAsString();
-                GridFSDBFile gridFSDBFile = mongoRetreive(vId);
-                if (null != gridFSDBFile) {
-                    InputStream gfsStream = gridFSDBFile.getInputStream();
-                    HashMap<String, List<TimeFrame>> wMap = wordMapService.process(gfsStream);
-                    dataEls.put(vId, wMap);
-                } else {
-                    // todo: error handle
-                }
-            }
-        }
-        return new WordMapResponse(dataEls);
-    }
+    @RequestMapping("/vid_wordmap/{id}")
+    public WordMapResponse getWordMap(@PathVariable(value="id") String id) {
+        System.out.println(id);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("filename").is(id));
+        GridFSDBFile gridFSDBFile = gridFsTemplate.findOne(query);
 
-    private String bodyParse(String body) {
-        Pattern pattern = Pattern.compile("\\%([\\dA-F][\\dA-F])");
-        Matcher matcher = pattern.matcher(body.replace('=', ':'));
-        StringBuffer buffer = new StringBuffer();
-        buffer.append('{');
-        while (matcher.find()) {
-            String hex = matcher.group(1);
-            char replacement = (char) Integer.parseInt(hex,16);
-            matcher.appendReplacement(buffer, "");
-            buffer.append(replacement);
-        }
-        matcher.appendTail(buffer);
-        buffer.append('}');
-        return buffer.toString();
-    }
+        InputStream fstream = gridFSDBFile.getInputStream();
+        HashMap<String, List<TimeFrame>> wMap = wordMapService.process(fstream);
 
-    private GridFSDBFile mongoRetreive(String id) {
-        Audio audio = audioRepository.findByVidId(id);
-        if (null != audio) {
-            Query query = new Query();
-            query.addCriteria(Criteria.where("filename").is(id));
-            return gridFsTemplate.findOne(query);
-        }
-        return null;
+        return new WordMapResponse(wMap);
     }
 
 }

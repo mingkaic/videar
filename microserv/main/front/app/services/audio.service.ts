@@ -123,18 +123,12 @@ export class AudioHandleService {
 	private setPotential(id: string, source: string) {
 		if (this.sounds.has(id)) return;
 
-		if (source === "upload") {
-			this._http.get('/api/file/'+id)
-			.subscribe((data) => {
-				this.sounds.set(id, new ViewableAudio(data.json().filename, null));
-			});
+		if (source === ".<youtube>") {
+			let callsign = "http://www.youtube.com/watch?v=" + id;
+			this.sounds.set(id, new ViewableAudio(callsign, null));
 		}
 		else {
-			let callsign = source + ":" + id;
-			if (source === "youtube") {
-				callsign = "http://www.youtube.com/watch?v=" + id;
-			}
-			this.sounds.set(id, new ViewableAudio(callsign, null));
+			this.sounds.set(id, new ViewableAudio(source, null));
 		}
 	}
 

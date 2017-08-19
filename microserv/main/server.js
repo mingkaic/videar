@@ -5,15 +5,15 @@ const http = require('http');
 const path = require('path');
 const socketio = require('socket.io');
 const ss = require('socket.io-stream');
-const s2p = require('stream-to-promise');
+const uuidv1 = require('uuid/v1');
 
 // Connect to DB
 require('./server/db/connectMongo');
 
 // Services
 const yt = require('./server/services/audioConv').ytExtract;
-const db = require('./server/services/vidDb');
-const synthesize = require('./server/services/synthesize');
+const db = require('./server/db/fileDb');
+const synthesize = require('./server/services/synthesize').synthesize;
 
 const default_port = '8080';
 const default_host = '0.0.0.0';
@@ -55,12 +55,6 @@ app.get('/api/vidinfos', (req, res) => {
 	.then((infos) => {
 		res.json(infos); 
 	});
-});
-
-app.get('/api/file/:vidId', (req, res) => {
-	var id = req.params.vidId;
-	console.log('getting file name for '+id);
-	db.getFileInfo(id).then((file) => res.json(file));
 });
 
 app.post('/api/req_audio', (req, res) => {
@@ -110,14 +104,15 @@ app.put('/api/verify_id', (req, res) => {
 			console.log(err);
 			res.json({ "onDb": false, "source": null });
 		}
-		// save in db
-		db.setVidStream(id, 'youtube', mp3, 
-		() => {
+		mp3.on('end', () => {
 			// when streaming is complete
 			console.log('emitting new audio to all with id '+id);
 			// we just created a new record, notify clients, once data is written to db
 			io.sockets.emit('new-audio', id);
-		});
+		})
+
+		// save in db
+		db.setVidStream(id, '.<youtube>', mp3);
 		res.json({ "onDb": false, "source": 'youtube' });
 	});
 });
@@ -131,13 +126,17 @@ io.sockets.on('connection', (socket) => {
 	// POST-EQUIVALENT
 	ss(socket).on('post-audio-client',
 	(stream, fname) => {
-		db.setVidFile(stream, fname,
-		(id) => {
+		// generate vidId
+		var vidId = uuidv1();
+
+		stream.on('end', () => {
 			// when streaming is complete
-			console.log('emitting new audio to all with id '+id);
+			console.log('emitting new audio to all with id '+vidId);
 			// we just created a new record, notify clients, once data is written to db
-			io.sockets.emit('new-audio', id);
+			io.sockets.emit('new-audio', vidId);
 		});
+
+		db.setVidStream(vidId, fname, stream);
 	});
 
 	socket.on('disconnect', () => {

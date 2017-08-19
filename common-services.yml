@@ -9,3 +9,12 @@ services:
       - /usr/src/videar
     environment:
       - DB_HOST=central_mongodb
+
+  java_s2t-setup:
+    build:
+      context: .
+      dockerfile: dockerbuilds/Dockerfile-java_s2t
+    volumes:
+      - /usr/src/s2t
+    environment:
+      - SPRING_VIDEAR_DB_HOST=central_mongodb

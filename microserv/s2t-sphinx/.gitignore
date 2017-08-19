@@ -43,3 +43,4 @@ project/plugins/project/
 .gradle/
 .idea/
 out/
+build/
