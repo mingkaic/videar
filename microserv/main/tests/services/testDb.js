@@ -12,6 +12,7 @@ var expect = chai.expect; // we are using the "expect" style of Chai
 
 const testId = "TEST0:_fGx6K90TmCI";
 const testSrc = "test";
+const testWordStart = 12;
 
 describe('Database Tests:', function() {
 	// behavior when database is empty
@@ -153,7 +154,7 @@ describe('Database Tests:', function() {
 		});
 	});
 	
-	describe('Database Wordmap Collection:', function() {
+	describe('Wordmap Collection (When Empty):', function() {
 		beforeEach(function(done) {
 			testUtils.clearDB()
 			.then(() => {
@@ -175,12 +176,44 @@ describe('Database Tests:', function() {
 		it('setWordMap should save required data', 
 		function(done) {
 			var mockWordMap = testUtils.getTestWordMap();
-			wordDb.setWordMap(testId, 12, utils.obj2Map(mockWordMap))
+			wordDb.setWordMap(testId, testWordStart, utils.obj2Map(mockWordMap))
 			.then((data) => {
 				expect(data.vidId).to.equal(testId);
-				expect(data.startTime).to.equal(12);
-				expect(data.words).to.equal(mockWordMap);
+				expect(data.startTime).to.equal(testWordStart);
+				expect(testUtils.objEq(data.words, mockWordMap)).to.equal(true);
 
+				done();
+			})
+			.catch(done);
+		});
+
+		after(function(done) {
+			testUtils.clearDB()
+			.then(() => {
+				done();
+			});
+		});
+	});
+	
+	describe('Wordmap Collection (With An Entry):', function() {
+		beforeEach(function(done) {
+			var mockWordMap = testUtils.getTestWordMap();
+			wordDb.setWordMap(testId, 12, utils.obj2Map(mockWordMap))
+			.then((data) => {
+				done();
+			})
+			.catch(done);
+		});
+
+		it('getWordMap should return promise with wordMap', 
+		function(done) {
+			var mockWordMap = testUtils.getTestWordMap();
+			wordDb.getWordMap(testId)
+			.then((data) => {
+				expect(data.vidId).to.equal(testId);
+				expect(data.startTime).to.equal(testWordStart);
+				expect(testUtils.objEq(data.words, mockWordMap)).to.equal(true);
+			
 				done();
 			})
 			.catch(done);
@@ -190,19 +223,26 @@ describe('Database Tests:', function() {
 		function(done) {
 			var mockWordMap = testUtils.getTestWordMap();
 		
-			wordDb.setWordMap(testId, 12, utils.obj2Map(mockWordMap))
+			wordDb.setWordMap(testId, testWordStart, utils.obj2Map(mockWordMap))
 			.then((data) => {
 				mockWordMap['modified'] = [{"start": 10000, "end": 11000}];
-				return wordDb.setWordMap(testId, 12, utils.obj2Map(mockWordMap));
+				return wordDb.setWordMap(testId, -1, utils.obj2Map(mockWordMap));
 			})
 			.then((data) => {
 				expect(data.vidId).to.equal(testId);
 				expect(data.startTime).to.equal(-1);
-				expect(data.words).to.equal(mockWordMap);
+				expect(testUtils.objEq(data.words, mockWordMap)).to.equal(true);
 
 				done();
 			})
 			.catch(done);
+		});
+		
+		after(function(done) {
+			testUtils.clearDB()
+			.then(() => {
+				done();
+			});
 		});
 	});
 

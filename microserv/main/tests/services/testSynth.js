@@ -23,7 +23,7 @@ describe('Synthesis and its subroutines:', function() {
 
 	});
 	
-	it("fulfill should call s2t API if word in word set is yet in existing word map", 
+	it("fulfill should call s2t API if word in word set is not in existing word map", 
 	function() {
 
 	});

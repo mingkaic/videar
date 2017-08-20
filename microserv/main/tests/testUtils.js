@@ -1,11 +1,13 @@
 const fs = require('fs');
 const mongo = require('mongodb');
+const mp3Duration = require('mp3-duration'); // save
 
 const connectionInfo = require('../server/db/connectMongo');
 
 const dbSource = __dirname + '/data/dbtest.mp3';
 const wordSource = __dirname + '/data/wordtest.mp3';
 const wordMapPath = __dirname + '/data/mockWordMap.json';
+const temporary = __dirname + "/data/temporary.mp3";
 
 function clearCollections(db, collections) {
 	const prefixLen = connectionInfo.db.length;
@@ -94,3 +96,58 @@ exports.getTestWordStream = () => {
 exports.getTestWordMap = () => {
 	return JSON.parse(fs.readFileSync(wordMapPath, 'utf8'));
 };
+
+exports.getDuration = (stream, cb) => {
+	var ws = fs.createWriteStream(temporary);
+	stream.pipe(ws);
+	stream.on('end', () => {
+		mp3Duration(temporary, (err, duration) => {
+			if (err) throw err;
+			cb(duration);
+		});
+	});
+};
+
+function objEq(obj1, obj2) {
+	// ensure all children is in object form
+	obj1 = JSON.parse(JSON.stringify(obj1));
+	obj2 = JSON.parse(JSON.stringify(obj2));
+
+	// typecheck
+	var t1 = typeof(obj1);
+	var t2 = typeof(obj2);
+	if (t1 != t2) {
+		return false;
+	}
+	// equal primitive or undefined
+	if (t1 !== "object") {
+		return obj1 === obj2;
+	}
+	// equal array
+	if (t1 instanceof Array) {
+		return arrayEq(obj1, obj2);
+	}
+	
+	// otherwise we deal with objects
+	var attrs1 = Object.keys(obj1);
+	var attrs2 = Object.keys(obj2);
+	if (!arrayEq(attrs1, attrs2)) {
+		return false;
+	}
+	return attrs1.every((attr) => {
+		return objEq(obj1[attr], obj2[attr]);
+	});
+}
+
+function arrayEq(arr1, arr2) {
+	arr1.sort();
+	arr2.sort();
+	return (arr1.length == arr2.length) && 
+	arr1.every((element, index) => {
+		return objEq(element, arr2[index]); 
+	});
+}
+
+exports.objEq = objEq;
+
+exports.arrayEq = arrayEq;
