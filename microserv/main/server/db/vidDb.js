@@ -2,11 +2,10 @@ const mongoose = require('mongoose');
 const grid = require('gridfs-stream');
 const s2Promise = require('stream-to-promise');
 
-var vidModel = require('../models/vidModel.js');
-
-var connection = mongoose.connection;
 var gfs = null;
 
+var vidModel = require('../models/vidModel.js');
+var connection = mongoose.connection;
 connection.once('connected', () => {
 	gfs = grid(connection.db, mongoose.mongo);
 });
@@ -40,7 +39,7 @@ exports.setVidStream = (vidId, source, dbStream) => {
 		if (vidInfo !== null) {
 			// decide on update
 			console.log('attempting to insert existing vid: ', vidId);
-			return false;
+			return null;
 		}
 
 		// save to gridfs
@@ -52,11 +51,11 @@ exports.setVidStream = (vidId, source, dbStream) => {
 
 		dbStream.pipe(writeStream);
 
-		// save to models;
+		// save to models
 		return instance.save()
 		.then((data) => {
 			console.log('saved ', data);
-			return true;
+			return writeStream;
 		});
 	});
 };
@@ -65,15 +64,20 @@ exports.setVidStream = (vidId, source, dbStream) => {
 exports.removeVidStream = (vidId) => {
 	// relies on query to wait until connection for gfs declaration
 	return vidModel.findOne({ 'vidId': vidId })
-	.remove().exec()
-	.then((data) => {
-		gfs.remove({ filename: vidId }, (err) => {
-			if (err) {
-				console.log(err);
-				return;
-			}
-			console.log('Removed ', vidId, ' successfully');
-		});
+	.then((audio) => {
+		if (audio) {
+			return vidModel.remove(audio).exec()
+			.then(() => {
+				gfs.remove({ filename: vidId }, (err) => {
+					if (err) {
+						throw err;
+					}
+					console.log('Removed ', vidId, ' successfully');
+				});
+				return true;
+			});
+		}
+		return false;
 	});
 };
 

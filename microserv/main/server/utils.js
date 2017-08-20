@@ -1,9 +1,10 @@
 exports.map2Obj = (map) => {
     var mObj = {};
     for (var keyvalue of map) {
-        mObj[key] = map.get(key);
+        var key = keyvalue[0];
+        mObj[key] = keyvalue[1];
     }
-    return oMap;
+    return mObj;
 };
 
 exports.obj2Map = (obj) => {

@@ -9,10 +9,10 @@ const uuidv1 = require('uuid/v1');
 
 // Connect to DB
 require('./server/db/connectMongo');
+const db = require('./server/db/vidDb');
 
 // Services
 const yt = require('./server/services/audioConv').ytExtract;
-const db = require('./server/db/fileDb');
 const synthesize = require('./server/services/synthesize').synthesize;
 
 const default_port = '8080';
@@ -104,15 +104,19 @@ app.put('/api/verify_id', (req, res) => {
 			console.log(err);
 			res.json({ "onDb": false, "source": null });
 		}
-		mp3.on('end', () => {
-			// when streaming is complete
-			console.log('emitting new audio to all with id '+id);
-			// we just created a new record, notify clients, once data is written to db
-			io.sockets.emit('new-audio', id);
-		})
 
 		// save in db
-		db.setVidStream(id, '.<youtube>', mp3);
+		db.setVidStream(id, '.<youtube>', mp3)
+		.then((gfsStream) => {
+			if (gfsStream) {
+				gfsStream.on('end', () => {
+					// when streaming is complete
+					console.log('emitting new audio to all with id '+id);
+					// we just created a new record, notify clients, once data is written to db
+					io.sockets.emit('new-audio', id);
+				});
+			}
+		});
 		res.json({ "onDb": false, "source": 'youtube' });
 	});
 });
@@ -129,14 +133,17 @@ io.sockets.on('connection', (socket) => {
 		// generate vidId
 		var vidId = uuidv1();
 
-		stream.on('end', () => {
-			// when streaming is complete
-			console.log('emitting new audio to all with id '+vidId);
-			// we just created a new record, notify clients, once data is written to db
-			io.sockets.emit('new-audio', vidId);
+		db.setVidStream(vidId, fname, stream)
+		.then((gfsStream) => {
+			if (gfsStream) {
+				gfsStream.on('end', () => {
+					// when streaming is complete
+					console.log('emitting new audio to all with id '+vidId);
+					// we just created a new record, notify clients, once data is written to db
+					io.sockets.emit('new-audio', vidId);
+				});
+			}
 		});
-
-		db.setVidStream(vidId, fname, stream);
 	});
 
 	socket.on('disconnect', () => {

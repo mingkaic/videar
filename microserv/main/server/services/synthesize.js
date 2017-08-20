@@ -1,25 +1,35 @@
 const fs = require('fs');
-const s2Promise = require('stream-to-promise');
-const request = require('request-promise');
 const mm = require('musicmetadata');
+const s2Promise = require('stream-to-promise');
 
-const db = require('../db/fileDb');
 const utils = require('../utils');
-const wordMapModel = require('../models/wordMapModel');
 const audioPartition = require('./audioConv').partition;
 
-var s2tRequest = require('./speechApi');
+var s2tRequest;
+var db;
 if (process.env.NODE_ENV !== 'production') {
-	s2tRequest = request('../../tests/mocks/mockSpeechApi');
+	db = require('../../tests/mocks/mockVidDb');
+	s2tRequest = require('../../tests/mocks/mockSpeechApi');
+}
+else {
+	db = require('../db/vidDb');
+	s2tRequest = require('../api/speechApi');
 }
 
 const chunkDur = 10; // 10 seconds
 
+// check obtain stream and initiate lazy partition starting at time 0
 // breaks audio from vidId into chunks, request wordmap from each chunk, 
 // stoping once wordCount is fulfilled or stream ends
-function lazyPartition(audioStream, start, wordCount, vidId) {
-	var audioMap = new Map();
-	var wordRes = new Map();
+function lazyPartition(vidId, start, wordCount) {
+	var audioStream = db.getVidStream(vidId);
+	if (null == audioStream || !audioStream.stream) {
+		return {};
+	}
+	audioStream = audioStream.stream;
+
+	var audioMap = new Map(); // store every word extracted
+	var wordRes = new Map(); // store words pertaining to wordCount
 	var promise = new Promise((resolve, reject) => {
 		mm(audioStream, { duration: true }, (err, metadata) => {
 			if (err) {
@@ -62,15 +72,7 @@ function lazyPartition(audioStream, start, wordCount, vidId) {
 	})
 	.then(() => {
 		console.log("complete!");
-		// record next chunk start time, completion status to audioMap
-		var instance = new wordMapModel({
-			'vidId': vidId,
-			'startTime': start,
-			'words': utils.map2Obj(audioMap)
-		});
-	
-		// save audioMap
-		instance.save();
+		db.setWordMap(vidId, start, audioMap);
 	
 		return wordRes;
 	})
@@ -79,17 +81,6 @@ function lazyPartition(audioStream, start, wordCount, vidId) {
 	});
 
 	return promise;
-}
-
-// check obtain stream and initiate lazy partition starting at time 0
-function minimalPartition(vidId, wordCount) {
-	var audioStream = db.getVidStream(vidId);
-	if (null == audioStream || !audioStream.stream) {
-		return {};
-	}
-	audioStream = audioStream.stream;
-	var start = 0;
-	return lazyPartition(audioStream, start, wordCount, vidId);
 }
 
 // looks at wordMap completion, requesting for missing chunks. (by lazy partitioning starting at last start time)
@@ -111,8 +102,7 @@ function fulfill(wordMap, wordCount) {
 	}
 
 	// else continue request
-	var audioStream = db.getVidStream(wordMap.vidId);
-	return lazyPartition(audioStream, start, wordCount, vidId)
+	return lazyPartition(vidId, start, wordCount)
 	.then((freshWordRes) => {
 		// merge freshWordRes and wordRes
 		return utils.ABMapArrMerge(freshWordRes, wordRes);;
@@ -121,15 +111,13 @@ function fulfill(wordMap, wordCount) {
 
 exports.lazyPartition = lazyPartition;
 
-exports.minimalPartition = minimalPartition;
-
 exports.fulfill = fulfill;
 
 exports.synthesize = (synParam) => {
 	// params must be of form: { "script" : "...", "vidIds" : ["vid1", "vid2", ...] }
 	var script = synParam.script;
 	var vidIds = synParam.vidIds;
-	if (typeof(script) !== "string" || typeof(vidIds) != "object") {
+	if (typeof(script) !== "string" || vidIds instanceof Array) {
 		throw "bad synthesis parameter: " + synParam;
 	}
 
@@ -138,14 +126,14 @@ exports.synthesize = (synParam) => {
 
 	var mapPromise = vidIds.map((vidId) => {
 		// check which ids have maps on db
-		return wordMapModel.findOne({ 'vidId': vidId }).exec()
-		.then((wordMap) => {
-			if (null == wordMap) {
-				return minimalPartition(vidId, wordCount);
+		return db.getWordMap(vidId)
+		.then((wordMapInst) => {
+			if (null === wordMapInst) {
+				return lazyPartition(vidId, 0, wordCount);
 			}
 			else {
 				// look at wordMap completion, and whether script exists
-				return fulfill(wordMap, wordCount);
+				return fulfill(wordMapInst, wordCount);
 			}
 		})
 		.then((wordMap) => {
