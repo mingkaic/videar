@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const grid = require('gridfs-stream');
 const s2Promise = require('stream-to-promise');
+const uuidv1 = require('uuid/v1');
 
 var gfs = null;
 

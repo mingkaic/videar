@@ -1,18 +1,24 @@
 const fs = require('fs');
-const mm = require('musicmetadata');
 const s2Promise = require('stream-to-promise');
 
 const utils = require('../utils');
-const audioPartition = require('./audioConv').partition;
+var audioPartition = require('./audioConv').partition;
 
+var mm;
+var vidDb;
+var wordDb;
 var s2tRequest;
-var db;
 if (process.env.NODE_ENV !== 'production') {
-	db = require('../../tests/mocks/mockVidDb');
+	mm = require('../../tests/mocks/mockMetadata');
+	vidDb = require('../../tests/mocks/mockVidDb');
+	wordDb = require('../../tests/mocks/mockWordDb');
 	s2tRequest = require('../../tests/mocks/mockSpeechApi');
+	audioPartition = () => { return null; };
 }
 else {
-	db = require('../db/vidDb');
+	mm = require('musicmetadata');
+	vidDb = require('../db/vidDb');
+	wordDb = require('../db/wordDb');
 	s2tRequest = require('../api/speechApi');
 }
 
@@ -20,98 +26,126 @@ const chunkDur = 10; // 10 seconds
 
 // check obtain stream and initiate lazy partition starting at time 0
 // breaks audio from vidId into chunks, request wordmap from each chunk, 
-// stoping once wordCount is fulfilled or stream ends
-function lazyPartition(vidId, start, wordCount) {
-	var audioStream = db.getVidStream(vidId);
-	if (null == audioStream || !audioStream.stream) {
-		return {};
-	}
-	audioStream = audioStream.stream;
+// stoping once wordSet is fulfilled or stream ends
+//		invariants: there needs to be vidId in vidDb to get wordmap otherwise get empty map
+// 		warning: wordSet is emptied after lazyPartition
+function lazyPartition(vidId, start, wordSet, existingMap) {
+	var wordRes = new Map(); // store words pertaining to wordSet
+	return vidDb.getVidStream(vidId)
+	.then((audioStream) => {
+		if (null == audioStream || !audioStream.stream) {
+			return [wordRes, start];
+		}
+		audioStream = audioStream.stream;
 
-	var audioMap = new Map(); // store every word extracted
-	var wordRes = new Map(); // store words pertaining to wordCount
-	var promise = new Promise((resolve, reject) => {
-		mm(audioStream, { duration: true }, (err, metadata) => {
-			if (err) {
-				reject(err);
-			}
-			else {
-				resolve(metadata.duration);
-			}
-		});
-	})
-	.then((length) => {
-		// while wordCount is not satisfied and stream is not fulfilled,
-		// parition and request wordmap sequentially
-		var itFunc = () => {
-			var audioChunkStream;
-			var isLast = start + chunkDur >= length;
-			if (isLast) {
-				audioChunkStream = audioPartition(audioStream, start, length - start);
-				start = -1;
-			}
-			else {
-				audioChunkStream = audioPartition(audioStream, start, dur);
-			}
-			return s2tRequest(audioChunkStream)
-			.then((wMap) => {
-				console.log(wMap);
-				// merge with audioMap
-				audioMap = utils.ABMapArrMerge(audioMap, wordMap);
-				
-				// add wordCount-wordMap intersection to wordRes
-				utils.intersectARemoveB(wordMap, wordCount, wordRes);
-				
-				if (wordCount.size > wordRes.size && !isLast) {
-					start += chunkDur;
-					return Promise.resolve(itFunc);
+		return new Promise((resolve, reject) => {
+			mm(audioStream, { duration: true }, (err, metadata) => {
+				if (err) {
+					reject(err);
+				}
+				else {
+					resolve(metadata.duration);
 				}
 			});
-		};
-		return itFunc();
-	})
-	.then(() => {
-		console.log("complete!");
-		db.setWordMap(vidId, start, audioMap);
-	
-		return wordRes;
-	})
-	.catch((err) => {
-		console.log(err);
-	});
+		})
+		.then((length) => {
+			// while wordSet is not satisfied and stream is not fulfilled,
+			// parition and request wordmap sequentially
+			var itFunc = () => {
+				// START OF CONDITIONS
+				if (start >= length || start < 0) {
+					start = -1;
+					return;
+				}
+				if (wordSet.size == 0) {
+					return;
+				}
+				// END OF CONDITIONS
 
-	return promise;
+				var audioChunkStream = audioPartition(audioStream, start, Math.min(chunkDur, length - start));
+				return s2tRequest(audioChunkStream)
+				.then((wMap) => {
+					if (wMap) {
+						// merge with existingMap
+						utils.addBToA(existingMap, wMap);
+						
+						// add wordSet-wordMap intersection to wordRes
+						utils.intersectAB(wMap, wordSet, wordRes);
+						utils.removeAfromB(wMap, wordSet);
+					}
+
+					start += chunkDur; // ITERATE
+					return itFunc();
+				});
+			};
+			return itFunc();
+		})
+		.then(() => {
+			console.log("complete!");
+			return [wordRes, start];
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+	});
 }
 
 // looks at wordMap completion, requesting for missing chunks. (by lazy partitioning starting at last start time)
-function fulfill(wordMap, wordCount) {
+function fulfill(vidId, wordMap, start, wordSet) {
 	// check completition
-	var start = wordMap.startTime;
 	var complete = start < 0;
 
-	wordMap = utils.obj2Map(wordMap.words);
-
-	// take wordRes as intersection of wordMap and wordCount
-	// remove from wordCount along the way
-	var wordRes = new Map();
-	utils.intersectARemoveB(wordMap, wordCount, wordRes);
+	// take wordRes as intersection of wordMap and wordSet
+	// remove from wordSet along the way
+	var words = new Map();
+	utils.intersectAB(wordMap, wordSet, words);
+	utils.removeAfromB(wordMap, wordSet);
 
 	// if complete, return wordRes
 	if (complete) {
-		return Promise.resolve(wordRes);
+		return Promise.resolve([words, start]);
 	}
 
 	// else continue request
-	return lazyPartition(vidId, start, wordCount)
-	.then((freshWordRes) => {
-		// merge freshWordRes and wordRes
-		return utils.ABMapArrMerge(freshWordRes, wordRes);;
+	return lazyPartition(vidId, start, wordSet, wordMap)
+	.then((wordMapInfo) => {
+		var freshWords = wordMapInfo[0];
+		var completion = wordMapInfo[1];
+
+		// merge words
+		utils.addBToA(words, freshWords);
+		return [words, completion];
+	});
+}
+
+function getWordMap(vidId, wordSet) {
+	return wordDb.getWordMap(vidId)
+	.then((wordMapInst) => {
+		var existingWordMap;
+		var wordMapInfo;
+		if (null === wordMapInst) {
+			existingWordMap = new Map();
+			wordMapInfo = lazyPartition(vidId, 0, wordSet, existingWordMap);
+		}
+		else {
+			var start = wordMapInst.startTime;
+			existingWordMap = utils.obj2Map(wordMapInst.words);
+			// look at wordMap completion, and whether script exists
+			wordMapInfo = fulfill(vidId, wordMapInst, start, wordSet);
+		}
+		var wordMap = wordMapInfo[0];
+		var completion = wordMapInfo[1];
+		wordDb.setWordMap(vidId, completion, existingWordMap);
+
+		return wordMap;
 	});
 }
 
 exports.lazyPartition = lazyPartition;
 
 exports.fulfill = fulfill;
+
+exports.getWordMap = getWordMap;
 
 exports.synthesize = (synParam) => {
 	// params must be of form: { "script" : "...", "vidIds" : ["vid1", "vid2", ...] }
@@ -121,31 +155,56 @@ exports.synthesize = (synParam) => {
 		throw "bad synthesis parameter: " + synParam;
 	}
 
-	var wordCount = utils.tokenSet(script);
+	var tokens = utils.tokenize(script);
+	var wordCount = new Set(tokens);
 	var scriptMap = new Map();
 
-	var mapPromise = vidIds.map((vidId) => {
-		// check which ids have maps on db
-		return db.getWordMap(vidId)
-		.then((wordMapInst) => {
-			if (null === wordMapInst) {
-				return lazyPartition(vidId, 0, wordCount);
-			}
-			else {
-				// look at wordMap completion, and whether script exists
-				return fulfill(wordMapInst, wordCount);
-			}
-		})
+	var populateScript = utils.sequentialPromise(vidIds, 
+	() => wordCount.length > 0,
+	(vidId) => {
+		// check which ids have maps on vidDb
+		return getWordMap(vidId, wordCount)
 		.then((wordMap) => {
+			for (var keyvalue of wordMap) {
+				for (var time of wordMap.get(keyvalue)) {
+					time['id'] = vidId;
+				}
+			}
+
 			// merge word and scriptMap
-			scriptMap = new Map(scriptMap, wordMap);
+			utils.ABMappArrMerge(scriptMap, wordMap, scriptMap);
+			
 			// remove wordMap from wordCount
+			utils.removeAfromB(wordMap, wordCount);
 		})
 		.catch(function (err) {
 			// handle: if we can't reach speech to text announce s2t container is down
 			console.log(err);
 		});
+	})
+	.then(() => {
+		// assertion: wordCount is empty, 
+
+		var audioMap = new Map();
+		// extract audio chunks
+		for (var keyvalue of scriptMap) {
+			var word = keyvalue[0];
+			var option = keyvalue[1];
+			var audio;
+			// todo: get audio from option
+			audioMap.put(word, audio);
+		}
+
+		var audioLayout = tokens.map((word) => {
+			return audioMap[word];
+		});
+		// validate audioLayout
+
+		// piece together chunks
+		var synthChunk;
+
+		return synthChunk;
 	});
 
-	return Promise.all(mapPromise);
+	return populateScript;
 };

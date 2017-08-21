@@ -125,21 +125,22 @@ function objEq(obj1, obj2) {
 	}
 	// equal array
 	if (t1 instanceof Array) {
-		return arrayEq(obj1, obj2);
+		return arrEq(obj1, obj2);
 	}
 	
 	// otherwise we deal with objects
 	var attrs1 = Object.keys(obj1);
 	var attrs2 = Object.keys(obj2);
-	if (!arrayEq(attrs1, attrs2)) {
+	if (!arrEq(attrs1, attrs2)) {
 		return false;
 	}
+	
 	return attrs1.every((attr) => {
 		return objEq(obj1[attr], obj2[attr]);
 	});
 }
 
-function arrayEq(arr1, arr2) {
+function arrEq(arr1, arr2) {
 	arr1.sort();
 	arr2.sort();
 	return (arr1.length == arr2.length) && 
@@ -150,4 +151,22 @@ function arrayEq(arr1, arr2) {
 
 exports.objEq = objEq;
 
-exports.arrayEq = arrayEq;
+exports.arrEq = arrEq;
+
+exports.setEq = (set1, set2) => {
+	return Array.from(set1).every((elem) => {
+		return set2.has(elem)
+	});
+};
+
+exports.mapEq = (map1, map2) => {
+	var keys1 = Array.from(map1.keys());
+	var keys2 = Array.from(map2.keys());
+	if (!arrEq(keys1, keys2)) {
+		return false;
+	}
+
+	return keys1.every((key) => {
+		return objEq(map1.get(key), map2.get(key));
+	})
+};
