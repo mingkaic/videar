@@ -5,6 +5,7 @@ const utils = require('../../server/utils');
 const synthesize = require('../../server/services/synthesize');
 const mockMeta = require('../mocks/mockMetadata');
 const mockVidDb = require('../mocks/mockVidDb');
+const mockWordDb = require('../mocks/mockWordDb');
 const mockSpeech = require('../mocks/mockSpeechApi');
 const testUtils = require('../testUtils');
 
@@ -141,25 +142,72 @@ describe('Synthesis and its subroutines:', function() {
 		});
 	
 		it("getWordMap calls speechAPI if wordmap does not exist", 
-		function() {});
+		function(done) {
+			var n_split = 3;
+			mockSpeech.split(n_split);
+
+			var mockWord = testUtils.getTestWordMap();
+			var mockSet = Object.keys(mockWord);
+			var mockSet2 = new Set(mockSet);
+			mockSet = new Set(mockSet);
+			mockWord = utils.obj2Map(mockWord);
+
+			synthesize.getWordMap(testId, mockSet)
+			.then((wordMap) => {
+				expect(mockSpeech.count).to.equal(n_split);
+				expect(wordMap).to.be.an.instanceof(Map);
+				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
+
+				return mockWordDb.getWordMap(testId)
+				.then((mapInfo) => {
+					expect(mapInfo).to.not.equal(null);
+					var storedWordMap = mapInfo.words;
+					expect(storedWordMap).to.be.an.instanceof(Map);
+					expect(testUtils.mapEq(wordMap, utils.obj2Map(storedWordMap))).to.equal(true);
+					
+					done();
+				});
+			})
+			.catch(done);
+		});
 	});
 	
 	describe('Existing Incomplete Wordmap:', function() {
-		beforeEach(function() {
+		beforeEach(function(done) {
 			mockSpeech.count = 0;
+			
+			var incompleteMap = utils.obj2Map(testUtils.getTestWordMap());
+			// remove some words
+			Array.from(incompleteMap.keys()).forEach((value, idx) => {
+				if (idx % 2 == 0) {
+					incompleteMap.delete(value);
+				}
+			});
 
 			// add incomplete wordmap
+			mockWordDb.clearDb();
+			mockWordDb.setWordMap(testId, 5, incompleteMap)
+			.then(done)
+			.catch(done);
 		});
 		
 		it("getWordMap calls speechAPI if wordmap exist but doesn't contains wordset", 
-		function() {});
+		function() {
+
+		});
 	});
 	
 	describe('Existing Complete Wordmap:', function() {
-		beforeEach(function() {
+		beforeEach(function(done) {
 			mockSpeech.count = 0;
 			
+			var completeMap = utils.obj2Map(testUtils.getTestWordMap());
+			
 			// add complete wordmap
+			mockWordDb.clearDb();
+			mockWordDb.setWordMap(testId, -1, completeMap)
+			.then(done)
+			.catch(done);
 		});
 		
 		it("getWordMap does not calls speechAPI if wordmap exist and contains wordset", 

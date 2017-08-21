@@ -122,22 +122,26 @@ function getWordMap(vidId, wordSet) {
 	return wordDb.getWordMap(vidId)
 	.then((wordMapInst) => {
 		var existingWordMap;
-		var wordMapInfo;
+		var wordMapPromise;
 		if (null === wordMapInst) {
 			existingWordMap = new Map();
-			wordMapInfo = lazyPartition(vidId, 0, wordSet, existingWordMap);
+			wordMapPromise = lazyPartition(vidId, 0, wordSet, existingWordMap);
 		}
 		else {
 			var start = wordMapInst.startTime;
-			existingWordMap = utils.obj2Map(wordMapInst.words);
+			existingWordMap = wordMapInst.words;
 			// look at wordMap completion, and whether script exists
-			wordMapInfo = fulfill(vidId, wordMapInst, start, wordSet);
+			wordMapPromise = fulfill(vidId, wordMapInst, start, wordSet);
 		}
-		var wordMap = wordMapInfo[0];
-		var completion = wordMapInfo[1];
-		wordDb.setWordMap(vidId, completion, existingWordMap);
 
-		return wordMap;
+		return wordMapPromise
+		.then((wordMapInfo) => {
+			var wordMap = wordMapInfo[0];
+			var completion = wordMapInfo[1];
+
+			wordDb.setWordMap(vidId, completion, existingWordMap);
+			return wordMap;
+		});
 	});
 }
 
