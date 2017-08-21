@@ -176,11 +176,12 @@ describe('Database Tests:', function() {
 		it('setWordMap should save required data', 
 		function(done) {
 			var mockWordMap = testUtils.getTestWordMap();
-			wordDb.setWordMap(testId, testWordStart, utils.obj2Map(mockWordMap))
+			wordDb.setWordMap(testId, testWordStart, mockWordMap)
 			.then((data) => {
 				expect(data.vidId).to.equal(testId);
 				expect(data.startTime).to.equal(testWordStart);
-				expect(testUtils.objEq(data.words, mockWordMap)).to.equal(true);
+				expect(data.words).to.be.instanceOf(Map);
+				expect(testUtils.objEq(utils.map2Obj(data.words), mockWordMap)).to.equal(true);
 
 				done();
 			})
@@ -198,7 +199,7 @@ describe('Database Tests:', function() {
 	describe('Wordmap Collection (With An Entry):', function() {
 		beforeEach(function(done) {
 			var mockWordMap = testUtils.getTestWordMap();
-			wordDb.setWordMap(testId, 12, utils.obj2Map(mockWordMap))
+			wordDb.setWordMap(testId, 12, mockWordMap)
 			.then((data) => {
 				done();
 			})
@@ -212,7 +213,8 @@ describe('Database Tests:', function() {
 			.then((data) => {
 				expect(data.vidId).to.equal(testId);
 				expect(data.startTime).to.equal(testWordStart);
-				expect(testUtils.objEq(data.words, mockWordMap)).to.equal(true);
+				expect(data.words).to.be.instanceOf(Map);
+				expect(testUtils.objEq(utils.map2Obj(data.words), mockWordMap)).to.equal(true);
 			
 				done();
 			})
@@ -223,15 +225,16 @@ describe('Database Tests:', function() {
 		function(done) {
 			var mockWordMap = testUtils.getTestWordMap();
 		
-			wordDb.setWordMap(testId, testWordStart, utils.obj2Map(mockWordMap))
+			wordDb.setWordMap(testId, testWordStart, mockWordMap)
 			.then((data) => {
 				mockWordMap['modified'] = [{"start": 10000, "end": 11000}];
-				return wordDb.setWordMap(testId, -1, utils.obj2Map(mockWordMap));
+				return wordDb.setWordMap(testId, -1, mockWordMap);
 			})
 			.then((data) => {
 				expect(data.vidId).to.equal(testId);
 				expect(data.startTime).to.equal(-1);
-				expect(testUtils.objEq(data.words, mockWordMap)).to.equal(true);
+				expect(data.words).to.be.instanceOf(Map);
+				expect(testUtils.objEq(utils.map2Obj(data.words), mockWordMap)).to.equal(true);
 
 				done();
 			})

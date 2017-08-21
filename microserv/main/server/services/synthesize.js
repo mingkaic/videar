@@ -131,7 +131,7 @@ function getWordMap(vidId, wordSet) {
 			var start = wordMapInst.startTime;
 			existingWordMap = wordMapInst.words;
 			// look at wordMap completion, and whether script exists
-			wordMapPromise = fulfill(vidId, wordMapInst, start, wordSet);
+			wordMapPromise = fulfill(vidId, existingWordMap, start, wordSet);
 		}
 
 		return wordMapPromise

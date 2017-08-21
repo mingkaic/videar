@@ -163,7 +163,7 @@ describe('Synthesis and its subroutines:', function() {
 					expect(mapInfo).to.not.equal(null);
 					var storedWordMap = mapInfo.words;
 					expect(storedWordMap).to.be.an.instanceof(Map);
-					expect(testUtils.mapEq(wordMap, utils.obj2Map(storedWordMap))).to.equal(true);
+					expect(testUtils.mapEq(wordMap, storedWordMap)).to.equal(true);
 					
 					done();
 				});
@@ -187,13 +187,40 @@ describe('Synthesis and its subroutines:', function() {
 			// add incomplete wordmap
 			mockWordDb.clearDb();
 			mockWordDb.setWordMap(testId, 5, incompleteMap)
-			.then(done)
+			.then((wordMapInfo) => {
+				done();
+			})
 			.catch(done);
 		});
 		
 		it("getWordMap calls speechAPI if wordmap exist but doesn't contains wordset", 
-		function() {
+		function(done) {
+			var n_split = 5;
+			mockSpeech.split(n_split);
 
+			var mockWord = testUtils.getTestWordMap();
+			var mockSet = Object.keys(mockWord);
+			var mockSet2 = new Set(mockSet);
+			mockSet = new Set(mockSet);
+			mockWord = utils.obj2Map(mockWord);
+
+			synthesize.getWordMap(testId, mockSet)
+			.then((wordMap) => {
+				expect(mockSpeech.count).to.equal(n_split);
+				expect(wordMap).to.be.an.instanceof(Map);
+				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
+
+				return mockWordDb.getWordMap(testId)
+				.then((mapInfo) => {
+					expect(mapInfo).to.not.equal(null);
+					var storedWordMap = mapInfo.words;
+					expect(storedWordMap).to.be.an.instanceof(Map);
+					expect(testUtils.mapEq(wordMap, storedWordMap)).to.equal(true);
+					
+					done();
+				});
+			})
+			.catch(done);
 		});
 	});
 	
@@ -206,11 +233,40 @@ describe('Synthesis and its subroutines:', function() {
 			// add complete wordmap
 			mockWordDb.clearDb();
 			mockWordDb.setWordMap(testId, -1, completeMap)
-			.then(done)
+			.then((wordMapInfo) => {
+				done();
+			})
 			.catch(done);
 		});
 		
 		it("getWordMap does not calls speechAPI if wordmap exist and contains wordset", 
-		function() {});
+		function(done) {
+			var n_split = 5;
+			mockSpeech.split(n_split);
+
+			var mockWord = testUtils.getTestWordMap();
+			var mockSet = Object.keys(mockWord);
+			var mockSet2 = new Set(mockSet);
+			mockSet = new Set(mockSet);
+			mockWord = utils.obj2Map(mockWord);
+
+			synthesize.getWordMap(testId, mockSet)
+			.then((wordMap) => {
+				expect(mockSpeech.count).to.equal(0);
+				expect(wordMap).to.be.an.instanceof(Map);
+				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
+
+				return mockWordDb.getWordMap(testId)
+				.then((mapInfo) => {
+					expect(mapInfo).to.not.equal(null);
+					var storedWordMap = mapInfo.words;
+					expect(storedWordMap).to.be.an.instanceof(Map);
+					expect(testUtils.mapEq(wordMap, storedWordMap)).to.equal(true);
+					
+					done();
+				});
+			})
+			.catch(done);
+		});
 	});
 });
