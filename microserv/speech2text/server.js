@@ -21,31 +21,20 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const port = process.env.PORT || default_port;
 app.set('port', port);
 
-app.get('/vid_wordmap', (req, res) => {
-	word_map = { "intro": 'hello friendo' };
-	vidIds = JSON.parse(req.body.vidIds);
-	console.log('we get ids: ' + vidIds);
+app.get('/vid_wordmap/:cacheIds', (req, res) => {
+	var word_map = { "intro": 'hello friendo' };
+	var cacheIds = req.params.cacheIds;
+	var stream = db.getCache(cacheIds);
+	if (stream) {
+		// process audio speech 2 text + timestamp
+		console.log('existing stream! ' + cacheIds);
+	}
+	else {
+		// process error...
+		console.log('non-existent stream! ' + cacheIds);
+	}
 
-	var processPromises = vidIds.map((vidId) => {
-		// search db for videos
-		return db.getStream(vidId)
-		.then((stream) => {
-			if (stream) {
-				// process audio speech 2 text + timestamp
-				console.log('existing stream! ' + vidId);
-			}
-			else {
-				// process error...
-				console.log('non-existent stream! ' + vidId);
-			}
-		});
-	});
-
-	// wait for all processes to resolve before responding
-	Promise.all(processPromises)
-	.then(() => {
-		res.json(word_map);
-	});
+	res.json(word_map);
 });
 
 server.listen(port, default_host, () => {

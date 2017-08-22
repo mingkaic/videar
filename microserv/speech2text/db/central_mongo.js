@@ -33,15 +33,6 @@ connection.once('connected', () => {
 	gfs = grid(connection.db, mongoose.mongo);
 });
 
-var model = mongoose.model('videos', new mongoose.Schema());
-
-exports.getStream = (vidId) => {
-	return model.findOne({ 'vidId': vidId }).exec()
-	.then((vidInfo) => {
-		if (vidInfo) {
-			// vid exists, make a stream, read and return it
-			return gfs.createReadStream({ filename: vidId });
-		}
-		return null;
-	});
+exports.getCache = (vidId) => {
+	var readstream = gfs.createReadStream({ filename: cacheId });
 };

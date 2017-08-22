@@ -92,3 +92,7 @@ exports.cache = (stream) => {
 		return cacheId;
 	});
 };
+
+exports.getCache = (vidId) => {
+	var readstream = gfs.createReadStream({ filename: cacheId });
+};

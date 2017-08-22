@@ -3,6 +3,8 @@ const utils = require('../../server/utils');
 
 var mockWordMap = require('../testUtils').getTestWordMap();
 
+// todo: inject some junk values into mockWordMap
+
 var default_split = 3;
 var mockWordMaps;
 
@@ -39,3 +41,6 @@ module.exports = function (audioChunkStream) {
 module.exports.count = 0;
 module.exports.split = split;
 module.exports.nsplit = default_split;
+module.exports.splitInject = (key, value) => {
+	mockWordMaps[(module.exports.count + 1) % module.exports.nsplit].set(key, value);
+};

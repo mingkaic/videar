@@ -109,11 +109,14 @@ function fulfill(vidId, wordMap, start, wordSet) {
 	// else continue request
 	return lazyPartition(vidId, start, wordSet, wordMap)
 	.then((wordMapInfo) => {
-		var freshWords = wordMapInfo[0];
-		var completion = wordMapInfo[1];
-
-		// merge words
-		utils.addBToA(words, freshWords);
+		var completion = start;
+		if (wordMapInfo) {
+			var freshWords = wordMapInfo[0];
+			completion = wordMapInfo[1];
+	
+			// merge words
+			utils.addBToA(words, freshWords);
+		}
 		return [words, completion];
 	});
 }
@@ -145,41 +148,31 @@ function getWordMap(vidId, wordSet) {
 	});
 }
 
-exports.lazyPartition = lazyPartition;
-
-exports.fulfill = fulfill;
-
-exports.getWordMap = getWordMap;
-
-exports.synthesize = (synParam) => {
-	// params must be of form: { "script" : "...", "vidIds" : ["vid1", "vid2", ...] }
-	var script = synParam.script;
-	var vidIds = synParam.vidIds;
-	if (typeof(script) !== "string" || vidIds instanceof Array) {
-		throw "bad synthesis parameter: " + synParam;
-	}
-
-	var tokens = utils.tokenize(script);
-	var wordCount = new Set(tokens);
+function getScriptMap(vidIds, scriptSet) {
 	var scriptMap = new Map();
-
-	var populateScript = utils.sequentialPromise(vidIds, 
-	() => wordCount.length > 0,
+	console.log(scriptSet);
+	return utils.sequentialPromise(vidIds, 
+	() => scriptSet.size > 0,
 	(vidId) => {
+		console.log('HELLO ' + vidId);
 		// check which ids have maps on vidDb
-		return getWordMap(vidId, wordCount)
+		return getWordMap(vidId, scriptSet)
 		.then((wordMap) => {
+			console.log(s2tRequest.count);
+			// clone to prevent data reference back to database
+			wordMap = utils.obj2Map(JSON.parse(JSON.stringify(utils.map2Obj(wordMap))));
+			// label times with id
 			for (var keyvalue of wordMap) {
-				for (var time of wordMap.get(keyvalue)) {
+				for (var time of keyvalue[1]) {
 					time['id'] = vidId;
 				}
 			}
 
 			// merge word and scriptMap
-			utils.ABMappArrMerge(scriptMap, wordMap, scriptMap);
+			utils.addBToA(scriptMap, wordMap);
 			
-			// remove wordMap from wordCount
-			utils.removeAfromB(wordMap, wordCount);
+			// remove wordMap from scriptSet
+			utils.removeAfromB(wordMap, scriptSet);
 		})
 		.catch(function (err) {
 			// handle: if we can't reach speech to text announce s2t container is down
@@ -187,6 +180,31 @@ exports.synthesize = (synParam) => {
 		});
 	})
 	.then(() => {
+		return scriptMap;
+	});
+}
+
+exports.lazyPartition = lazyPartition;
+
+exports.fulfill = fulfill;
+
+exports.getWordMap = getWordMap;
+
+exports.getScriptMap = getScriptMap;
+
+exports.synthesize = (synParam) => {
+	// params must be of form: { "script" : "...", "vidIds" : ["vid1", "vid2", ...] }
+	var script = synParam.script;
+	var vidIds = synParam.vidIds;
+	if (typeof(script) !== "string" || !(vidIds instanceof Array)) {
+		throw "bad synthesis parameter: " + JSON.stringify(synParam);
+	}
+
+	var tokens = utils.tokenize(script);
+	var tokenSet = new Set(tokens);
+
+	return getScriptMap(vidIds, tokenSet)
+	.then((scriptMap) => {
 		// assertion: wordCount is empty, 
 
 		var audioMap = new Map();
@@ -194,6 +212,7 @@ exports.synthesize = (synParam) => {
 		for (var keyvalue of scriptMap) {
 			var word = keyvalue[0];
 			var option = keyvalue[1];
+			console.log(word, option[0]);
 			var audio;
 			// todo: get audio from option
 			audioMap.put(word, audio);
@@ -209,6 +228,4 @@ exports.synthesize = (synParam) => {
 
 		return synthChunk;
 	});
-
-	return populateScript;
 };

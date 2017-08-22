@@ -1,4 +1,5 @@
 const request = require('request-promise');
+const utils = require('../utils');
 
 const db = require('../db/vidDb');
 
@@ -17,7 +18,7 @@ module.exports = (audioChunkStream) => {
 	})
 	.then((response) => {
 		if (response) {
-			return response.vidIds;
+			return utils.obj2Map(response.vidIds);
 		}
 		else {
 			throw "unable to retreive word map";

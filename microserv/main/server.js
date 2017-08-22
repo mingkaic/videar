@@ -106,10 +106,11 @@ app.put('/api/verify_id', (req, res) => {
 		}
 
 		// save in db
-		db.setVidStream(id, '.<youtube>', mp3)
+		var source = '.<youtube>';
+		db.setVidStream(id, source, mp3)
 		.then((gfsStream) => {
 			if (gfsStream) {
-				gfsStream.on('end', () => {
+				gfsStream.on('finish', () => {
 					// when streaming is complete
 					console.log('emitting new audio to all with id '+id);
 					// we just created a new record, notify clients, once data is written to db
@@ -117,7 +118,7 @@ app.put('/api/verify_id', (req, res) => {
 				});
 			}
 		});
-		res.json({ "onDb": false, "source": 'youtube' });
+		res.json({ "onDb": false, "source": source });
 	});
 });
 
@@ -136,7 +137,7 @@ io.sockets.on('connection', (socket) => {
 		db.setVidStream(vidId, fname, stream)
 		.then((gfsStream) => {
 			if (gfsStream) {
-				gfsStream.on('end', () => {
+				gfsStream.on('finish', () => {
 					// when streaming is complete
 					console.log('emitting new audio to all with id '+vidId);
 					// we just created a new record, notify clients, once data is written to db

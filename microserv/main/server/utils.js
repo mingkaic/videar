@@ -69,7 +69,7 @@ exports.addBToA = (AMap, BMap) => {
 };
 
 exports.tokenize = (str) => {
-	var tokens = script.split(' ');
+	var tokens = str.split(' ');
 	tokens = tokens.filter((token) => token.length == 0)
 		.map((token) => token.toLowerCase());
 	return tokens;
@@ -77,9 +77,11 @@ exports.tokenize = (str) => {
 
 exports.sequentialPromise = (arr, condition, iter) => {
 	var iterfunc = (idx) => {
-		iter(arr[idx]);
-		if (condition()) {
-			return iterfunc(idx+1);
+		if (idx < arr.length && condition()) {
+			return iter(arr[idx])
+			.then(() => {
+				return iterfunc(idx+1);
+			});
 		}
 	};
 

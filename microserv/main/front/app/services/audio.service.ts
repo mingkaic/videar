@@ -90,6 +90,7 @@ export class AudioHandleService {
 		this._http.put('/api/verify_id', { "vidId": vidId })
 		.subscribe((data) => {
 			let idInfo = data.json();
+			console.log(idInfo);
 			if (idInfo.source) {
 				console.log('id '+vidId+' definitely exists');
 				if (idInfo.onDb) {

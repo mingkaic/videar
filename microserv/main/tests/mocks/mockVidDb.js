@@ -1,5 +1,6 @@
+const testUtils = require('../testUtils');
+
 var fakeDb = {};
-const fakeStream = {"on": () => {}, "pipe": () => {}};
 
 exports.getAllVidInfo = () => {
     var info = Object.keys(fakeDb).map((key) => {
@@ -16,7 +17,7 @@ exports.getVidStream = (vidId) => {
     return new Promise((resolve) => {
 		if (fakeDb[vidId]) {
 			resolve({
-				"stream": fakeStream,
+				"stream": testUtils.getTestWordStream(),
 				"source": fakeDb[vidId]
 			});
 		}
@@ -32,7 +33,7 @@ exports.setVidStream = (vidId, source, dbStream) => {
 		}
 
 		fakeDb[vidId] = source;
-		resolve(fakeStream);
+		resolve(testUtils.getTestWordStream());
 	});
 };
 

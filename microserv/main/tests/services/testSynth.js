@@ -14,17 +14,21 @@ var mockobj = JSON.parse(fs.readFileSync(__dirname + '/../data/mockSynthData.jso
 var expect = chai.expect; // we are using the "expect" style of Chai
 
 const testId = "TEST0:_fGx6K90TmCI";
+const testId2 = "TEST1:_uRUmYqPQ5EU";
 const testSrc = "test";
 
-describe('Synthesis and its subroutines:', function() {
+describe('Synthesis:', function() {
 	before(function() {
 		// we need a mock audio in fake db
 		mockVidDb.setVidStream(testId, testSrc, null);
+
+		mockVidDb.setVidStream(testId2, testSrc, null);
 	});
 
-	describe('When Empty AND getWordMap subroutines:', function() {
+	describe('When WordDb is Empty:', function() {
 		beforeEach(function() {
 			mockSpeech.count = 0;
+			mockWordDb.clearDb();
 		});
 	
 		it("lazyPartition should stop calling s2t API once wordmap keyset matches wordset", 
@@ -170,9 +174,43 @@ describe('Synthesis and its subroutines:', function() {
 			})
 			.catch(done);
 		});
+		
+		it("getScriptMap calls speechAPI if wordmap does not exist and timeframe has id property for first Id only", 
+		function(done) {
+			var n_split = 3;
+			mockSpeech.split(n_split);
+
+			var mockWord = testUtils.getTestWordMap();
+			var mockSet = Object.keys(mockWord);
+			var mockSet2 = new Set(mockSet);
+			mockSet = new Set(mockSet);
+			mockWord = utils.obj2Map(mockWord);
+	
+			vidIds = [testId, testId2];
+
+			synthesize.getScriptMap(vidIds, mockSet)
+			.then((wordMap) => {
+				console.log("here");
+				expect(mockSpeech.count).to.equal(n_split);
+				expect(wordMap).to.be.an.instanceof(Map);
+				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
+				for (var key of wordMap.keys()) {
+					var arr = wordMap.get(key);
+					expect(arr.every((obj) => { return obj.id === testId; })).to.equal(true);
+				}
+
+				return mockWordDb.getWordMap(testId2)
+				.then((mapInfo) => {
+					expect(mapInfo).to.equal(null);
+					
+					done();
+				});
+			})
+			.catch(done);
+		});
 	});
 	
-	describe('Existing Incomplete Wordmap:', function() {
+	describe('When WordDb Has Existing Incomplete Wordmap:', function() {
 		beforeEach(function(done) {
 			mockSpeech.count = 0;
 			
@@ -224,7 +262,7 @@ describe('Synthesis and its subroutines:', function() {
 		});
 	});
 	
-	describe('Existing Complete Wordmap:', function() {
+	describe('When WordDb Has Existing Complete Wordmap:', function() {
 		beforeEach(function(done) {
 			mockSpeech.count = 0;
 			
@@ -265,6 +303,37 @@ describe('Synthesis and its subroutines:', function() {
 					
 					done();
 				});
+			})
+			.catch(done);
+		});
+		
+		it("getScriptMap obtains injected key from second id if existing wordmap of the first id is complete", 
+		function(done) {
+			var n_split = 3;
+			mockSpeech.split(n_split);
+			var injectedKey = "UNREACHABLE";
+			var injectedValue = [{"start": 21.1, "end": 1112.1}];
+
+			var mockWord = testUtils.getTestWordMap();
+			var mockSet = Object.keys(mockWord);
+			mockSet.push(injectedKey);
+			var mockSet2 = new Set(mockSet);
+			mockSet = new Set(mockSet);
+			mockWord = utils.obj2Map(mockWord);
+	
+			vidIds = [testId, testId2];
+			mockSpeech.splitInject(injectedKey, injectedValue);
+			synthesize.getScriptMap(vidIds, mockSet)
+			.then((wordMap) => {
+				expect(mockSpeech.count).to.greaterThan(n_split);
+				expect(wordMap).to.be.an.instanceof(Map);
+				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
+				for (var key of wordMap.keys()) {
+					var arr = wordMap.get(key);
+					expect(arr.every((obj) => { return obj.id === testId; })).to.equal(true);
+				}
+
+				done();
 			})
 			.catch(done);
 		});
