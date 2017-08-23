@@ -3,7 +3,6 @@ const fs = require('fs');
 
 const utils = require('../../server/utils');
 const synthesize = require('../../server/services/synthesize');
-const mockMeta = require('../mocks/mockMetadata');
 const mockVidDb = require('../mocks/mockVidDb');
 const mockWordDb = require('../mocks/mockWordDb');
 const mockSpeech = require('../mocks/mockSpeechApi');
@@ -16,8 +15,11 @@ var expect = chai.expect; // we are using the "expect" style of Chai
 const testId = "TEST0:_fGx6K90TmCI";
 const testId2 = "TEST1:_uRUmYqPQ5EU";
 const testSrc = "test";
+const testDur = 900000; // 900 seconds = 15 minutes (test audios should never be longer than 10 minutes)
 
 describe('Synthesis:', function() {
+	this.timeout(5000); // using real stream from mockVidDb (getting metadata could take a while)
+
 	before(function() {
 		// we need a mock audio in fake db
 		mockVidDb.setVidStream(testId, testSrc, null);
@@ -67,7 +69,7 @@ describe('Synthesis:', function() {
 			var mockSet = new Set(Object.keys(testUtils.getTestWordMap()));
 			var existingMap = new Map();
 	
-			synthesize.lazyPartition(testId, mockMeta.duration, mockSet, existingMap)
+			synthesize.lazyPartition(testId, testDur, mockSet, existingMap)
 			.then((wordMapInfo) => {
 				var wordRes = wordMapInfo[0];
 				var completion = wordMapInfo[1];

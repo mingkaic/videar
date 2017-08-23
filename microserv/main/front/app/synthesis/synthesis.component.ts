@@ -1,5 +1,7 @@
 import { Http } from '@angular/http';
 import { Component, OnInit } from '@angular/core';
+import { UUID } from 'angular2-uuid';
+
 import { AudioHandleService } from '../services/audio.service';
 
 import * as io from 'socket.io-client';
@@ -30,8 +32,10 @@ export class SynthesisComponent implements OnInit {
 		this.param.vidIds = this._audioService.getSelectedIds();
 		// todo: move to service
 		let socket = io();
+
+		let uuid = UUID.UUID();
 		console.log(this.param);
-		this._http.put('/api/synthesize', { "socketId": socket.id, "params": this.param })
+		this._http.put('/api/synthesize', { "synthId": uuid, "socketId": socket.id, "params": this.param })
 		.subscribe((data) => {
 			console.log(data.json());
 		})

@@ -32,11 +32,14 @@ public class WordMapService {
     }
 
     public HashMap<String, List<TimeFrame> > process(InputStream transcriberStream) {
-        transcriber.startRecognition(transcriberStream);
-        HashMap<String, List<TimeFrame> > wordMap = new HashMap<>();
+        System.out.println("starting to recognize");
 
+        transcriber.startRecognition(transcriberStream);
+        System.out.println("recognizing...");
+        HashMap<String, List<TimeFrame> > wordMap = new HashMap<>();
         SpeechResult result;
         while ((result = transcriber.getResult()) != null) {
+            System.out.println(result.toString());
             for (WordResult r : result.getWords()) {
                 Word word = r.getWord();
                 double confidence = LogMath.getLogMath().logToLinear((float)r.getConfidence());
@@ -56,6 +59,7 @@ public class WordMapService {
                 }
             }
         }
+        System.out.println("Sphinx4 complete, stopping recognition");
         transcriber.stopRecognition();
 
         return wordMap;

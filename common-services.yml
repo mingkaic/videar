@@ -9,6 +9,7 @@ services:
       - /usr/src/videar
     environment:
       - DB_HOST=central_mongodb
+      - CACHE_HOST=central_redis
 
   java_s2t-setup:
     build:

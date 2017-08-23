@@ -94,3 +94,4 @@ Thumbs.db
 *.mp3
 
 !*test.mp3
+*.rdb

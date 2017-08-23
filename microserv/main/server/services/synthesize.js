@@ -2,24 +2,23 @@ const fs = require('fs');
 const s2Promise = require('stream-to-promise');
 
 const utils = require('../utils');
-var audioPartition = require('./audioConv').partition;
+const audioConv = require('./audioConv');
 
-var mm;
 var vidDb;
 var wordDb;
 var s2tRequest;
+var partition;
 if (process.env.NODE_ENV !== 'production') {
-	mm = require('../../tests/mocks/mockMetadata');
 	vidDb = require('../../tests/mocks/mockVidDb');
 	wordDb = require('../../tests/mocks/mockWordDb');
 	s2tRequest = require('../../tests/mocks/mockSpeechApi');
-	audioPartition = () => { return null; };
+	partition = () => { return null; };
 }
 else {
-	mm = require('musicmetadata');
 	vidDb = require('../db/vidDb');
 	wordDb = require('../db/wordDb');
 	s2tRequest = require('../api/speechApi');
+	partition = audioConv.partition;
 }
 
 const chunkDur = 10; // 10 seconds
@@ -33,22 +32,18 @@ function lazyPartition(vidId, start, wordSet, existingMap) {
 	var wordRes = new Map(); // store words pertaining to wordSet
 	return vidDb.getVidStream(vidId)
 	.then((audioStream) => {
+		console.log("lazy partitioning got audiostream for " + vidId);
 		if (null == audioStream || !audioStream.stream) {
+			console.log("stream invalid");
 			return [wordRes, start];
 		}
-		audioStream = audioStream.stream;
 
-		return new Promise((resolve, reject) => {
-			mm(audioStream, { duration: true }, (err, metadata) => {
-				if (err) {
-					reject(err);
-				}
-				else {
-					resolve(metadata.duration);
-				}
-			});
-		})
-		.then((length) => {
+		return audioConv.getDuration(audioStream.stream)
+		.then((durOut) => {
+			var length = durOut[0];
+			var buffer = durOut[1];
+
+			console.log(vidId + ' has duration ' + length);
 			// while wordSet is not satisfied and stream is not fulfilled,
 			// parition and request wordmap sequentially
 			var itFunc = () => {
@@ -62,7 +57,8 @@ function lazyPartition(vidId, start, wordSet, existingMap) {
 				}
 				// END OF CONDITIONS
 
-				var audioChunkStream = audioPartition(audioStream, start, Math.min(chunkDur, length - start));
+				console.log(vidId + ' starting ' + start);
+				var audioChunkStream = partition(buffer.getStream(), start, Math.min(chunkDur, length - start));
 				return s2tRequest(audioChunkStream)
 				.then((wMap) => {
 					if (wMap) {
@@ -127,10 +123,12 @@ function getWordMap(vidId, wordSet) {
 		var existingWordMap;
 		var wordMapPromise;
 		if (null === wordMapInst) {
+			console.log("lazy partitioning " + vidId);
 			existingWordMap = new Map();
 			wordMapPromise = lazyPartition(vidId, 0, wordSet, existingWordMap);
 		}
 		else {
+			console.log("fulfilling " + vidId);
 			var start = wordMapInst.startTime;
 			existingWordMap = wordMapInst.words;
 			// look at wordMap completion, and whether script exists
@@ -150,15 +148,14 @@ function getWordMap(vidId, wordSet) {
 
 function getScriptMap(vidIds, scriptSet) {
 	var scriptMap = new Map();
-	console.log(scriptSet);
+	console.log('Looking at vidIds: ' + vidIds);
 	return utils.sequentialPromise(vidIds, 
 	() => scriptSet.size > 0,
 	(vidId) => {
-		console.log('HELLO ' + vidId);
+		console.log('EXTRACTING WORD MAP FROM ' + vidId);
 		// check which ids have maps on vidDb
 		return getWordMap(vidId, scriptSet)
 		.then((wordMap) => {
-			console.log(s2tRequest.count);
 			// clone to prevent data reference back to database
 			wordMap = utils.obj2Map(JSON.parse(JSON.stringify(utils.map2Obj(wordMap))));
 			// label times with id
@@ -202,6 +199,7 @@ exports.synthesize = (synParam) => {
 
 	var tokens = utils.tokenize(script);
 	var tokenSet = new Set(tokens);
+	console.log(tokenSet);
 
 	return getScriptMap(vidIds, tokenSet)
 	.then((scriptMap) => {
@@ -215,7 +213,7 @@ exports.synthesize = (synParam) => {
 			console.log(word, option[0]);
 			var audio;
 			// todo: get audio from option
-			audioMap.put(word, audio);
+			audioMap.set(word, audio);
 		}
 
 		var audioLayout = tokens.map((word) => {

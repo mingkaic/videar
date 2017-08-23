@@ -10,9 +10,10 @@ const uuidv1 = require('uuid/v1');
 // Connect to DB
 require('./server/db/connectMongo');
 const db = require('./server/db/vidDb');
+const cache = require('./server/db/redisCache');
 
 // Services
-const yt = require('./server/services/audioConv').ytExtract;
+const converter = require('./server/services/audioConv');
 const synthesize = require('./server/services/synthesize').synthesize;
 
 const default_port = '8080';
@@ -78,11 +79,30 @@ app.post('/api/req_audio', (req, res) => {
 
 app.put('/api/synthesize', (req, res) => {
 	var socket = sockets[req.body.socketId];
-	// synthesis handles params validation
-	// params should be of form 
-	synthesize(req.body.params)
-	.then(() => {
-		res.json({ "message": 'synthesizing' });
+	var synthId = req.body.synthId;
+	const context = "synthId";
+
+	// todo: move this functionality somewhere else
+	cache.hasKey(context, synthId)
+	.then((existence) => {
+		if (1 !== existence) {
+			cache.setCacheKey(context, synthId, "set");
+			console.log("synthesizing for request " + synthId);
+			// synthesis handles params validation
+			// params should be of form 
+			synthesize(req.body.params)
+			.then(() => {
+				cache.deCache(context, synthId);
+				res.json({ "message": 'synthesizing' });
+			});
+		}
+		else {
+			console.log("synthesizing for request " + synthId + " in progress");
+		}
+	})
+	.catch((err) => {
+		console.log(err);
+		res.json({"message": "bad hombre"});
 	});
 });
 
@@ -98,7 +118,7 @@ app.put('/api/verify_id', (req, res) => {
 	() => {
 		// non-existent stream
 		try {
-			var mp3 = yt(id);
+			var mp3 = converter.ytExtract(id);
 		}
 		catch (err) {
 			console.log(err);
@@ -134,6 +154,7 @@ io.sockets.on('connection', (socket) => {
 		// generate vidId
 		var vidId = uuidv1();
 
+		stream = converter.format(stream, "mp3");
 		db.setVidStream(vidId, fname, stream)
 		.then((gfsStream) => {
 			if (gfsStream) {

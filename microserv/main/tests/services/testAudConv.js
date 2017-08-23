@@ -1,8 +1,7 @@
 const chai = require('chai');
-const mm = require('musicmetadata');
 
 const testUtils = require('../testUtils');
-var audioConv = require('../../server/services/audioConv');
+const audioConv = require('../../server/services/audioConv');
 
 var expect = chai.expect; // we are using the "expect" style of Chai
 const testId = "uRUmYqPQ5EU";
@@ -19,9 +18,12 @@ describe('Audio Conversion: ', function() {
 		var partition = audioConv.partition(ws, 0, testDur);
         expect(testUtils.isStream(partition)).to.equal(true);
 
-        testUtils.getDuration(partition.format('mp3'), (duration) => {
+		audioConv.getDuration(partition)
+		.then((durInfo) => {
+			var duration = durInfo[0];
             expect(Math.round(duration)).to.equal(testDur);
             done();
-        });
+		})
+		.catch(done);
 	});
 });

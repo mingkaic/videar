@@ -31,7 +31,7 @@ public class SpeechController {
 
     @RequestMapping("/vid_wordmap/{id}")
     public WordMapResponse getWordMap(@PathVariable(value="id") String id) {
-        System.out.println(id);
+        System.out.println("Received id "+id);
         Query query = new Query();
         query.addCriteria(Criteria.where("filename").is(id));
         GridFSDBFile gridFSDBFile = gridFsTemplate.findOne(query);
@@ -39,6 +39,7 @@ public class SpeechController {
         InputStream fstream = gridFSDBFile.getInputStream();
         HashMap<String, List<TimeFrame>> wMap = wordMapService.process(fstream);
 
+        System.out.println("word map processing complete for "+id);
         return new WordMapResponse(wMap);
     }
 

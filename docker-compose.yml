@@ -15,6 +15,7 @@ services:
       - "80:80"
     depends_on: 
       - central_mongodb
+      - central_redis
       - java_speech2text
   videar-test:
     image: mkaichen/videar-test:latest
@@ -27,6 +28,7 @@ services:
     command: [ "npm", "test" ]
     depends_on: 
       - central_mongodb
+      - central_redis
 
 
   # temporary java service for speech using sphinx4
@@ -72,4 +74,11 @@ services:
       - "27017:27017"
     volumes: 
       - /data/db
+    restart: always
+
+
+  # redis
+  central_redis:
+    image: redis:latest
+    command: [ "redis-server" ]
     restart: always

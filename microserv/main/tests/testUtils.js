@@ -1,13 +1,11 @@
 const fs = require('fs');
 const mongo = require('mongodb');
-const mp3Duration = require('mp3-duration'); // save
 
 const connectionInfo = require('../server/db/connectMongo');
 
 const dbSource = __dirname + '/data/dbtest.mp3';
 const wordSource = __dirname + '/data/wordtest.mp3';
 const wordMapPath = __dirname + '/data/mockWordMap.json';
-const temporary = __dirname + "/data/temporary.mp3";
 
 function clearCollections(db, collections) {
 	const prefixLen = connectionInfo.db.length;
@@ -95,17 +93,6 @@ exports.getTestWordStream = () => {
 
 exports.getTestWordMap = () => {
 	return JSON.parse(fs.readFileSync(wordMapPath, 'utf8'));
-};
-
-exports.getDuration = (stream, cb) => {
-	var ws = fs.createWriteStream(temporary);
-	stream.pipe(ws);
-	stream.on('end', () => {
-		mp3Duration(temporary, (err, duration) => {
-			if (err) throw err;
-			cb(duration);
-		});
-	});
 };
 
 function objEq(obj1, obj2) {

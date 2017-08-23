@@ -82,6 +82,8 @@ exports.removeVidStream = (vidId) => {
 	});
 };
 
+
+// todo: move to redis and a separate file
 exports.cache = (stream) => {
 	// todo: replace with cache
 	var cacheId = "chunk_" + uuidv1();

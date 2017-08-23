@@ -12,9 +12,15 @@ Currently, this application only synthesizes audio from a given script. The next
 ## Checklist
 [/] Upload audio files
 
-[] Construct a word map (from a speech model)
+[/] Construct a word map (from a speech model)
+temporary speech2text: sphinx4
+todo: upgrade to Rocnnet
 
-[] Construct best match from word map
+[/] Construct best match from word map
+room for improvement:
+    - use more diverse matches (currently First Match First Serve)
+once upgraded to Rocnnet:
+    - match by syllables
 
 [] Synthesize audio from best match
 
