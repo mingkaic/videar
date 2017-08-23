@@ -39,18 +39,20 @@ services:
       service: java_s2t-setup
     environment:
       - SPRING_VIDEAR_DB_NAME=videar
+    ports:
+      - "8000:8000"
     depends_on: 
       - central_mongodb
-  java_speech2text-test:
-    image: mkaichen/sphinx-s2t-test:latest
-    extends:
-      file: common-services.yml
-      service: java_s2t-setup
-    environment:
-      - SPRING_VIDEAR_DB_NAME=videar_test
-    command: [ "ls" ]
-    depends_on: 
-      - central_mongodb
+  # java_speech2text-test:
+  #   image: mkaichen/sphinx-s2t-test:latest
+  #   extends:
+  #     file: common-services.yml
+  #     service: java_s2t-setup
+  #   environment:
+  #     - SPRING_VIDEAR_DB_NAME=videar_test
+  #   command: [ "ls" ]
+  #   depends_on: 
+  #     - central_mongodb
 
 
   # # placeholder for Rocnnet
@@ -80,5 +82,7 @@ services:
   # redis
   central_redis:
     image: redis:latest
+    ports:
+      - "6379:6379"
     command: [ "redis-server" ]
     restart: always

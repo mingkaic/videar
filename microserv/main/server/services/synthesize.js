@@ -181,6 +181,19 @@ function getScriptMap(vidIds, scriptSet) {
 	});
 }
 
+function setAudioTokens(vidId, chunkInfos) {
+	// short chunks by start time
+	chunkInfos.sort((a, b) => {
+		return a.start - b.start;
+	});
+
+	vidDb.getVidStream(vidId)
+	.then((stream) => {
+		audioConv.timeFrameify(stream, chunkInfos);
+		// chunkInfos['time'] = ;
+	});
+}
+
 exports.lazyPartition = lazyPartition;
 
 exports.fulfill = fulfill;
@@ -205,24 +218,50 @@ exports.synthesize = (synParam) => {
 	.then((scriptMap) => {
 		// assertion: wordCount is empty, 
 
+		var missingOptions = [];
 		var audioMap = new Map();
-		// extract audio chunks
-		for (var keyvalue of scriptMap) {
-			var word = keyvalue[0];
-			var option = keyvalue[1];
-			console.log(word, option[0]);
-			var audio;
-			// todo: get audio from option
-			audioMap.set(word, audio);
+		var audioLayout = tokens;
+		tokens.forEach((word, index) => {
+			var options = scriptMap.get(word);
+			if (options) {
+				// randomize or search for better fit later
+				var chosen_option = options[0];
+
+				chosen_option["index"] = index; // add index to allow audioMap to reference audioLayout
+				// add to audioMap
+				var vId = chosen_option.id;
+				if (audioMap.has(vId)) {
+					audioMap.get(vId).push(chosen_option);
+				}
+				else {
+					audioMap.set(vId, chosen_option);
+				}
+			}
+			missingOptions.push(word);
+		});
+		
+		// validate audioLayout
+		if (missingOptions.length > 0) {
+			// invalid layout
+			return missingOptions;
 		}
 
-		var audioLayout = tokens.map((word) => {
-			return audioMap[word];
-		});
-		// validate audioLayout
+		for (var keyvalue of audioMap) {
+			var vId = keyvalue[0];
+			var timeInfos = keyvalue[1];
+			// extract audio chunks
+			setAudioTokens(vId, timeInfos);
+			for (var time of timeInfos) {
+				audioLayout[time.index] = time.audio;
+			}
+		}
+		// assert: every audioLayout eleme is an audioChunk 
 
 		// piece together chunks
 		var synthChunk;
+		audioLayout.forEach((audioChunk) => {
+
+		});
 
 		return synthChunk;
 	});

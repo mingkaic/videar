@@ -8,7 +8,7 @@ const ytSetting = {
 	vidFormat: 'mp4',
 	quality: 'lowest',
 	audioFormat: 'mp3'
-}
+};
 
 const temporary = __dirname + "/temporary.mp3";
 
@@ -26,7 +26,7 @@ exports.ytExtract = (vidId) => {
 
 exports.format = (audioStream, format) => {
 	return ffmpeg(audioStream).format(format);
-}
+};
 
 exports.partition = (audioBuffer, start, duration) => {
 	return ffmpeg(audioBuffer)
@@ -35,6 +35,16 @@ exports.partition = (audioBuffer, start, duration) => {
 	.duration(duration+0.5)
 	.on('error', (err) => {
 		console.log(err);
+	});
+};
+
+exports.timeFrameify = (stream, times) => {
+	if (!(times instanceof Array)) {
+		times = [times];
+	}
+
+	times.forEach((time) {
+
 	});
 };
 
@@ -73,4 +83,4 @@ exports.getDuration = (audioStream) => {
 			reject(err);
 		});
 	});
-}
+};
