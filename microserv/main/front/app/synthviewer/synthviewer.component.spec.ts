@@ -1,27 +1,22 @@
 import { HttpModule, XHRBackend } from '@angular/http';
-import { FormsModule } from '@angular/forms';
 import { MockBackend } from '@angular/http/testing';
+import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SynthesisComponent } from './synthesis.component';
-import { AudioHandleService } from '../services/audio.service';
+import { SynthviewerComponent } from './synthviewer.component';
 import { SynthesisService } from '../services/synthesis.service';
-import { SynthviewerComponent } from '../synthviewer/synthviewer.component';
 
-describe('SynthesisComponent', () => {
-	let component: SynthesisComponent;
-	let fixture: ComponentFixture<SynthesisComponent>;
+describe('SynthviewerComponent', () => {
+	let component: SynthviewerComponent;
+	let fixture: ComponentFixture<SynthviewerComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-  			imports: [ HttpModule, FormsModule ],
-			declarations: [ 
-				SynthesisComponent, 
-				SynthviewerComponent
-			],
+  			imports: [HttpModule],
+			declarations: [ SynthviewerComponent ],
 			providers: [
-				AudioHandleService,
 				SynthesisService,
+				DomSanitizer,
         		{ provide: XHRBackend, useClass: MockBackend },
 			]
 		})
@@ -29,7 +24,7 @@ describe('SynthesisComponent', () => {
 	}));
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(SynthesisComponent);
+		fixture = TestBed.createComponent(SynthviewerComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

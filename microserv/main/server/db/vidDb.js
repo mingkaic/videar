@@ -82,6 +82,14 @@ exports.removeVidStream = (vidId) => {
 	});
 };
 
+exports.setSynthStream = (synthId, stream) => {
+	
+}
+
+exports.getSynthStream = (synthId) => {
+	
+}
+
 
 // todo: move to redis and a separate file
 exports.cache = (stream) => {

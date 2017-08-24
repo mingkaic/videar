@@ -19,15 +19,25 @@ exports.setWordMap = (vidId, start, wordMap) => {
 		wordMap = utils.map2Obj(wordMap);
 	}
 
-	// record next chunk start time, completion status to audioMap
-	var instance = new wordMapModel({
-		'vidId': vidId,
-		'startTime': start,
-		'words': wordMap
-	});
-
-	// save audioMap
-	return instance.save()
+	wordMapModel.findOne({ 'vidId': vidId }).exec()
+	.then((wordMapInfo) => {
+		console.log(start, wordMap);
+		if (wordMapInfo) {
+			wordMapInfo.startTime = start;
+			// todo: select best wordMap (attempt to correct missing words)
+			wordMapInfo.words = wordMap;
+		}
+		else {
+			// record next chunk start time, completion status to audioMap
+			wordMapInfo = new wordMapModel({
+				'vidId': vidId,
+				'startTime': start,
+				'words': wordMap
+			});
+		}
+		// save audioMap
+		return wordMapInfo.save();
+	})
 	.then((wordMapInfo) => {
 		if (wordMapInfo) {
 			wordMapInfo.words = utils.obj2Map(wordMapInfo.words);

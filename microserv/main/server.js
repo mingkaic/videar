@@ -91,9 +91,22 @@ app.put('/api/synthesize', (req, res) => {
 			// synthesis handles params validation
 			// params should be of form 
 			synthesize(req.body.params)
-			.then(() => {
+			.then((result) => {
+				var missing = result.missing;
+				var synth = result.stream;
+				if (synth) {
+					// add to db
+					// db.setSynthStream(synthId, synth);
+					var outStream = ss.createStream();
+					ss(socket).emit('synthesized-audio', synthId, outStream);
+					synth.pipe(outStream);
+					synth.on('end', () => {
+						console.log('synthStream complete');
+					});
+				}
 				cache.deCache(context, synthId);
-				res.json({ "message": 'synthesizing' });
+				// reply about missing words
+				res.json({ "missing": missing || [] });
 			});
 		}
 		else {
@@ -102,7 +115,7 @@ app.put('/api/synthesize', (req, res) => {
 	})
 	.catch((err) => {
 		console.log(err);
-		res.json({"message": "bad hombre"});
+		res.status(500).send(err);
 	});
 });
 

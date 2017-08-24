@@ -9,6 +9,7 @@ import { VidUploadComponent } from './viduploader/viduploader.component';
 import { VidLinkerComponent } from './vidlinker/vidlinker.component';
 import { SynthesisComponent } from './synthesis/synthesis.component';
 import { AudioviewerComponent } from './audioviewer/audioviewer.component';
+import { SynthviewerComponent } from './synthviewer/synthviewer.component';
 
 import { VidUploaderDirective } from './viduploader/viduploader.directive';
 
@@ -29,6 +30,7 @@ const routes: Routes = [
 		VidLinkerComponent,
 		SynthesisComponent,
 		AudioviewerComponent,
+		SynthviewerComponent,
 		VidUploaderDirective
 	],
 	imports: [

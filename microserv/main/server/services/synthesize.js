@@ -79,31 +79,31 @@ function lazyPartition(vidId, start, wordSet, existingMap) {
 		.then(() => {
 			console.log("complete!");
 			return [wordRes, start];
-		})
-		.catch((err) => {
-			console.log(err);
 		});
 	});
 }
 
 // looks at wordMap completion, requesting for missing chunks. (by lazy partitioning starting at last start time)
-function fulfill(vidId, wordMap, start, wordSet) {
+function fulfill(vidId, existingMap, start, wordSet) {
 	// check completition
 	var complete = start < 0;
+	console.log("existing wordmap ", existingMap);
 
 	// take wordRes as intersection of wordMap and wordSet
 	// remove from wordSet along the way
 	var words = new Map();
-	utils.intersectAB(wordMap, wordSet, words);
-	utils.removeAfromB(wordMap, wordSet);
+	utils.intersectAB(existingMap, wordSet, words);
+	utils.removeAfromB(existingMap, wordSet);
 
 	// if complete, return wordRes
 	if (complete) {
 		return Promise.resolve([words, start]);
 	}
 
+	console.log("remaining set ", wordSet);
+	console.log("existing map ", words);
 	// else continue request
-	return lazyPartition(vidId, start, wordSet, wordMap)
+	return lazyPartition(vidId, start, wordSet, existingMap)
 	.then((wordMapInfo) => {
 		var completion = start;
 		if (wordMapInfo) {
@@ -142,6 +142,9 @@ function getWordMap(vidId, wordSet) {
 
 			wordDb.setWordMap(vidId, completion, existingWordMap);
 			return wordMap;
+		})
+		.catch((err) => {
+			console.log(err);
 		});
 	});
 }
@@ -177,6 +180,8 @@ function getScriptMap(vidIds, scriptSet) {
 		});
 	})
 	.then(() => {
+		console.log('WORDMAP EXTRACTION COMPLETE')
+		console.log(scriptMap);
 		return scriptMap;
 	});
 }
@@ -187,11 +192,17 @@ function setAudioTokens(vidId, chunkInfos) {
 		return a.start - b.start;
 	});
 
-	vidDb.getVidStream(vidId)
-	.then((stream) => {
-		audioConv.timeFrameify(stream, chunkInfos);
-		// chunkInfos['time'] = ;
-	});
+	return vidDb.getVidStream(vidId)
+	.then((streamInfo) => {
+		if (streamInfo) {
+			audioConv.chunkByTime(streamInfo.stream, chunkInfos);
+			console.log(chunkInfos);
+		}
+		else {
+			throw 'audio with id ' + vidId + ' not found';
+		}
+	})
+	.catch(console.log);
 }
 
 exports.lazyPartition = lazyPartition;
@@ -217,52 +228,64 @@ exports.synthesize = (synParam) => {
 	return getScriptMap(vidIds, tokenSet)
 	.then((scriptMap) => {
 		// assertion: wordCount is empty, 
-
 		var missingOptions = [];
 		var audioMap = new Map();
-		var audioLayout = tokens;
-		tokens.forEach((word, index) => {
+		console.log(tokens);
+		tokens = tokens.map((word, index) => {
 			var options = scriptMap.get(word);
 			if (options) {
 				// randomize or search for better fit later
-				var chosen_option = options[0];
+				var chosenOption = options[0];
 
-				chosen_option["index"] = index; // add index to allow audioMap to reference audioLayout
 				// add to audioMap
-				var vId = chosen_option.id;
+				var vId = chosenOption.id;
 				if (audioMap.has(vId)) {
-					audioMap.get(vId).push(chosen_option);
+					audioMap.get(vId).push(chosenOption);
 				}
 				else {
-					audioMap.set(vId, chosen_option);
+					audioMap.set(vId, [chosenOption]);
 				}
+				console.log(word, chosenOption);
+				return chosenOption;
 			}
 			missingOptions.push(word);
+			return null;
 		});
+		console.log("tokens ", tokens);
 		
-		// validate audioLayout
+		console.log('VALIDATING OPTIONS ' + missingOptions);
+		// validate layout
 		if (missingOptions.length > 0) {
+			// todo: add options to accommodate missing audio assets
 			// invalid layout
-			return missingOptions;
+			return { 'missing': missingOptions, 'stream': null };
 		}
 
+		console.log('BEGIN SYNTHESIS');
+		var audioPromises = [];
 		for (var keyvalue of audioMap) {
 			var vId = keyvalue[0];
 			var timeInfos = keyvalue[1];
-			// extract audio chunks
-			setAudioTokens(vId, timeInfos);
-			for (var time of timeInfos) {
-				audioLayout[time.index] = time.audio;
-			}
+			console.log(timeInfos);
+			// extract audio chunks and set it to attribute 'audio'
+			audioPromises.push(setAudioTokens(vId, timeInfos));
 		}
-		// assert: every audioLayout eleme is an audioChunk 
+		return Promise.all(audioPromises)
+		.then(() => {
+			console.log('END SYNTHESIS');
+			return tokens;
+		});
+	})
+	.then((tokens) => {
+		console.log("tokens ", tokens);
+		var audioLayout = tokens.map((time) => time.audio);
+		// assert: every audioLayout eleme is an audioChunk
 
 		// piece together chunks
-		var synthChunk;
-		audioLayout.forEach((audioChunk) => {
+		console.log('concatenating audios');
+		var synthChunk = audioConv.concat(audioLayout);
 
-		});
-
-		return synthChunk;
+		console.log('concatenation successful');
+		return { 'missing': null, 'stream': synthChunk };
 	});
 };

@@ -17,7 +17,7 @@ module.exports = (audioChunkStream) => {
 	console.log("speech api called");
 	return db.cache(audioChunkStream)
 	.then((cacheId) => {
-		console.log('data cached and delivering s2t to ' + speechURL + '/vid_wordmap/'+cacheId);
+		console.log('data cached and calling ' + speechURL + '/vid_wordmap/'+cacheId);
 		return request.get({ 
 			"url": speechURL + '/vid_wordmap/' + cacheId,
 			"json": true,

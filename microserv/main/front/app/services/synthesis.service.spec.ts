@@ -2,27 +2,27 @@ import { HttpModule, XHRBackend } from '@angular/http';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MockBackend } from '@angular/http/testing';
 import { async, inject, TestBed } from '@angular/core/testing';
-import { AudioHandleService } from './audio.service';
+import { SynthesisService } from './synthesis.service';
 
 const testId: string = "SECRET_VID_ID";
 
-describe('AudioHandleService', () => {
-	let service: AudioHandleService;
+describe('SynthesisService', () => {
+	let service: SynthesisService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
   			imports: [ HttpModule ],
 			providers: [
-				AudioHandleService, 
+				SynthesisService, 
 				DomSanitizer,
-        		{ provide: XHRBackend, useClass: MockBackend },
+				{ provide: XHRBackend, useClass: MockBackend },
 			]
 		});
 	}))
 
-	it('does not have fake audio using hasAudio', () => {
-		inject([AudioHandleService], (audioService) => {
-			expect(audioService.hasAudio(testId)).toEqual(false);
+	it('should create', () => {
+		inject([SynthesisService], (service) => {
+			expect(service).toBeTruthy();;
 		});
 	});
 });

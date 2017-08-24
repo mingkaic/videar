@@ -1,7 +1,6 @@
 import { Http } from '@angular/http'
 import { Injectable, EventEmitter } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Socket } from 'socket.io-client';
 
 import * as io from 'socket.io-client';
 import * as ss from 'socket.io-stream';
@@ -23,9 +22,7 @@ export class ViewableAudio {
 @Injectable()
 export class AudioHandleService {
 	sounds: Map<string, ViewableAudio>;
-	clientSocket: Socket;
-
-	newAudio: EventEmitter<string> = new EventEmitter();
+	clientSocket: io.Socket;
 	
 	constructor(private _sanitizer: DomSanitizer, private _http: Http)
 	{

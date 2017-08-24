@@ -45,7 +45,7 @@ function uniqueConcat(arr1, arr2) {
 	var arr3 = Array.from(arr2);
 	for (var elem of arr1) {
 		if (!arrset.has(JSON.stringify(sortObj(elem)))) {
-			arr3.add(arr1);
+			arr3.push(elem);
 		}
 	}
 	return arr3;
@@ -86,6 +86,7 @@ exports.sequentialPromise = (arr, condition, iter) => {
 			});
 		}
 		console.log("sequential array completed");
+		return;
 	};
 
 	return Promise.resolve(0).then(iterfunc);
