@@ -7,14 +7,22 @@ const socketio = require('socket.io');
 const ss = require('socket.io-stream');
 const uuidv1 = require('uuid/v1');
 
+const hash = require('bcrypt-nodejs');
+const passport = require('passport');
+const localStrats = require('passport-local').Strategy;
+
 // Connect to DB
 require('./server/db/connectMongo');
-const db = require('./server/db/vidDb');
+const vidDb = require('./server/db/vidDb');
+const userDb = require('./server/db/userDb');
 const cache = require('./server/db/redisCache');
 
 // Services
 const converter = require('./server/services/audioConv');
 const synthesize = require('./server/services/synthesize').synthesize;
+
+// Auths
+var User = require('./server/models/userModel');
 
 const default_port = '8080';
 const default_host = '0.0.0.0';
@@ -31,12 +39,20 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Point static path to dist
 app.use(express.static(path.join(__dirname, 'dist')));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+// configure passport
+passport.use(new localStrats(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // Set port
 const port = process.env.PORT || default_port;
 app.set('port', port);
 
 function dbCheckStreamExist(vidId, exists, notexist) {
-	db.getVidStream(vidId)
+	vidDb.getVidStream(vidId)
 	.then((streamInfo) => {
 		if (streamInfo === null) {
 			notexist();
@@ -49,10 +65,75 @@ function dbCheckStreamExist(vidId, exists, notexist) {
 
 var sockets = {};
 
+// ===== Authentication Calls =====
+app.get('/api/users', (req, res) => {
+	userDb.getAllUsers()
+	.then((users) => {
+		users = users.map((usr) => {
+			return usr.id_;
+		});
+		res.json(usrs);
+	});
+});
+
+app.get('/api/users/:id', (req, res) => {
+	var id = req.params.id;
+	userDb.getUser(id)
+	.then((user) => {
+		user = user.username;
+		res.json(user);
+	})
+});
+
+app.post('/api/users', (req, res) => {
+	userDb.setUser(req.body)
+	.then(() => {
+		passport.authenticate('local')(req, res, () => {
+			res.json({"status": 'Rigstration successful'});
+		});
+	})
+	.catch((err) => {
+		res.status(500).json({ "err": err });
+	});
+});
+
+app.post('/api/authenticate', (req, res, next) => {
+	passport.authenticate('local', (err, user, info) => {
+		if (err) {
+			return next(err);
+		}
+		if (!user) {
+			return res.status(401).json({
+				"err": info
+			});
+		}
+		req.logIn(user, (err) => {
+			if (err) {
+				return res.status(500).json({
+					"err": 'Could not log in user'
+				});
+			}
+			res.json({
+				"status": 'Login successful'
+			});
+		})
+	})(req, res, next);
+});
+
+app.put('/api/users/:id', (req, res) => {
+	var id = req.params.id;
+	userDb.updateUser(id, req.body);
+});
+
+app.delete('/api/users/:id', (req, res) => {
+	var id = req.params.id;
+	userDb.rmUser(id);
+});
+
 // ===== API INDEPENDENT OF SOCKET =====
 app.get('/api/vidinfos', (req, res) => {
 	console.log('requesting all ids');
-	db.getAllVidInfo()
+	vidDb.getAllVidInfo()
 	.then((infos) => {
 		res.json(infos); 
 	});
@@ -95,8 +176,8 @@ app.put('/api/synthesize', (req, res) => {
 				var missing = result.missing;
 				var synth = result.stream;
 				if (synth) {
-					// add to db
-					// db.setSynthStream(synthId, synth);
+					// add to vidDb
+					// vidDb.setSynthStream(synthId, synth);
 					var outStream = ss.createStream();
 					ss(socket).emit('synthesized-audio', synthId, outStream);
 					synth.pipe(outStream);
@@ -138,15 +219,15 @@ app.put('/api/verify_id', (req, res) => {
 			res.json({ "onDb": false, "source": null });
 		}
 
-		// save in db
+		// save in vidDb
 		var source = '.<youtube>';
-		db.setVidStream(id, source, mp3)
+		vidDb.setVidStream(id, source, mp3)
 		.then((gfsStream) => {
 			if (gfsStream) {
 				gfsStream.on('finish', () => {
 					// when streaming is complete
 					console.log('emitting new audio to all with id '+id);
-					// we just created a new record, notify clients, once data is written to db
+					// we just created a new record, notify clients, once data is written to vidDb
 					io.sockets.emit('new-audio', id);
 				});
 			}
@@ -168,13 +249,13 @@ io.sockets.on('connection', (socket) => {
 		var vidId = uuidv1();
 
 		stream = converter.format(stream, "mp3");
-		db.setVidStream(vidId, fname, stream)
+		vidDb.setVidStream(vidId, fname, stream)
 		.then((gfsStream) => {
 			if (gfsStream) {
 				gfsStream.on('finish', () => {
 					// when streaming is complete
 					console.log('emitting new audio to all with id '+vidId);
-					// we just created a new record, notify clients, once data is written to db
+					// we just created a new record, notify clients, once data is written to vidDb
 					io.sockets.emit('new-audio', vidId);
 				});
 			}

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AudioHandleService } from '../services/audio.service';
+import { AudioHandleService } from '../_services/audio.service';
 
 enum linkStatus {
 	unprocessed = 0,

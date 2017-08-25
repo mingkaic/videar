@@ -4,7 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SynthviewerComponent } from './synthviewer.component';
-import { SynthesisService } from '../services/synthesis.service';
+import { SynthesisService } from '../_services/synthesis.service';
 
 describe('SynthviewerComponent', () => {
 	let component: SynthviewerComponent;

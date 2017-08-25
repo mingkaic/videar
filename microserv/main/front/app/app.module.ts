@@ -10,17 +10,22 @@ import { VidLinkerComponent } from './vidlinker/vidlinker.component';
 import { SynthesisComponent } from './synthesis/synthesis.component';
 import { AudioviewerComponent } from './audioviewer/audioviewer.component';
 import { SynthviewerComponent } from './synthviewer/synthviewer.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 
 import { VidUploaderDirective } from './viduploader/viduploader.directive';
 
-import { AudioHandleService } from './services/audio.service';
+import { AudioHandleService } from './_services/audio.service';
 
 const routes: Routes = [
 	// basic routes
 	{ path: '', redirectTo: 'home', pathMatch: 'full' },
 	{ path: 'home', component: VidUploadComponent },
 	{ path: 'vidlink', component: VidLinkerComponent },
-	{ path: 'synthesis', component: SynthesisComponent }
+	{ path: 'synthesis', component: SynthesisComponent },
+
+	{ path: 'login', component: LoginComponent },
+	{ path: 'register', component: RegisterComponent }
 ];
 
 @NgModule({
@@ -31,7 +36,10 @@ const routes: Routes = [
 		SynthesisComponent,
 		AudioviewerComponent,
 		SynthviewerComponent,
-		VidUploaderDirective
+		VidUploaderDirective,
+
+		LoginComponent,
+		RegisterComponent
 	],
 	imports: [
 		BrowserModule,

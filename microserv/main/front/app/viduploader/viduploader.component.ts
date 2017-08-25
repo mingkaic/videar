@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { AudioHandleService } from '../services/audio.service';
+import { AudioHandleService } from '../_services/audio.service';
 
 class FileInfo {
 	processing: boolean = false;

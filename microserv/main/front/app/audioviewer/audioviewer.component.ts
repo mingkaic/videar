@@ -1,5 +1,5 @@
 import { Component, OnInit, SimpleChange } from '@angular/core';
-import { AudioHandleService } from '../services/audio.service';
+import { AudioHandleService } from '../_services/audio.service';
 
 @Component({
 	selector: 'app-audioviewer',

@@ -1,8 +1,7 @@
 import { Http } from '@angular/http';
 import { Component, OnInit } from '@angular/core';
 
-import { AudioHandleService } from '../services/audio.service';
-import { SynthParams, SynthesisService } from '../services/synthesis.service';
+import { AudioHandleService, SynthParams, SynthesisService } from '../_services';
 
 import * as io from 'socket.io-client';
 import * as ss from 'socket.io-stream';

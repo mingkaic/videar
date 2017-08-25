@@ -1,5 +1,5 @@
 import { Component, OnInit, SimpleChange } from '@angular/core';
-import { SynthesisService } from '../services/synthesis.service';
+import { SynthesisService } from '../_services/synthesis.service';
 
 @Component({
 	selector: 'app-synthviewer',

@@ -4,8 +4,7 @@ import { MockBackend } from '@angular/http/testing';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SynthesisComponent } from './synthesis.component';
-import { AudioHandleService } from '../services/audio.service';
-import { SynthesisService } from '../services/synthesis.service';
+import { AudioHandleService, SynthesisService } from '../_services';
 import { SynthviewerComponent } from '../synthviewer/synthviewer.component';
 
 describe('SynthesisComponent', () => {

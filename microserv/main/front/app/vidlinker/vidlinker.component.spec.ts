@@ -5,7 +5,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VidLinkerComponent } from './vidlinker.component';
-import { AudioHandleService } from '../services/audio.service';
+import { AudioHandleService } from '../_services/audio.service';
 
 describe('VidLinkerComponent', () => {
 	let component: VidLinkerComponent;
