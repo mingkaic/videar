@@ -1,16 +1,10 @@
 language: generic
 
-jobs:
-  include:
-    - stage: build docker image
-      script:
-        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        - docker-compose build
-        - docker images
-        - docker-compose push videar-test
-    - stage: test
-      script:
-        - docker-compose run --rm videar-test
+script:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker-compose build
+  - docker images
+  - docker-compose run --rm videar-test
 
 after_success:
   - docker images
