@@ -283,8 +283,9 @@ exports.synthesize = (synParam) => {
 
 		// piece together chunks
 		console.log('concatenating audios');
-		var synthChunk = audioConv.concat(audioLayout);
-
+		return audioConv.concat(audioLayout);
+	})
+	.then((synthChunk) => {
 		console.log('concatenation successful');
 		return { 'missing': null, 'stream': synthChunk };
 	});

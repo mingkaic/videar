@@ -178,12 +178,16 @@ app.put('/api/synthesize', (req, res) => {
 				if (synth) {
 					// add to vidDb
 					// vidDb.setSynthStream(synthId, synth);
+					console.log('streaming synth');
 					var outStream = ss.createStream();
 					ss(socket).emit('synthesized-audio', synthId, outStream);
 					synth.pipe(outStream);
 					synth.on('end', () => {
 						console.log('synthStream complete');
 					});
+				}
+				else {
+					console.log('missing synthstream');
 				}
 				cache.deCache(context, synthId);
 				// reply about missing words

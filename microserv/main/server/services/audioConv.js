@@ -3,7 +3,7 @@ const ytdl = require('ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
 const stream = require('stream');
 const buffer = require("stream-buffer");
-const streamconcat = require('stream-concat'); // unsaved
+const uuidv1 = require('uuid/v1');
 
 const ytSetting = {
 	vidFormat: 'mp4',
@@ -11,7 +11,7 @@ const ytSetting = {
 	audioFormat: 'mp3'
 };
 
-const temporary = __dirname + "/temporary.mp3";
+const tempPath = __dirname + "/../tmp/";
 const offset = 0.5;
 
 exports.ytExtract = (vidId) => {
@@ -56,7 +56,7 @@ exports.chunkByTime = (audioStream, times) => {
 		var chunkStrOut = new stream.PassThrough();
 		buffed.replay(chunkStrIn);
 		chunkStrIn.resume();
-		ffmpeg(chunkStrIn).seekInput(startSec-offset).format('mp3').duration(durSec).pipe(chunkStrOut);
+		ffmpeg(chunkStrIn).seek(startSec).format('mp3').duration(durSec).pipe(chunkStrOut);
 		chunkStrOut.resume();
 
 		time['audio'] = chunkStrOut;
@@ -64,11 +64,43 @@ exports.chunkByTime = (audioStream, times) => {
 };
 
 exports.concat = (chunks) => {
-	return new streamconcat(chunks);
+	var uuid = uuidv1();
+	var tempfile = tempPath + uuid;
+
+	var audStream = ffmpeg();
+	var fnames = []
+	chunks.forEach((chunk, idx) => {
+		var fname = tempfile + JSON.stringify(idx) + ".mp3";
+		var ws = fs.createWriteStream(fname);
+		audStream.input(fname);
+		fnames.push(fname);
+
+		chunk.pipe(ws);
+		ws.once('close', () => {
+			if (chunks.every(c => c._readableState.ended)) {
+				console.log('all chunks end');
+				audStream.mergeToFile(tempfile + ".mp3");
+			}
+		});
+	});
+
+	return new Promise((resolve, reject) => {
+		audStream.on('end', () => {
+			fnames.forEach((fname) => {
+				fs.unlink(fname);
+			});
+			var outStream = fs.createReadStream(tempfile + ".mp3");
+			outStream.once('close', () => {
+				fs.unlink(tempfile + '.mp3');
+			});
+			resolve(outStream);
+		});
+	});
 };
 
 // todo: improve to prevent actually reading to file before duration
 exports.getDuration = (audioStream) => {
+	var uuid = uuidv1();
 	var buffed = audioStream.pipe(buffer());
 	buffed.getStream = () => {
 		var pass = new stream.PassThrough();
@@ -76,7 +108,7 @@ exports.getDuration = (audioStream) => {
 		pass.resume();
 		return pass;
 	}
-	var ws = fs.createWriteStream(temporary);
+	var ws = fs.createWriteStream(tempPath + uuid + ".mp3");
 	ffmpeg(buffed.getStream())
 	.format('mp3')
 	.pipe(ws)
@@ -88,7 +120,7 @@ exports.getDuration = (audioStream) => {
 		console.log('promising to get duration');
 		ws.on('finish', () => {
 			console.log('evaluating mp3 duration');
-			ffmpeg.ffprobe(temporary, (err, metadata) => {
+			ffmpeg.ffprobe(tempPath + uuid + ".mp3", (err, metadata) => {
 				var duration = metadata.format.duration;
 				if (err) {
 					reject(err);
@@ -96,6 +128,7 @@ exports.getDuration = (audioStream) => {
 				else {
 					resolve([duration, buffed]);
 				}
+				fs.unlink(tempPath + uuid + ".mp3");
 			});
 		})
 		.on('error', (err) => {
