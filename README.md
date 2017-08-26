@@ -1,17 +1,15 @@
 # Videar
 
 The user provides a series of youtube links and a text "script."
-The application extracts audio from uploaded audio files or youtube links
-The application then synthesizes audio for the provided script using words from the set of youtube audio.
-This application aims to facilitate content creators in making interesting clips from other audio assets.
-The final product is an audio collage that conveys a unique message.
+From uploaded audio assets, the application attempts to concatenate audio words that best match the script.
+This application aims to help content creators convey a message using existing audio.
+
+Disclaimer: the speech2text performance is currently poor, please use the provided audio for the best synthesis results
 
 ## Goals
 Currently, this application only synthesizes audio from a given script. The next version should generate video.
 
 ## Checklist
-[/] Upload audio files
-
 [/] Construct a word map (from a speech model)
 temporary speech2text: sphinx4
 todo: upgrade to Rocnnet
@@ -22,7 +20,9 @@ room for improvement:
 once upgraded to Rocnnet:
     - match by syllables
 
-[] Synthesize audio from best match
+[] Visualize available monologues from videos
+
+[] Save & Download Synthesized audios
 
 ## Deployment
 `docker-compose up` to run all services on host.

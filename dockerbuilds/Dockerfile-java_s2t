@@ -11,4 +11,4 @@ COPY ./microserv/s2t-sphinx $S2T_DIR
 
 RUN gradle build
 
-CMD ["java", "-mx2g", "-Xmx2g", "-Xms2g", "-Xss64m", "-XX:+UseParallelGC", "-XX:-UseGCOverheadLimit", "-jar", "build/libs/s2t-gradle-0.1.0.jar"]
+CMD ["java", "-mx512m", "-Xmx512m", "-Xms512m", "-XX:+UseParallelGC", "-XX:-UseGCOverheadLimit", "-jar", "build/libs/s2t-gradle-0.1.0.jar"]
