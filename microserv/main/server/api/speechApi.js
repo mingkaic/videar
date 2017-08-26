@@ -6,9 +6,9 @@ const db = require('../db/vidDb');
 const s2tHost = process.env.SPEECH_HOST || '127.0.0.1';
 const s2tPort = process.env.SPEECH_PORT || '8000';
 
-const speechURL = 'http://' + s2tHost + ':' + s2tPort;
+const speechURL = process.env.SPEECH_URI || 'http://' + s2tHost + ':' + s2tPort;
 
-const timeout = 3000000; // 50 minute
+const timeout = 600000; // 10 minute
 
 var simplemutex = false;
 

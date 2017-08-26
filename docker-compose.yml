@@ -31,6 +31,16 @@ services:
       - central_redis
 
 
+  hosted_java_s2t:
+    image: mkaichen/hosted_js2t:latest
+    build:
+      context: .
+      dockerfile: dockerbuilds/Dockerfile-java_s2t
+    environment:
+      - SPRING_VIDEAR_DB_HOST=centralmongodb.videar.17d3bded.svc.dockerapp.io
+      - SPRING_VIDEAR_DB_NAME=videar
+    ports:
+      - "8000:8000"
   # temporary java service for speech using sphinx4
   java_speech2text:
     image: mkaichen/sphinx-s2t:latest
@@ -41,7 +51,7 @@ services:
       - SPRING_VIDEAR_DB_NAME=videar
     ports:
       - "8000:8000"
-    depends_on: 
+    depends_on:
       - central_mongodb
   # java_speech2text-test:
   #   image: mkaichen/sphinx-s2t-test:latest
