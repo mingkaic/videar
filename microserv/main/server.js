@@ -171,7 +171,7 @@ app.put('/api/synthesize', (req, res) => {
 			console.log("synthesizing for request " + synthId);
 			// synthesis handles params validation
 			// params should be of form 
-			synthesize(req.body.params)
+			return synthesize(req.body.params)
 			.then((result) => {
 				var missing = result.missing;
 				var synth = result.stream;

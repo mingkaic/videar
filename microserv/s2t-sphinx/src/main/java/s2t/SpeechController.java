@@ -31,15 +31,21 @@ public class SpeechController {
 
     @RequestMapping("/vid_wordmap/{id}")
     public WordMapResponse getWordMap(@PathVariable(value="id") String id) {
-        System.out.println("Received id "+id);
+        System.out.println("Received id " + id);
         Query query = new Query();
         query.addCriteria(Criteria.where("filename").is(id));
         GridFSDBFile gridFSDBFile = gridFsTemplate.findOne(query);
+        HashMap<String, List<TimeFrame>> wMap;
+        if (gridFSDBFile) {
+            InputStream fstream = gridFSDBFile.getInputStream();
+            wMap = wordMapService.process(fstream);
+        }
+        else {
+            System.out.println("chunk not found: " + id);
+            wMap = new HashMap<>();
+        }
 
-        InputStream fstream = gridFSDBFile.getInputStream();
-        HashMap<String, List<TimeFrame>> wMap = wordMapService.process(fstream);
-
-        System.out.println("word map processing complete for "+id);
+        System.out.println("word map processing complete for " + id);
         return new WordMapResponse(wMap);
     }
 

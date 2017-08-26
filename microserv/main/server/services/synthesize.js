@@ -258,7 +258,7 @@ exports.synthesize = (synParam) => {
 		if (missingOptions.length > 0) {
 			// todo: add options to accommodate missing audio assets
 			// invalid layout
-			return { 'missing': missingOptions, 'stream': null };
+			return { 'missing': missingOptions, 'tokens': null };
 		}
 
 		console.log('BEGIN SYNTHESIS');
@@ -273,20 +273,26 @@ exports.synthesize = (synParam) => {
 		return Promise.all(audioPromises)
 		.then(() => {
 			console.log('END SYNTHESIS');
-			return tokens;
+			return { 'missing': missingOptions, 'tokens': tokens };
 		});
 	})
-	.then((tokens) => {
+	.then((tokenInfo) => {
+		var missing = tokenInfo.missing;
+		var tokens = tokenInfo.tokens;
+		if (null === tokens) {
+			return { 'missing': missing, 'stream': null };
+		}
+		
 		console.log("tokens ", tokens);
 		var audioLayout = tokens.map((time) => time.audio);
 		// assert: every audioLayout eleme is an audioChunk
 
 		// piece together chunks
 		console.log('concatenating audios');
-		return audioConv.concat(audioLayout);
-	})
-	.then((synthChunk) => {
-		console.log('concatenation successful');
-		return { 'missing': null, 'stream': synthChunk };
+		return audioConv.concat(audioLayout)
+		.then((synthChunk) => {
+			console.log('concatenation successful');
+			return { 'missing': missing, 'stream': synthChunk };
+		});
 	});
 };
