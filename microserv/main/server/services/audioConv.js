@@ -11,7 +11,7 @@ const ytSetting = {
 	audioFormat: 'mp3'
 };
 
-const tempPath = __dirname + "/../tmp/";
+const tempPath = __dirname + "/../temp/";
 const offset = 0.5;
 
 exports.ytExtract = (vidId) => {

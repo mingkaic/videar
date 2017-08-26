@@ -7,10 +7,14 @@ jobs:
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - docker-compose build
         - docker images
-        - docker-compose push
+        - docker-compose push videar-test
     - stage: test
       script:
         - docker-compose run --rm videar-test
+
+after_success:
+  - docker images
+  - docker-compose push
 
 # safelist
 branches:

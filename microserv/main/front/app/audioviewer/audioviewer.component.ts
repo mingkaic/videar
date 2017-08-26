@@ -8,7 +8,6 @@ import { AudioHandleService } from '../_services/audio.service';
 })
 export class AudioviewerComponent implements OnInit {
 	@Input() limit: number = 100;
-
 	mapKeys = Array.from;
 
 	constructor(private _audioService: AudioHandleService) {};

@@ -5,6 +5,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SynthesisComponent } from './synthesis.component';
 import { AudioHandleService, SynthesisService } from '../_services';
+import { AudioviewerComponent } from '../audioviewer/audioviewer.component';
 import { SynthviewerComponent } from '../synthviewer/synthviewer.component';
 
 describe('SynthesisComponent', () => {
@@ -16,6 +17,7 @@ describe('SynthesisComponent', () => {
   			imports: [ HttpModule, FormsModule ],
 			declarations: [ 
 				SynthesisComponent, 
+				AudioviewerComponent,
 				SynthviewerComponent
 			],
 			providers: [

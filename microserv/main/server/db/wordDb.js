@@ -19,7 +19,7 @@ exports.setWordMap = (vidId, start, wordMap) => {
 		wordMap = utils.map2Obj(wordMap);
 	}
 
-	wordMapModel.findOne({ 'vidId': vidId }).exec()
+	return wordMapModel.findOne({ 'vidId': vidId }).exec()
 	.then((wordMapInfo) => {
 		console.log(start, wordMap);
 		if (wordMapInfo) {

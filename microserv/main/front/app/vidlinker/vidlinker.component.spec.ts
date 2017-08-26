@@ -6,6 +6,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VidLinkerComponent } from './vidlinker.component';
 import { AudioHandleService } from '../_services/audio.service';
+import { AudioviewerComponent } from '../audioviewer/audioviewer.component';
 
 describe('VidLinkerComponent', () => {
 	let component: VidLinkerComponent;
@@ -14,7 +15,11 @@ describe('VidLinkerComponent', () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
   			imports: [ HttpModule, FormsModule ],
-			declarations: [ VidLinkerComponent, VidLinkerComponent ],
+			declarations: [ 
+				VidLinkerComponent, 
+				VidLinkerComponent,
+				AudioviewerComponent
+			],
 			providers: [
 				AudioHandleService,
 				DomSanitizer,
