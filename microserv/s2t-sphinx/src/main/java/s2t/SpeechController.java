@@ -36,7 +36,7 @@ public class SpeechController {
         query.addCriteria(Criteria.where("filename").is(id));
         GridFSDBFile gridFSDBFile = gridFsTemplate.findOne(query);
         HashMap<String, List<TimeFrame>> wMap;
-        if (gridFSDBFile) {
+        if (null != gridFSDBFile) {
             InputStream fstream = gridFSDBFile.getInputStream();
             wMap = wordMapService.process(fstream);
         }
