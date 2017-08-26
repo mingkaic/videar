@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.17.2",
-    "express": "^4.15.3"
+    "express": "^4.15.3",
+    "gridfs-stream": "^1.1.1",
+    "mongoose": "^4.11.6"
   }
 }

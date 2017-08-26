@@ -1,6 +1,7 @@
 version: '2'
 
 services:
+  # main service
   videar:
     image: mkaichen/videar:latest
     extends:
@@ -8,10 +9,14 @@ services:
       service: videar-setup
     environment:
       - NODE_ENV=production
+      - SPEECH_HOST=java_speech2text
       - PORT=80
     ports:
       - "80:80"
-
+    depends_on: 
+      - central_mongodb
+      - central_redis
+      - java_speech2text
   videar-test:
     image: mkaichen/videar-test:latest
     extends:
@@ -19,23 +24,65 @@ services:
       service: videar-setup
     environment:
       - NODE_ENV=test
+      - SPEECH_HOST=speech2text
     command: [ "npm", "test" ]
     depends_on: 
       - central_mongodb
-      - speech2text
+      - central_redis
 
-  speech2text:
-    image: mkaichen/rocnnet-s2t:latest
-    build: 
-      context: .
-      dockerfile: dockerbuilds/Dockerfile-s2t
-    volumes:
-      - /usr/src/s2t
 
+  # temporary java service for speech using sphinx4
+  java_speech2text:
+    image: mkaichen/sphinx-s2t:latest
+    extends:
+      file: common-services.yml
+      service: java_s2t-setup
+    environment:
+      - SPRING_VIDEAR_DB_NAME=videar
+    ports:
+      - "8000:8000"
+    depends_on: 
+      - central_mongodb
+  # java_speech2text-test:
+  #   image: mkaichen/sphinx-s2t-test:latest
+  #   extends:
+  #     file: common-services.yml
+  #     service: java_s2t-setup
+  #   environment:
+  #     - SPRING_VIDEAR_DB_NAME=videar_test
+  #   command: [ "ls" ]
+  #   depends_on: 
+  #     - central_mongodb
+
+
+  # # placeholder for Rocnnet
+  # speech2text:
+  #   image: mkaichen/rocnnet-s2t:latest
+  #   build: 
+  #     context: .
+  #     dockerfile: dockerbuilds/Dockerfile-s2t
+  #   environment:
+  #     - DB_HOST=central_mongodb
+  #   volumes:
+  #     - /usr/src/s2t
+  #   depends_on: 
+  #     - central_mongodb
+  
+
+  # mongo
   central_mongodb:
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes: 
       - /data/db
+    restart: always
+
+
+  # redis
+  central_redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    command: [ "redis-server" ]
     restart: always

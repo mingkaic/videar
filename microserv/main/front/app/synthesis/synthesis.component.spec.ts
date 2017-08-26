@@ -4,7 +4,8 @@ import { MockBackend } from '@angular/http/testing';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SynthesisComponent } from './synthesis.component';
-import { AudioHandleService } from '../services/audio.service';
+import { AudioHandleService, SynthesisService } from '../_services';
+import { SynthviewerComponent } from '../synthviewer/synthviewer.component';
 
 describe('SynthesisComponent', () => {
 	let component: SynthesisComponent;
@@ -13,9 +14,13 @@ describe('SynthesisComponent', () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
   			imports: [ HttpModule, FormsModule ],
-			declarations: [ SynthesisComponent ],
+			declarations: [ 
+				SynthesisComponent, 
+				SynthviewerComponent
+			],
 			providers: [
 				AudioHandleService,
+				SynthesisService,
         		{ provide: XHRBackend, useClass: MockBackend },
 			]
 		})

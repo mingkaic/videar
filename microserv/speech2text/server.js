@@ -12,6 +12,8 @@ const hostPort = process.env.SERV_PORT || '8080';
 const app = express();
 const server = http.createServer(app);
 
+const db = require('./db/central_mongo.js');
+
 // Parse POST data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -19,14 +21,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const port = process.env.PORT || default_port;
 app.set('port', port);
 
-app.get('/vid_wordmap', (req, res) => {
-	word_map = { "intro": 'hello friendo' };
-	vidIds = JSON.parse(req.body.vidIds);
-	console.log('we get ids: ' + vidIds);
-
-	// search db for videos
-
-	// process audio speech 2 text + timestamp
+app.get('/vid_wordmap/:cacheIds', (req, res) => {
+	var word_map = { "intro": 'hello friendo' };
+	var cacheIds = req.params.cacheIds;
+	var stream = db.getCache(cacheIds);
+	if (stream) {
+		// process audio speech 2 text + timestamp
+		console.log('existing stream! ' + cacheIds);
+	}
+	else {
+		// process error...
+		console.log('non-existent stream! ' + cacheIds);
+	}
 
 	res.json(word_map);
 });

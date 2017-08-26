@@ -1,26 +1,32 @@
 import { Http } from '@angular/http'
 import { Injectable, EventEmitter } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Socket } from 'socket.io-client';
 
 import * as io from 'socket.io-client';
 import * as ss from 'socket.io-stream';
 
 export class ViewableAudio {
+	selected: boolean = true;
+
 	constructor(public name: string, public ref: SafeResourceUrl) {}
+
+	getSelectionLabel(): String {
+		return this.selected ? "Deselect" : "Select";
+	}
+
+	toggleSelect() {
+		this.selected = !this.selected;
+	}
 }
 
 @Injectable()
 export class AudioHandleService {
 	sounds: Map<string, ViewableAudio>;
-	clientSocket: Socket;
-
-	newAudio: EventEmitter<string> = new EventEmitter();
+	clientSocket: io.Socket;
 	
 	constructor(private _sanitizer: DomSanitizer, private _http: Http)
 	{
 		this.sounds = new Map<string, ViewableAudio>();
-		this.sounds["lastId"] = null;
 		this.clientSocket = io();
 
 		this._http.get('/api/vidinfos').subscribe((data) => {
@@ -33,6 +39,7 @@ export class AudioHandleService {
 
 		// socket listeners
 		this.clientSocket.on('new-audio', (vidId: string) => {
+			console.log('new audio notified '+vidId);
 			// todo: implement selective audio loading before requesting audio (not every audio needs to be viewed)
 			// audio streaming is expensive
 			this.requestAudio(vidId);
@@ -60,7 +67,7 @@ export class AudioHandleService {
 	};
 
 	requestAudio(vidId: string) {
-		if (this.sounds.has(vidId)) return;
+		if (this.sounds.has(vidId) && null != this.sounds.get(vidId).ref) return;
 		console.log('requesting stream for '+vidId);
 		this._http.post('/api/req_audio', { "socketId": this.clientSocket.id, "vidId": vidId })
 		.subscribe((data) => {
@@ -80,6 +87,7 @@ export class AudioHandleService {
 		this._http.put('/api/verify_id', { "vidId": vidId })
 		.subscribe((data) => {
 			let idInfo = data.json();
+			console.log(idInfo);
 			if (idInfo.source) {
 				console.log('id '+vidId+' definitely exists');
 				if (idInfo.onDb) {
@@ -105,21 +113,20 @@ export class AudioHandleService {
 		return this.sounds.has(vidId);
 	};
 
+	getSelectedIds(): string[] {
+		let viewables = Array.from(this.sounds.keys());
+		return viewables.filter((vidId: string) => this.sounds.get(vidId).selected);
+	}
+
 	private setPotential(id: string, source: string) {
 		if (this.sounds.has(id)) return;
 
-		if (source === "upload") {
-			this._http.get('/api/file/'+id)
-			.subscribe((data) => {
-				this.sounds.set(id, new ViewableAudio(data.json().filename, null));
-			});
+		if (source === ".<youtube>") {
+			let callsign = "http://www.youtube.com/watch?v=" + id;
+			this.sounds.set(id, new ViewableAudio(callsign, null));
 		}
 		else {
-			let callsign = source + ":" + id;
-			if (source === "youtube") {
-				callsign = "http://www.youtube.com/watch?v=" + id;
-			}
-			this.sounds.set(id, new ViewableAudio(callsign, null));
+			this.sounds.set(id, new ViewableAudio(source, null));
 		}
 	}
 

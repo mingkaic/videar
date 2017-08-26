@@ -7,7 +7,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { AppComponent } from './app.component';
 import { AudioviewerComponent } from './audioviewer/audioviewer.component';
-import { AudioHandleService } from './services/audio.service';
+import { AudioHandleService } from './_services/audio.service';
 
 @Component({
   template: ''

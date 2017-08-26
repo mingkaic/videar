@@ -4,7 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AudioviewerComponent } from './audioviewer.component';
-import { AudioHandleService } from '../services/audio.service';
+import { AudioHandleService } from '../_services/audio.service';
 
 describe('AudioviewerComponent', () => {
 	let component: AudioviewerComponent;

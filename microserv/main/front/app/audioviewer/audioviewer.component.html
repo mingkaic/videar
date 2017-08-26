@@ -1,3 +1,4 @@
+<label>Audio Assets</label>
 <table class="table table-striped">
 	<tbody *ngFor="let sid of mapKeys(_audioService.sounds.keys())">
 		<tr>
@@ -6,6 +7,10 @@
 				<audio controls="controls" preload='auto'>
 					<source [src]="_audioService.sounds.get(sid).ref" type="audio/mp3"/>
 				</audio>
+			</td>
+			<td>
+				<button (click)="_audioService.sounds.get(sid).toggleSelect()" class="btn btn-default">
+					{{_audioService.sounds.get(sid).getSelectionLabel()}}</button>
 			</td>
 		</tr>
 	</tbody> 

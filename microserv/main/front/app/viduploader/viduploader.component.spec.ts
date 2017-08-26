@@ -4,7 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VidUploadComponent } from './viduploader.component';
-import { AudioHandleService } from '../services/audio.service';
+import { AudioHandleService } from '../_services/audio.service';
 import { VidUploaderDirective } from '../viduploader/viduploader.directive';
 
 describe('VidUploadComponent', () => {

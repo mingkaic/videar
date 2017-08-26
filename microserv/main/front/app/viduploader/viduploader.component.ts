@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { AudioHandleService } from '../services/audio.service';
+import { AudioHandleService } from '../_services/audio.service';
 
 class FileInfo {
 	processing: boolean = false;
@@ -34,7 +34,10 @@ export class VidUploadComponent implements OnInit {
 	};
 
 	onFileInvalids(fileList : Array<File>){
-		console.log("bad file change");
+		if (fileList.length > 0) {
+			// warn of bad files...
+			console.log("bad file change");
+		}
 	};
 
 	removeFile(index: number) {

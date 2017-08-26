@@ -5,15 +5,24 @@ const http = require('http');
 const path = require('path');
 const socketio = require('socket.io');
 const ss = require('socket.io-stream');
-const s2p = require('stream-to-promise');
+const uuidv1 = require('uuid/v1');
+
+const hash = require('bcrypt-nodejs');
+const passport = require('passport');
+const localStrats = require('passport-local').Strategy;
 
 // Connect to DB
 require('./server/db/connectMongo');
+const vidDb = require('./server/db/vidDb');
+const userDb = require('./server/db/userDb');
+const cache = require('./server/db/redisCache');
 
 // Services
-const yt = require('./server/services/ytConv');
-const db = require('./server/services/vidDb');
-const synthesize = require('./server/services/synthesize');
+const converter = require('./server/services/audioConv');
+const synthesize = require('./server/services/synthesize').synthesize;
+
+// Auths
+var User = require('./server/models/userModel');
 
 const default_port = '8080';
 const default_host = '0.0.0.0';
@@ -30,12 +39,20 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Point static path to dist
 app.use(express.static(path.join(__dirname, 'dist')));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+// configure passport
+passport.use(new localStrats(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // Set port
 const port = process.env.PORT || default_port;
 app.set('port', port);
 
 function dbCheckStreamExist(vidId, exists, notexist) {
-	db.getVidStream(vidId)
+	vidDb.getVidStream(vidId)
 	.then((streamInfo) => {
 		if (streamInfo === null) {
 			notexist();
@@ -48,19 +65,78 @@ function dbCheckStreamExist(vidId, exists, notexist) {
 
 var sockets = {};
 
-// ===== API INDEPENDENT OF SOCKET =====
-app.get('/api/vidinfos', (req, res) => {
-	console.log('requesting all ids');
-	db.getAllVidInfo()
-	.then((infos) => {
-		res.json(infos); 
+// ===== Authentication Calls =====
+app.get('/api/users', (req, res) => {
+	userDb.getAllUsers()
+	.then((users) => {
+		users = users.map((usr) => {
+			return usr.id_;
+		});
+		res.json(usrs);
 	});
 });
 
-app.get('/api/file/:vidId', (req, res) => {
-	var id = req.params.vidId;
-	console.log('getting file name for '+id);
-	db.getFileInfo(id).then((file) => res.json(file));
+app.get('/api/users/:id', (req, res) => {
+	var id = req.params.id;
+	userDb.getUser(id)
+	.then((user) => {
+		user = user.username;
+		res.json(user);
+	})
+});
+
+app.post('/api/users', (req, res) => {
+	userDb.setUser(req.body)
+	.then(() => {
+		passport.authenticate('local')(req, res, () => {
+			res.json({"status": 'Rigstration successful'});
+		});
+	})
+	.catch((err) => {
+		res.status(500).json({ "err": err });
+	});
+});
+
+app.post('/api/authenticate', (req, res, next) => {
+	passport.authenticate('local', (err, user, info) => {
+		if (err) {
+			return next(err);
+		}
+		if (!user) {
+			return res.status(401).json({
+				"err": info
+			});
+		}
+		req.logIn(user, (err) => {
+			if (err) {
+				return res.status(500).json({
+					"err": 'Could not log in user'
+				});
+			}
+			res.json({
+				"status": 'Login successful'
+			});
+		})
+	})(req, res, next);
+});
+
+app.put('/api/users/:id', (req, res) => {
+	var id = req.params.id;
+	userDb.updateUser(id, req.body);
+});
+
+app.delete('/api/users/:id', (req, res) => {
+	var id = req.params.id;
+	userDb.rmUser(id);
+});
+
+// ===== API INDEPENDENT OF SOCKET =====
+app.get('/api/vidinfos', (req, res) => {
+	console.log('requesting all ids');
+	vidDb.getAllVidInfo()
+	.then((infos) => {
+		res.json(infos); 
+	});
 });
 
 app.post('/api/req_audio', (req, res) => {
@@ -84,11 +160,47 @@ app.post('/api/req_audio', (req, res) => {
 
 app.put('/api/synthesize', (req, res) => {
 	var socket = sockets[req.body.socketId];
-	// synthesis handles params validation
-	// params should be of form 
-	synthesize(req.body.params)
-	.then(() => {
-		res.json({ "message": 'synthesizing' });
+	var synthId = req.body.synthId;
+	const context = "synthId";
+
+	// todo: move this functionality somewhere else
+	cache.hasKey(context, synthId)
+	.then((existence) => {
+		if (1 !== existence) {
+			cache.setCacheKey(context, synthId, "set");
+			console.log("synthesizing for request " + synthId);
+			// synthesis handles params validation
+			// params should be of form 
+			synthesize(req.body.params)
+			.then((result) => {
+				var missing = result.missing;
+				var synth = result.stream;
+				if (synth) {
+					// add to vidDb
+					// vidDb.setSynthStream(synthId, synth);
+					console.log('streaming synth');
+					var outStream = ss.createStream();
+					ss(socket).emit('synthesized-audio', synthId, outStream);
+					synth.pipe(outStream);
+					synth.on('end', () => {
+						console.log('synthStream complete');
+					});
+				}
+				else {
+					console.log('missing synthstream');
+				}
+				cache.deCache(context, synthId);
+				// reply about missing words
+				res.json({ "missing": missing || [] });
+			});
+		}
+		else {
+			console.log("synthesizing for request " + synthId + " in progress");
+		}
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
 	});
 });
 
@@ -104,21 +216,27 @@ app.put('/api/verify_id', (req, res) => {
 	() => {
 		// non-existent stream
 		try {
-			var mp3 = yt(id);
+			var mp3 = converter.ytExtract(id);
 		}
 		catch (err) {
 			console.log(err);
 			res.json({ "onDb": false, "source": null });
 		}
-		// save in db
-		db.setVidStream(id, 'youtube', mp3, 
-		() => {
-			// when streaming is complete
-			console.log('emitting new audio to all with id '+id);
-			// we just created a new record, notify clients, once data is written to db
-			io.sockets.emit('new-audio', id);
+
+		// save in vidDb
+		var source = '.<youtube>';
+		vidDb.setVidStream(id, source, mp3)
+		.then((gfsStream) => {
+			if (gfsStream) {
+				gfsStream.on('finish', () => {
+					// when streaming is complete
+					console.log('emitting new audio to all with id '+id);
+					// we just created a new record, notify clients, once data is written to vidDb
+					io.sockets.emit('new-audio', id);
+				});
+			}
 		});
-		res.json({ "onDb": false, "source": 'youtube' });
+		res.json({ "onDb": false, "source": source });
 	});
 });
 
@@ -131,12 +249,20 @@ io.sockets.on('connection', (socket) => {
 	// POST-EQUIVALENT
 	ss(socket).on('post-audio-client',
 	(stream, fname) => {
-		db.setVidFile(stream, fname,
-		(id) => {
-			// when streaming is complete
-			console.log('emitting new audio to all with id '+id);
-			// we just created a new record, notify clients, once data is written to db
-			io.sockets.emit('new-audio', id);
+		// generate vidId
+		var vidId = uuidv1();
+
+		stream = converter.format(stream, "mp3");
+		vidDb.setVidStream(vidId, fname, stream)
+		.then((gfsStream) => {
+			if (gfsStream) {
+				gfsStream.on('finish', () => {
+					// when streaming is complete
+					console.log('emitting new audio to all with id '+vidId);
+					// we just created a new record, notify clients, once data is written to vidDb
+					io.sockets.emit('new-audio', vidId);
+				});
+			}
 		});
 	});
 
