@@ -114,7 +114,8 @@ app.post('/api/authenticate', (req, res, next) => {
 				});
 			}
 			res.json({
-				"status": 'Login successful'
+				"name": user.username,
+				"id": user._id
 			});
 		})
 	})(req, res, next);
