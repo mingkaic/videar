@@ -2,11 +2,11 @@ package s2t;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mongodb.gridfs.GridFSDBFile;
-import edu.cmu.sphinx.util.TimeFrame;
+import edu.cmu.sphinx.result.WordResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -19,34 +19,34 @@ public class SpeechController {
     @Autowired
     GridFsTemplate gridFsTemplate;
 
-    WordMapService wordMapService;
+    TranscriptService transcriptService;
 
     SpeechController() {
         try {
-            this.wordMapService = new WordMapService();
+            this.transcriptService = new TranscriptService();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @RequestMapping("/vid_wordmap/{id}")
-    public WordMapResponse getWordMap(@PathVariable(value="id") String id) {
+    @RequestMapping("/transcribe/{id}")
+    public TranscribeResponse getTranscript(@PathVariable(value="id") String id) {
         System.out.println("Received id " + id);
         Query query = new Query();
         query.addCriteria(Criteria.where("filename").is(id));
         GridFSDBFile gridFSDBFile = gridFsTemplate.findOne(query);
-        HashMap<String, List<TimeFrame>> wMap;
+        List<WordModel> subtitles;
         if (null != gridFSDBFile) {
             InputStream fstream = gridFSDBFile.getInputStream();
-            wMap = wordMapService.process(fstream);
+            subtitles = transcriptService.process(id, fstream);
         }
         else {
             System.out.println("chunk not found: " + id);
-            wMap = new HashMap<>();
+            subtitles = new ArrayList<>();
         }
 
         System.out.println("word map processing complete for " + id);
-        return new WordMapResponse(wMap);
+        return new TranscribeResponse(subtitles);
     }
 
 }

@@ -11,6 +11,14 @@ client.on('connect', () => {
     console.log("connected");
 });
 
+client.on('error', (err) => {
+    console.log(err);
+});
+
+client.on('disconnected', () => {
+	console.log('Redis connection disconnected'); 
+});
+
 // make more complex later
 function contextualize(context, id) {
     return "<|" + context + ">_" + id;

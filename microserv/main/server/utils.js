@@ -91,3 +91,20 @@ exports.sequentialPromise = (arr, condition, iter) => {
 
 	return Promise.resolve(0).then(iterfunc);
 };
+
+exports.transcript2Map = (transcript, wordSet) => {
+	var undefSet = typeof wordSet === 'undefined';
+	var wordMap = new Map();
+	transcript.forEach((wordInfo) => {
+		var word = wordInfo.word;
+		if (undefSet || wordSet.has(word)) {
+			var times = [];
+			if (wordMap.has(word)) {
+				times = wordMap.get(word);
+			}
+			times.push(wordInfo.time);
+			wordMap.set(word, times);
+		}
+	});
+	return wordMap;
+}

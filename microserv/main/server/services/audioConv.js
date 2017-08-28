@@ -68,7 +68,7 @@ exports.concat = (chunks) => {
 	var tempfile = tempPath + uuid;
 
 	var audStream = ffmpeg();
-	var fnames = []
+	var fnames = [];
 	chunks.forEach((chunk, idx) => {
 		var fname = tempfile + JSON.stringify(idx) + ".mp3";
 		console.log('in concat: writing to file ' + fname);

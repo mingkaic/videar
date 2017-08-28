@@ -1,47 +1,34 @@
 const mongoose = require('mongoose');
 
-const wordMapModel = require('../models/wordMapModel');
+const transcriptModel = require('../models/transcriptModel');
 const utils = require('../utils');
 
-exports.getWordMap = (vidId) => {
-	return wordMapModel.findOne({ 'vidId': vidId }).exec()
-	.then((wordMapInfo) => {
-		if (wordMapInfo) {
-			wordMapInfo.words = utils.obj2Map(wordMapInfo.words);
-		}
-		return wordMapInfo;
-	});
+exports.getTranscript = (vidId) => {
+	return transcriptModel.findOne({ 'vidId': vidId }).exec();
 };
 
 // start = -1 if wordMap requests are complete
-exports.setWordMap = (vidId, start, wordMap) => {
-	if (wordMap instanceof Map) {
-		wordMap = utils.map2Obj(wordMap);
+exports.setTranscript = (vidId, start, transcript) => {
+	if (!(transcript instanceof Array)) {
+		throw "setting non-array transcript";
 	}
 
-	return wordMapModel.findOne({ 'vidId': vidId }).exec()
-	.then((wordMapInfo) => {
-		console.log(start, wordMap);
-		if (wordMapInfo) {
-			wordMapInfo.startTime = start;
+	return transcriptModel.findOne({ 'vidId': vidId }).exec()
+	.then((transcriptInfo) => {
+		if (transcriptInfo) {
+			transcriptInfo.startTime = start;
 			// todo: select best wordMap (attempt to correct missing words)
-			wordMapInfo.words = wordMap;
+			transcriptInfo.subtitles = transcript;
 		}
 		else {
 			// record next chunk start time, completion status to audioMap
-			wordMapInfo = new wordMapModel({
+			transcriptInfo = new transcriptModel({
 				'vidId': vidId,
 				'startTime': start,
-				'words': wordMap
+				'subtitles': transcript
 			});
 		}
 		// save audioMap
-		return wordMapInfo.save();
-	})
-	.then((wordMapInfo) => {
-		if (wordMapInfo) {
-			wordMapInfo.words = utils.obj2Map(wordMapInfo.words);
-		}
-		return wordMapInfo;
+		return transcriptInfo.save();
 	});
 };

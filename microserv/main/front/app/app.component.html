@@ -1,4 +1,4 @@
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-inverse bg-inverse">
 	<div class="container-fluid">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -14,6 +14,7 @@
 			<ul class="nav navbar-nav navbar-right">
 				<li [routerLinkActive]="['active']"><a [routerLink]="['/home']">Upload Videos</a></li>
         		<li [routerLinkActive]="['active']"><a [routerLink]="['/synthesis']">Synthesize</a></li>
+        		<li [routerLinkActive]="['active']"><a [routerLink]="['/vidview']">Browse Audio</a></li>
         		<li [hidden]=hasUser() [routerLinkActive]="['active']"><a [routerLink]="['/login']">Login</a></li>
         		<li *ngIf=hasUser() class="dropdown">
 					<a data-toggle="dropdown" class="dropdown-toggle">
@@ -21,7 +22,7 @@
 						<span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu">
-						<li><a [routerLink]="['/login']">Logout</a></li>
+						<li><a (click)="logout()">Logout</a></li>
 					</ul>
 				</li>
 			</ul>

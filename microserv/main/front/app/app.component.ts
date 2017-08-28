@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { AuthenticationService } from './_services/auth.service';
+
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
-	styleUrls: ['./app.component.css']
+	styleUrls: ['./app.component.css'],
+	providers: [ AuthenticationService ]
 })
 export class AppComponent {
 	title = 'Videar';
@@ -12,7 +15,7 @@ export class AppComponent {
 		
 	};
 
-	constructor(private router: Router) {};
+	constructor(private router: Router, private authenticationService: AuthenticationService) {};
 
 	getUser() {
 		let userInfo = localStorage.getItem('currentUser');
@@ -23,7 +26,10 @@ export class AppComponent {
 	};
 
 	hasUser() {
-		console.log("EYYY ", null !== localStorage.getItem('currentUser'));
 		return null !== localStorage.getItem('currentUser');
+	};
+
+	logout() {
+		this.authenticationService.logout();
 	};
 };

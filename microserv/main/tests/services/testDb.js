@@ -162,26 +162,26 @@ describe('Database Tests:', function() {
 			});
 		});
 
-		it('getWordMap should return promise with value null', 
+		it('getTranscript should return promise with value null', 
 		function(done) {
-			wordDb.getWordMap(testId)
-			.then((wordMap) => {
-				expect(wordMap).to.equal(null);
+			wordDb.getTranscript(testId)
+			.then((transcriptInfo) => {
+				expect(transcriptInfo).to.equal(null);
 			
 				done();
 			})
 			.catch(done);
 		});
 		
-		it('setWordMap should save required data', 
+		it('setTranscript should save required data', 
 		function(done) {
-			var mockWordMap = testUtils.getTestWordMap();
-			wordDb.setWordMap(testId, testWordStart, mockWordMap)
+			var mockTranscript = testUtils.getTestTranscript();
+			wordDb.setTranscript(testId, testWordStart, mockTranscript)
 			.then((data) => {
 				expect(data.vidId).to.equal(testId);
 				expect(data.startTime).to.equal(testWordStart);
-				expect(data.words).to.be.instanceOf(Map);
-				expect(testUtils.objEq(utils.map2Obj(data.words), mockWordMap)).to.equal(true);
+				expect(data.subtitles).to.be.instanceOf(Array);
+				expect(testUtils.objEq(data.subtitles, mockTranscript)).to.equal(true);
 
 				done();
 			})
@@ -198,43 +198,43 @@ describe('Database Tests:', function() {
 	
 	describe('Wordmap Collection (With An Entry):', function() {
 		beforeEach(function(done) {
-			var mockWordMap = testUtils.getTestWordMap();
-			wordDb.setWordMap(testId, 12, mockWordMap)
+			var mockTranscript = testUtils.getTestTranscript();
+			wordDb.setTranscript(testId, 12, mockTranscript)
 			.then((data) => {
 				done();
 			})
 			.catch(done);
 		});
 
-		it('getWordMap should return promise with wordMap', 
+		it('getTranscript should return promise with wordMap', 
 		function(done) {
-			var mockWordMap = testUtils.getTestWordMap();
-			wordDb.getWordMap(testId)
+			var mockTranscript = testUtils.getTestTranscript();
+			wordDb.getTranscript(testId)
 			.then((data) => {
 				expect(data.vidId).to.equal(testId);
 				expect(data.startTime).to.equal(testWordStart);
-				expect(data.words).to.be.instanceOf(Map);
-				expect(testUtils.objEq(utils.map2Obj(data.words), mockWordMap)).to.equal(true);
+				expect(data.subtitles).to.be.instanceOf(Array);
+				expect(testUtils.objEq(data.subtitles, mockTranscript)).to.equal(true);
 			
 				done();
 			})
 			.catch(done);
 		});
 		
-		it('setWordMap should update data', 
+		it('setTranscript should update data', 
 		function(done) {
-			var mockWordMap = testUtils.getTestWordMap();
+			var mockTranscript = testUtils.getTestTranscript();
 		
-			wordDb.setWordMap(testId, testWordStart, mockWordMap)
+			wordDb.setTranscript(testId, testWordStart, mockTranscript)
 			.then((data) => {
-				mockWordMap['modified'] = [{"start": 10000, "end": 11000}];
-				return wordDb.setWordMap(testId, -1, mockWordMap);
+				mockTranscript.push({"word": "injected", "time": { "start": 10000, "end": 11000 } });
+				return wordDb.setTranscript(testId, -1, mockTranscript);
 			})
 			.then((data) => {
 				expect(data.vidId).to.equal(testId);
 				expect(data.startTime).to.equal(-1);
-				expect(data.words).to.be.instanceOf(Map);
-				expect(testUtils.objEq(utils.map2Obj(data.words), mockWordMap)).to.equal(true);
+				expect(data.subtitles).to.be.instanceOf(Array);
+				expect(testUtils.objEq(data.subtitles, mockTranscript)).to.equal(true);
 
 				done();
 			})

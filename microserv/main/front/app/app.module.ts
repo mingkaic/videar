@@ -23,6 +23,7 @@ const routes: Routes = [
 	{ path: 'home', component: VidUploadComponent },
 	{ path: 'vidlink', component: VidLinkerComponent },
 	{ path: 'synthesis', component: SynthesisComponent },
+	{ path: 'vidview', component: AudioviewerComponent },
 
 	{ path: 'login', component: LoginComponent },
 	{ path: 'register', component: RegisterComponent }

@@ -1,8 +1,0 @@
-{
-    "imagine": [ { "start": 1000, "end": 1200 } ],
-    "a": [ { "start": 0, "end": 200 },  { "start": 2000, "end": 2200 }  ],
-    "dirt": [ { "start": 3000, "end": 3500 } ],
-    "cheap": [ { "start": 1500, "end": 1800 } ],
-    "linux": [ { "start": 4000, "end": 5000 } ],
-    "camera": [ { "start": 6000, "end": 7000 } ]
-}
