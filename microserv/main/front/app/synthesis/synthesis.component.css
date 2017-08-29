@@ -1,0 +1,6 @@
+.table tr.active td {
+    background-color: lightgray;
+}
+td.centered {
+    vertical-align: middle;
+}

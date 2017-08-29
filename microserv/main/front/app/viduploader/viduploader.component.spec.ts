@@ -5,8 +5,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VidUploadComponent } from './viduploader.component';
 import { AudioHandleService } from '../_services/audio.service';
-import { VidUploaderDirective } from '../viduploader/viduploader.directive';
-import { AudioviewerComponent } from '../audioviewer/audioviewer.component';
+import { VidUploaderDirective } from '../_directives/viduploader.directive';
+import { SimpleViewerComponent } from '../simpleviewer/simpleviewer.component';
 
 describe('VidUploadComponent', () => {
 	let component: VidUploadComponent;
@@ -18,7 +18,7 @@ describe('VidUploadComponent', () => {
 			declarations: [ 
 				VidUploadComponent, 
 				VidUploaderDirective,
-				AudioviewerComponent
+				SimpleViewerComponent
 			],
 			providers: [
 				AudioHandleService,

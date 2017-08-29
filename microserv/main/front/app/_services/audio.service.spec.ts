@@ -22,7 +22,7 @@ describe('AudioHandleService', () => {
 
 	it('does not have fake audio using hasAudio', () => {
 		inject([AudioHandleService], (audioService) => {
-			expect(audioService.hasAudio(testId)).toEqual(false);
+			expect(audioService.hasAudioModel(testId)).toEqual(false);
 		});
 	});
 });

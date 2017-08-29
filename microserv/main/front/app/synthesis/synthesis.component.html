@@ -1,7 +1,21 @@
 <div class="form-group">
 	<label for="scriptarea">Enter Script</label>
-	<textarea class="form-control" id="scriptarea" [(ngModel)]="param.script" rows="3"></textarea>
+	<textarea class="form-control" id="scriptarea" [(ngModel)]="script" rows="3"></textarea>
 	<button (click)="synthesize()" class="btn btn-success">Synthesize</button>
 </div>
-<app-audioviewer [limit]=20></app-audioviewer>
+<label>Audio Assets</label>
+<table class="table table-striped">
+	<tbody *ngFor="let audio of cache.toArray()">
+		<tr (click)="audio.toggleSelect()" [class.active]="audio.selected">
+			<td class="centered"><label class="form-control-label">{{audio.model.name}}</label></td>
+			<td>
+				<audio controls="controls" preload='auto'>
+					<source [src]="audio.model.ref" type="audio/mp3"/>
+				</audio>
+			</td>
+			<td class="centered" *ngIf=audio.selected><span class="label label-success"> selected </span></td>
+			<td class="centered" [hidden]=audio.selected><span class="label label-warning">unselected</span></td>
+		</tr>
+	</tbody> 
+</table>
 <app-synthviewer></app-synthviewer>

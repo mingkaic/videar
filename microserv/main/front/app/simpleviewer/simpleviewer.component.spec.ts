@@ -1,25 +1,19 @@
 import { HttpModule, XHRBackend } from '@angular/http';
-import { FormsModule } from '@angular/forms';
 import { MockBackend } from '@angular/http/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VidLinkerComponent } from './vidlinker.component';
+import { SimpleViewerComponent } from './simpleviewer.component';
 import { AudioHandleService } from '../_services/audio.service';
-import { SimpleViewerComponent } from '../simpleviewer/simpleviewer.component';
 
-describe('VidLinkerComponent', () => {
-	let component: VidLinkerComponent;
-	let fixture: ComponentFixture<VidLinkerComponent>;
+describe('AudioviewerComponent', () => {
+	let component: SimpleViewerComponent;
+	let fixture: ComponentFixture<SimpleViewerComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-  			imports: [ HttpModule, FormsModule ],
-			declarations: [ 
-				VidLinkerComponent, 
-				VidLinkerComponent,
-				SimpleViewerComponent
-			],
+  			imports: [HttpModule],
+			declarations: [ SimpleViewerComponent ],
 			providers: [
 				AudioHandleService,
 				DomSanitizer,
@@ -30,7 +24,7 @@ describe('VidLinkerComponent', () => {
 	}));
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(VidLinkerComponent);
+		fixture = TestBed.createComponent(SimpleViewerComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

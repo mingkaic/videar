@@ -6,7 +6,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SynthesisComponent } from './synthesis.component';
 import { AudioHandleService, SynthesisService } from '../_services';
 import { AudioviewerComponent } from '../audioviewer/audioviewer.component';
-import { SynthviewerComponent } from '../synthviewer/synthviewer.component';
+import { SynthviewerComponent } from './synthviewer/synthviewer.component';
 
 describe('SynthesisComponent', () => {
 	let component: SynthesisComponent;

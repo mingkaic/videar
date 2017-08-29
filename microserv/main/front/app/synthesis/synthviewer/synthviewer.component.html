@@ -1,9 +1,9 @@
 <label>Synthesized Assets</label>
 <table class="table table-striped">
-	<tbody *ngFor="let sid of mapKeys(_synthService.synths.keys())">
+	<tbody *ngFor="let audio of cache.toArray()">
 		<tr>
 			<td><audio controls="controls" preload='auto'>
-				<source [src]="_synthService.synths.get(sid)" type="audio/mp3"/>
+				<source [src]="audio.model.ref" type="audio/mp3"/>
 			</audio></td>
 		</tr>
 	</tbody> 

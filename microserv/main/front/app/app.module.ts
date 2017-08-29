@@ -5,15 +5,18 @@ import { HttpModule } from '@angular/http';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
+
 import { VidUploadComponent } from './viduploader/viduploader.component';
 import { VidLinkerComponent } from './vidlinker/vidlinker.component';
+import { SimpleViewerComponent } from './simpleviewer/simpleviewer.component';
+
 import { SynthesisComponent } from './synthesis/synthesis.component';
 import { AudioviewerComponent } from './audioviewer/audioviewer.component';
-import { SynthviewerComponent } from './synthviewer/synthviewer.component';
+import { SynthviewerComponent } from './synthesis/synthviewer/synthviewer.component';
 import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
+import { RegisterComponent } from './login/register/register.component';
 
-import { VidUploaderDirective } from './viduploader/viduploader.directive';
+import { VidUploaderDirective } from './_directives/viduploader.directive';
 
 import { AudioHandleService } from './_services/audio.service';
 
@@ -32,8 +35,11 @@ const routes: Routes = [
 @NgModule({
 	declarations: [
 		AppComponent,
+
 		VidUploadComponent,
 		VidLinkerComponent,
+		SimpleViewerComponent,
+
 		SynthesisComponent,
 		AudioviewerComponent,
 		SynthviewerComponent,
