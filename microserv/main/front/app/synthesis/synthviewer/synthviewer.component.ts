@@ -5,13 +5,15 @@ import { SynthesisService } from '../../_services/synthesis.service';
 import { AbstractViewerComponent, AudioWrapper } from '../../_interfaces/viewer.abstract';
 
 class SynthAudio extends AudioWrapper {
+	script: string;
+
 	constructor(public model: AudioModel) { super(model); }
 };
 
 @Component({
 	selector: 'app-synthviewer',
 	templateUrl: './synthviewer.component.html',
-	styleUrls: ['./synthviewer.component.css']
+	styleUrls: ['./synthviewer.component.css', '../../shared.css']
 })
 export class SynthviewerComponent extends AbstractViewerComponent implements OnInit {
 	constructor(private _synthService: SynthesisService) {

@@ -17,6 +17,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './login/register/register.component';
 
 import { VidUploaderDirective } from './_directives/viduploader.directive';
+import { CollapseDirective } from './_directives/collapse.directive';
 
 import { AudioHandleService } from './_services/audio.service';
 
@@ -37,13 +38,15 @@ const routes: Routes = [
 		AppComponent,
 
 		VidUploadComponent,
+		VidUploaderDirective,
 		VidLinkerComponent,
 		SimpleViewerComponent,
 
 		SynthesisComponent,
-		AudioviewerComponent,
 		SynthviewerComponent,
-		VidUploaderDirective,
+
+		AudioviewerComponent,
+		CollapseDirective,
 
 		LoginComponent,
 		RegisterComponent

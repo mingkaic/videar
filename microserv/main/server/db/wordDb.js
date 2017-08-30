@@ -25,7 +25,7 @@ exports.setTranscript = (vidId, start, transcript) => {
 			transcriptInfo = new transcriptModel({
 				'vidId': vidId,
 				'startTime': start,
-				'subtitles': transcript
+				'subtitles': transcript // transcript has form [{"word": string, time: {"start": number, "end": number}}]
 			});
 		}
 		// save audioMap

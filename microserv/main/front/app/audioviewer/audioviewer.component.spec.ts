@@ -5,6 +5,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AudioviewerComponent } from './audioviewer.component';
 import { AudioHandleService } from '../_services/audio.service';
+import { CollapseDirective } from '../_directives/collapse.directive';
 
 describe('AudioviewerComponent', () => {
 	let component: AudioviewerComponent;
@@ -13,7 +14,7 @@ describe('AudioviewerComponent', () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
   			imports: [HttpModule],
-			declarations: [ AudioviewerComponent ],
+			declarations: [ AudioviewerComponent, CollapseDirective ],
 			providers: [
 				AudioHandleService,
 				DomSanitizer,

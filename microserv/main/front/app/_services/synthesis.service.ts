@@ -40,8 +40,4 @@ export class SynthesisService extends AbstractSocketAudio {
 			}
 		});
 	};
-    
-    protected getCallsign(id: string, source: string): string {
-		return source;
-	}
 }

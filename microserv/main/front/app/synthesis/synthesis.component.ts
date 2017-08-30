@@ -20,7 +20,7 @@ class SelectedAudio extends AudioWrapper {
 @Component({
 	selector: 'app-synthesis',
 	templateUrl: './synthesis.component.html',
-	styleUrls: ['./synthesis.component.css'],
+	styleUrls: ['./synthesis.component.css', '../shared.css'],
 	providers: [ SynthesisService ]
 })
 export class SynthesisComponent extends AbstractViewerComponent implements OnInit {
@@ -37,6 +37,15 @@ export class SynthesisComponent extends AbstractViewerComponent implements OnIni
 	};
 	
 	ngOnDestroy() {};
+
+	selectAll() {
+		for (let audio of this.cache.toArray()) {
+			let selectable = audio as SelectedAudio;
+			if (selectable) {
+				selectable.selected = true;
+			}
+		}
+	};
 
 	synthesize() {
 		this._synthService.synthesize(this.script, this.getSelected());

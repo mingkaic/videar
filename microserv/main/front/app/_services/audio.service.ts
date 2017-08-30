@@ -4,6 +4,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import * as ss from 'socket.io-stream';
 
+import { AudioModel } from '../_models/audio.model';
 import { AbstractSocketAudio } from '../_interfaces/socketaudio.abstract';
 
 @Injectable()
@@ -15,7 +16,7 @@ export class AudioHandleService extends AbstractSocketAudio {
 			data.json().forEach((vidInfo) => {
 				var id = vidInfo.vidId;
 				this.requestAudio(id);
-				this.setName(id, vidInfo.source);
+				this.setName(id, vidInfo.name);
 			});
 		});
 
@@ -23,6 +24,8 @@ export class AudioHandleService extends AbstractSocketAudio {
 		this.socket.on('new-audio', (vidId: string) => {
 			console.log('new audio notified '+vidId);
 			// todo: implement selective audio loading before requesting audio (not every audio needs to be viewed)
+			// IF logged in load user's audios first
+
 			// audio streaming is expensive
 			this.requestAudio(vidId);
 		});
@@ -36,6 +39,26 @@ export class AudioHandleService extends AbstractSocketAudio {
 			stream.on('end', () => {
 				this.setAudioData(vidId, soundData);
 			});
+		});
+	};
+	
+	updateAudio(audio: AudioModel) {
+		this._http.post('/api/audio_meta', { 'vidId': audio._id, 'name': audio.name })
+		.subscribe((data) => {
+			console.log(audio._id + " update successful");
+		},
+		(err) => {
+			console.log(err);
+		});
+	};
+
+	requestSubtitles(vidId: string) {
+		return this._http.get('/api/audio_subtitles/' + vidId)
+		.map((data) => {
+			return data.json();
+		},
+		(err) => {
+			console.log(err);
 		});
 	};
 
@@ -53,15 +76,16 @@ export class AudioHandleService extends AbstractSocketAudio {
 		console.log('requesting stream for '+vidId);
 		this._http.post('/api/req_audio', { "socketId": this.socket.id, "vidId": vidId })
 		.subscribe((data) => {
-			var source = data.json().source;
-			if (source) {
-				this.setName(vidId, source);
+			console.log("REQUESTED AUDIO ", data.json());
+			var name = data.json().name;
+			if (name) {
+				this.setName(vidId, name);
 			}
 			else {
 				console.log("notified of new id, but can't find video of id " + vidId);
 			}
 		});
-	}
+	};
 
 	setYTId(vidId: string, onSuccess?: (() => void), onFail?: (() => void)) {
 		if (this.hasAudioModel(vidId)) return;
@@ -69,8 +93,9 @@ export class AudioHandleService extends AbstractSocketAudio {
 		this._http.put('/api/verify_id', { "vidId": vidId })
 		.subscribe((data) => {
 			let idInfo = data.json();
+			let name = idInfo.name;
 			console.log(idInfo);
-			if (idInfo.source) {
+			if (name) {
 				console.log('id '+vidId+' definitely exists');
 				if (idInfo.onDb) {
 					// id is old, but we haven't received audio yet, so request it
@@ -80,7 +105,7 @@ export class AudioHandleService extends AbstractSocketAudio {
 					// todo: consider concurrency issue: A verifies link while B uploads link, both A and B verifies link			
 				}
 				if (onSuccess) {
-					this.setName(vidId, idInfo.source);
+					this.setName(vidId, name);
 					onSuccess();
 				}
 			}
@@ -89,12 +114,5 @@ export class AudioHandleService extends AbstractSocketAudio {
 				onFail();
 			}
 		});
-	};
-    
-    protected getCallsign(id: string, source: string): string {
-		if (source === ".<youtube>") {
-			return "http://www.youtube.com/watch?v=" + id;
-		}
-		return source;
 	};
 }

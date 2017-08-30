@@ -13,7 +13,18 @@ connection.once('connected', () => {
 
 // get all ids
 exports.getAllVidInfo = () => {
-	return vidModel.find({}).exec();
+	return vidModel.find({}).exec()
+	.then((datum) => {
+		if (datum) {
+			return datum.map((data) => {
+				return { 
+					"vidId": data.vidId,
+					"name": data.humanReadable,
+					"source": data.source
+				};
+			});
+		}
+	});
 };
 
 // read stream if it exists and return stream and source of video, other return null for non-existent
@@ -25,7 +36,7 @@ exports.getVidStream = (vidId) => {
 			// vid exists, make a stream, read and return it
 			return {
 				"stream": gfs.createReadStream({ filename: vidId }), 
-				"source": vidInfo.source
+				"name": vidInfo.humanReadable
 			};
 		}
 		return null;
@@ -45,9 +56,14 @@ exports.setVidStream = (vidId, source, dbStream) => {
 
 		// save to gridfs
 		var writeStream = gfs.createWriteStream({ filename: vidId });
+		var callsign = source;
+		if (source === ".<youtube>") {
+			callsign = "http://www.youtube.com/watch?v=" + id;
+		}
 		var instance = new vidModel({
 			'vidId': vidId,
-			'source': source
+			'source': source,
+			'humanReadable': callsign
 		});
 
 		dbStream.pipe(writeStream);
@@ -57,6 +73,21 @@ exports.setVidStream = (vidId, source, dbStream) => {
 		.then((data) => {
 			console.log('saved ', data);
 			return writeStream;
+		});
+	});
+};
+
+exports.updateVidMeta = (vidId, humanReadable) => {
+	return vidModel.findOne({ 'vidId': vidId }).exec()
+	.then((vidInfo) => {
+		if (vidInfo === null) {
+			return false;
+		}
+		vidInfo.humanReadable = humanReadable;
+		return vidInfo.save()
+		.then((data) => {
+			console.log('saved ', data);
+			return truel
 		});
 	});
 };
@@ -81,14 +112,6 @@ exports.removeVidStream = (vidId) => {
 		return false;
 	});
 };
-
-exports.setSynthStream = (synthId, stream) => {
-	
-}
-
-exports.getSynthStream = (synthId) => {
-	
-}
 
 
 // todo: move to redis and a separate file

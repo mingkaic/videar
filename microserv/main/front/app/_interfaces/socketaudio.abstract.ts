@@ -30,18 +30,14 @@ export abstract class AbstractSocketAudio implements IAudioService {
         return this.audios.has(key);
     };
     
-    protected abstract getCallsign(id: string, source: string): string;
-    
-    protected setName(id: string, source: string) {
-        let callsign = this.getCallsign(id, source);
-
+    protected setName(id: string, name: string) {
         let soundInfo;
         if (this.audios.has(id)) {
             soundInfo = this.audios.get(id);
-            soundInfo.name = callsign;
+            soundInfo.name = name;
         }
         else {
-            soundInfo = new AudioModel(id, callsign, null);
+            soundInfo = new AudioModel(id, name, null);
         }
         this.audios.set(id, soundInfo);
         this.audioChange.emit(id);

@@ -3,18 +3,23 @@
 	<textarea class="form-control" id="scriptarea" [(ngModel)]="script" rows="3"></textarea>
 	<button (click)="synthesize()" class="btn btn-success">Synthesize</button>
 </div>
-<label>Audio Assets</label>
+<div class="form-group">
+	<div class="row">
+		<div class="form-group col-md-6"><label class="form-control-label centered">Audio Assets</label></div>
+		<div class="form-group col-md-6"><button class="btn btn-default pull-right" (click)=selectAll()>Select All</button></div>
+	</div>
+</div>
 <table class="table table-striped">
 	<tbody *ngFor="let audio of cache.toArray()">
-		<tr (click)="audio.toggleSelect()" [class.active]="audio.selected">
-			<td class="centered"><label class="form-control-label">{{audio.model.name}}</label></td>
-			<td>
+		<tr (click)="audio.toggleSelect()" [class.active]="audio.selected" class="row">
+			<td class="col-md-5 centered"><label class="form-control-label">{{audio.model.name}}</label></td>
+			<td class="col-md-5">
 				<audio controls="controls" preload='auto'>
 					<source [src]="audio.model.ref" type="audio/mp3"/>
 				</audio>
 			</td>
-			<td class="centered" *ngIf=audio.selected><span class="label label-success"> selected </span></td>
-			<td class="centered" [hidden]=audio.selected><span class="label label-warning">unselected</span></td>
+			<td class="col-md-2 centered" *ngIf=audio.selected><span class="label label-success"> selected </span></td>
+			<td class="col-md-2 centered" [hidden]=audio.selected><span class="label label-warning">unselected</span></td>
 		</tr>
 	</tbody> 
 </table>
