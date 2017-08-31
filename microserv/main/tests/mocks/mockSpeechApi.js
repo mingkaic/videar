@@ -1,46 +1,42 @@
 const testUtil = require('../testUtils');
 const utils = require('../../server/utils');
 
-var mockWordMap = require('../testUtils').getTestWordMap();
+var mockTranscript = require('../testUtils').getTestTranscript();
+var n = mockTranscript.length;
 
 // todo: inject some junk values into mockWordMap
 
 var default_split = 3;
-var mockWordMaps;
+var mockTranscripts;
 
-function split(split) {
-	var allMap = utils.obj2Map(mockWordMap);
-	var mapAttrs = Object.keys(mockWordMap);
-	if (split < 2) {
-		mockWordMaps = [ allMap ];
+function split(nsplit) {
+	module.exports.count = 0;
+	module.exports.nsplit = nsplit;
+
+	if (nsplit < 2) {
+		mockTranscripts = [ mockTranscript ];
 		return;
 	}
-	module.exports.nsplit = split;
-	mockWordMaps = [];
-	var splitsize = mapAttrs.length/split;
-	var it = 0;
-	for (var i = 0; i < split; i++) {
-		if (it+splitsize >= mapAttrs.length) {
-			splitsize = mapAttrs.length - it;
-		}
-		var splitSet = new Set(mapAttrs.splice(it, it+splitsize));
-		var splitMap = new Map();
-		utils.intersectAB(allMap, splitSet, splitMap);
-		mockWordMaps.push(splitMap);
+	mockTranscripts = [];
+	var mockCpy = mockTranscript.slice();
+	var splitsize = Math.ceil(n/nsplit);
+	for (var i = 0; i < nsplit; i++) {
+		var end = Math.min(splitsize, mockCpy.length);
+		mockTranscripts.push(mockCpy.splice(0, end));
 	}
 }
 
-split(default_split);
-
 module.exports = function (audioChunkStream) {
-	var promise = Promise.resolve(mockWordMaps[module.exports.count % module.exports.nsplit]);
+	var promise = Promise.resolve({ "subtitles": mockTranscripts[module.exports.count % module.exports.nsplit], "error": null });
 	module.exports.count++;
 	return promise;
-}
+};
 
 module.exports.count = 0;
 module.exports.split = split;
 module.exports.nsplit = default_split;
-module.exports.splitInject = (key, value) => {
-	mockWordMaps[(module.exports.count + 1) % module.exports.nsplit].set(key, value);
+module.exports.splitInject = (value) => {
+	mockTranscripts[(module.exports.count + 1) % module.exports.nsplit].push(value);
 };
+
+split(default_split);

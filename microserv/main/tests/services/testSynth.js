@@ -33,29 +33,24 @@ describe('Synthesis:', function() {
 			mockWordDb.clearDb();
 		});
 	
-		it("lazyPartition should stop calling s2t API once wordmap keyset matches wordset", 
+		it("lazyPartition should stop calling s2t API once transcript uses every wordset", 
 		function(done) {
 			var n_split = 1;
 			mockSpeech.split(n_split);
 	
-			var mockWord = testUtils.getTestWordMap();
-			var mockSet = Object.keys(mockWord);
-			var mockSet2 = new Set(mockSet);
-			mockSet = new Set(mockSet);
-			mockWord = utils.obj2Map(mockWord);
-			var existingMap = new Map();
+			var mockTranscript = testUtils.getTestTranscript();
+			var mockSet = new Set(mockTranscript.map(wordInfo => wordInfo.word));
 	
-			synthesize.lazyPartition(testId, 0, mockSet, existingMap)
-			.then((wordMapInfo) => {
-				var wordRes = wordMapInfo[0];
-				var completion = wordMapInfo[1];
+			synthesize.lazyPartition(testId, 0, mockSet)
+			.then((subtitleInfo) => {
+				var subtitles = subtitleInfo.subtitles;
+				var completion = subtitleInfo.endtime;
 	
 				expect(completion).to.equal(10); // chunk duration
 				expect(mockSpeech.count).to.equal(n_split);
-				expect(wordRes).to.be.an.instanceof(Map);
-				
-				expect(testUtils.setEq(new Set(wordRes.keys()), mockSet2)).to.equal(true);
-				expect(testUtils.mapEq(existingMap, mockWord)).to.equal(true);
+
+				expect(subtitles).to.be.an.instanceof(Array);
+				expect(testUtils.objEq(subtitles, mockTranscript)).to.equal(true);
 	
 				done();
 			})
@@ -66,81 +61,71 @@ describe('Synthesis:', function() {
 		// IF partition validates duration, then RETHINK this test
 		it("lazyPartition should never call s2t API if the start time is longer than the duration of the audio", 
 		function(done) {
-			var mockSet = new Set(Object.keys(testUtils.getTestWordMap()));
-			var existingMap = new Map();
+			var mockTranscript = testUtils.getTestTranscript();
+			var mockSet = new Set(mockTranscript.map(wordInfo => wordInfo.word));
 	
-			synthesize.lazyPartition(testId, testDur, mockSet, existingMap)
-			.then((wordMapInfo) => {
-				var wordRes = wordMapInfo[0];
-				var completion = wordMapInfo[1];
+			synthesize.lazyPartition(testId, testDur, mockSet)
+			.then((subtitleInfo) => {
+				var subtitles = subtitleInfo.subtitles;
+				var completion = subtitleInfo.endtime;
 	
 				expect(completion).to.equal(-1); // completion flag
 				expect(mockSpeech.count).to.equal(0);
-				expect(wordRes).to.be.an.instanceof(Map);
-	
-				expect(Array.from(wordRes.keys()).length).to.equal(0);
-				expect(existingMap.size).to.equal(0);
+				
+				expect(subtitles).to.be.an.instanceof(Array);
+				expect(subtitles.length).to.equal(0);
 				
 				done();
 			})
 			.catch(done);
 		});
 	
-		it("fulfill should not call s2t API if wordmap keyset matches wordset", 
+		it("fulfill should not call s2t API if transcript has wordset", 
 		function(done) {
-			var mockWord = testUtils.getTestWordMap();
-			var mockSet = Object.keys(mockWord);
-			var mockSet2 = new Set(mockSet);
-			mockSet = new Set(mockSet);
-			mockWord = utils.obj2Map(mockWord);
+			var mockTranscript = testUtils.getTestTranscript();
+			var mockSet = new Set(mockTranscript.map(wordInfo => wordInfo.word));
 	
-			synthesize.fulfill(testId, mockWord, 0, mockSet)
-			.then((wordMapInfo) => {
-				var wordRes = wordMapInfo[0];
-				var completion = wordMapInfo[1];
+			synthesize.fulfill(testId, 0, mockSet, mockTranscript)
+			.then((subtitleInfo) => {
+				var subtitles = subtitleInfo.subtitles;
+				var completion = subtitleInfo.endtime;
 	
 				expect(completion).to.equal(0);
 				expect(mockSpeech.count).to.equal(0);
-				expect(wordRes).to.be.an.instanceof(Map);
 				
-				expect(testUtils.setEq(new Set(wordRes.keys()), mockSet2)).to.equal(true);
-				expect(testUtils.mapEq(wordRes, mockWord)).to.equal(true);
+				expect(subtitles).to.be.an.instanceof(Array);
+				expect(testUtils.objEq(subtitles, mockTranscript)).to.equal(true);
 				
 				done();
 			})
 			.catch(done);
 		});
 		
-		it("fulfill should call s2t API if wordmap keyset does not contain every word in wordset", 
+		it("fulfill should call s2t API if transcript does not contain every word in wordset", 
 		function(done) {
 			var n_split = 3;
 			mockSpeech.split(n_split);
+
+			var mockTranscript = testUtils.getTestTranscript();
+			var mockSet = new Set(mockTranscript.map(wordInfo => wordInfo.word));
+
+			// take words from the first 1/n_split of the full transcript
+			var mockIncompleteTranscript = [];
+			for (var i = 0; i < mockTranscript.length / n_split; ++i) {
+				mockIncompleteTranscript.push(mockTranscript[i]);
+			}
+			mockSpeech.count = 1; // artifically advance counter
 	
-			var mockWord = testUtils.getTestWordMap();
-			var mockSet = Object.keys(mockWord);
-			var mockSet2 = new Set(mockSet);
-			var existingMap = utils.obj2Map(mockWord);
-			mockSet = new Set(mockSet);
-			mockWord = utils.obj2Map(mockWord);
+			synthesize.fulfill(testId, 0, mockSet, mockIncompleteTranscript)
+			.then((subtitleInfo) => {
+				var subtitles = subtitleInfo.subtitles;
+				var completion = subtitleInfo.endtime;
 	
-			// remove some words
-			Array.from(mockSet).forEach((value, idx) => {
-				if (idx % 2 == 0) {
-					existingMap.delete(value);
-				}
-			});
-	
-			synthesize.fulfill(testId, existingMap, 0, mockSet)
-			.then((wordMapInfo) => {
-				var wordRes = wordMapInfo[0];
-				var completion = wordMapInfo[1];
-	
-				expect(completion).to.equal(n_split * 10);
+				expect(completion).to.equal((n_split - 1) * 10);
 				expect(mockSpeech.count).to.equal(n_split);
-				expect(wordRes).to.be.an.instanceof(Map);
-				
-				expect(testUtils.setEq(new Set(wordRes.keys()), mockSet2)).to.equal(true);
-				expect(testUtils.mapEq(wordRes, mockWord)).to.equal(true);
+
+				expect(subtitles).to.be.an.instanceof(Array);
+				expect(testUtils.objEq(subtitles, mockTranscript)).to.equal(true);
 				
 				done();
 			})
@@ -152,11 +137,10 @@ describe('Synthesis:', function() {
 			var n_split = 3;
 			mockSpeech.split(n_split);
 
+			var transcript = testUtils.getTestTranscript();
 			var mockWord = testUtils.getTestWordMap();
-			var mockSet = Object.keys(mockWord);
+			var mockSet = new Set(mockWord.keys());
 			var mockSet2 = new Set(mockSet);
-			mockSet = new Set(mockSet);
-			mockWord = utils.obj2Map(mockWord);
 
 			synthesize.getWordMap(testId, mockSet)
 			.then((wordMap) => {
@@ -164,15 +148,16 @@ describe('Synthesis:', function() {
 				expect(wordMap).to.be.an.instanceof(Map);
 				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
 
-				return mockWordDb.getWordMap(testId)
-				.then((mapInfo) => {
-					expect(mapInfo).to.not.equal(null);
-					var storedWordMap = mapInfo.words;
-					expect(storedWordMap).to.be.an.instanceof(Map);
-					expect(testUtils.mapEq(wordMap, storedWordMap)).to.equal(true);
-					
-					done();
-				});
+				return mockWordDb.getTranscript(testId);
+			})
+			.then((mapInfo) => {
+				expect(mapInfo).to.not.equal(null);
+				var storeTranscript = mapInfo.subtitles;
+
+				expect(storeTranscript).to.be.an.instanceof(Array);
+				expect(testUtils.objEq(transcript, storeTranscript)).to.equal(true);
+				
+				done();
 			})
 			.catch(done);
 		});
@@ -181,18 +166,16 @@ describe('Synthesis:', function() {
 		function(done) {
 			var n_split = 3;
 			mockSpeech.split(n_split);
-
+			
+			var transcript = testUtils.getTestTranscript();
 			var mockWord = testUtils.getTestWordMap();
-			var mockSet = Object.keys(mockWord);
+			var mockSet = new Set(mockWord.keys());
 			var mockSet2 = new Set(mockSet);
-			mockSet = new Set(mockSet);
-			mockWord = utils.obj2Map(mockWord);
 	
 			vidIds = [testId, testId2];
 
 			synthesize.getScriptMap(vidIds, mockSet)
 			.then((wordMap) => {
-				console.log("here");
 				expect(mockSpeech.count).to.equal(n_split);
 				expect(wordMap).to.be.an.instanceof(Map);
 				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
@@ -201,48 +184,47 @@ describe('Synthesis:', function() {
 					expect(arr.every((obj) => { return obj.id === testId; })).to.equal(true);
 				}
 
-				return mockWordDb.getWordMap(testId2)
-				.then((mapInfo) => {
-					expect(mapInfo).to.equal(null);
-					
-					done();
-				});
+				return mockWordDb.getTranscript(testId2);
+			})
+			.then((mapInfo) => {
+				expect(mapInfo).to.equal(null);
+				
+				done();
 			})
 			.catch(done);
 		});
 	});
 	
 	describe('When WordDb Has Existing Incomplete Wordmap:', function() {
+		var n_split = 5;
+
 		beforeEach(function(done) {
-			mockSpeech.count = 0;
-			
-			var incompleteMap = utils.obj2Map(testUtils.getTestWordMap());
-			// remove some words
-			Array.from(incompleteMap.keys()).forEach((value, idx) => {
-				if (idx % 2 == 0) {
-					incompleteMap.delete(value);
-				}
-			});
+			var mockTranscript = testUtils.getTestTranscript();
+
+			// take words from the first 1/n_split of the full transcript
+			var incompleteTranscript = [];
+			for (var i = 0; i < mockTranscript.length / n_split; ++i) {
+				incompleteTranscript.push(mockTranscript[i]);
+			}
 
 			// add incomplete wordmap
 			mockWordDb.clearDb();
-			mockWordDb.setWordMap(testId, 5, incompleteMap)
+			mockWordDb.setTranscript(testId, 5, incompleteTranscript)
 			.then((wordMapInfo) => {
 				done();
 			})
 			.catch(done);
+
+			mockSpeech.split(n_split);
+			mockSpeech.count = 1;
 		});
 		
 		it("getWordMap calls speechAPI if wordmap exist but doesn't contains wordset", 
 		function(done) {
-			var n_split = 5;
-			mockSpeech.split(n_split);
-
+			var transcript = testUtils.getTestTranscript();
 			var mockWord = testUtils.getTestWordMap();
-			var mockSet = Object.keys(mockWord);
+			var mockSet = new Set(mockWord.keys());
 			var mockSet2 = new Set(mockSet);
-			mockSet = new Set(mockSet);
-			mockWord = utils.obj2Map(mockWord);
 
 			synthesize.getWordMap(testId, mockSet)
 			.then((wordMap) => {
@@ -250,15 +232,15 @@ describe('Synthesis:', function() {
 				expect(wordMap).to.be.an.instanceof(Map);
 				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
 
-				return mockWordDb.getWordMap(testId)
-				.then((mapInfo) => {
-					expect(mapInfo).to.not.equal(null);
-					var storedWordMap = mapInfo.words;
-					expect(storedWordMap).to.be.an.instanceof(Map);
-					expect(testUtils.mapEq(wordMap, storedWordMap)).to.equal(true);
-					
-					done();
-				});
+				return mockWordDb.getTranscript(testId);
+			})
+			.then((mapInfo) => {
+				expect(mapInfo).to.not.equal(null);
+				var storedTranscript = mapInfo.subtitles;
+				expect(storedTranscript).to.be.an.instanceof(Array);
+				expect(testUtils.objEq(transcript, storedTranscript)).to.equal(true);
+				
+				done();
 			})
 			.catch(done);
 		});
@@ -267,12 +249,11 @@ describe('Synthesis:', function() {
 	describe('When WordDb Has Existing Complete Wordmap:', function() {
 		beforeEach(function(done) {
 			mockSpeech.count = 0;
-			
-			var completeMap = utils.obj2Map(testUtils.getTestWordMap());
+			var mockTranscript = testUtils.getTestTranscript();
 			
 			// add complete wordmap
 			mockWordDb.clearDb();
-			mockWordDb.setWordMap(testId, -1, completeMap)
+			mockWordDb.setTranscript(testId, -1, mockTranscript)
 			.then((wordMapInfo) => {
 				done();
 			})
@@ -283,12 +264,11 @@ describe('Synthesis:', function() {
 		function(done) {
 			var n_split = 5;
 			mockSpeech.split(n_split);
-
+			
+			var transcript = testUtils.getTestTranscript();
 			var mockWord = testUtils.getTestWordMap();
-			var mockSet = Object.keys(mockWord);
+			var mockSet = new Set(mockWord.keys());
 			var mockSet2 = new Set(mockSet);
-			mockSet = new Set(mockSet);
-			mockWord = utils.obj2Map(mockWord);
 
 			synthesize.getWordMap(testId, mockSet)
 			.then((wordMap) => {
@@ -296,15 +276,15 @@ describe('Synthesis:', function() {
 				expect(wordMap).to.be.an.instanceof(Map);
 				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
 
-				return mockWordDb.getWordMap(testId)
-				.then((mapInfo) => {
-					expect(mapInfo).to.not.equal(null);
-					var storedWordMap = mapInfo.words;
-					expect(storedWordMap).to.be.an.instanceof(Map);
-					expect(testUtils.mapEq(wordMap, storedWordMap)).to.equal(true);
-					
-					done();
-				});
+				return mockWordDb.getTranscript(testId);
+			})
+			.then((transcriptInfo) => {
+				expect(transcriptInfo).to.not.equal(null);
+				var storedTranscript = transcriptInfo.subtitles;
+				expect(storedTranscript).to.be.an.instanceof(Array);
+				expect(testUtils.objEq(transcript, storedTranscript)).to.equal(true);
+				
+				done();
 			})
 			.catch(done);
 		});
@@ -313,21 +293,18 @@ describe('Synthesis:', function() {
 		function(done) {
 			var n_split = 3;
 			mockSpeech.split(n_split);
-			var injectedKey = "UNREACHABLE";
-			var injectedValue = [{"start": 21.1, "end": 1112.1}];
-
+			var injectedValue = { "word": "UNREACHABLE", "time": {"start": 21.1, "end": 1112.1} };
+			
+			var transcript = testUtils.getTestTranscript();
 			var mockWord = testUtils.getTestWordMap();
-			var mockSet = Object.keys(mockWord);
-			mockSet.push(injectedKey);
+			var mockSet = new Set(mockWord.keys());
 			var mockSet2 = new Set(mockSet);
-			mockSet = new Set(mockSet);
-			mockWord = utils.obj2Map(mockWord);
 	
 			vidIds = [testId, testId2];
-			mockSpeech.splitInject(injectedKey, injectedValue);
+			mockSpeech.splitInject(injectedValue);
 			synthesize.getScriptMap(vidIds, mockSet)
 			.then((wordMap) => {
-				expect(mockSpeech.count).to.greaterThan(n_split);
+				expect(mockSpeech.count).to.equal(0);
 				expect(wordMap).to.be.an.instanceof(Map);
 				expect(testUtils.setEq(new Set(wordMap.keys()), mockSet2)).to.equal(true);
 				for (var key of wordMap.keys()) {

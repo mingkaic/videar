@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { UserService } from '../_services';
+import { UserService } from '../../_services/user.service';
 
 // taken from http://jasonwatmore.com/post/2016/09/29/angular-2-user-registration-and-login-example-tutorial
 @Component({

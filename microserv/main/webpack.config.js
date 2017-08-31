@@ -206,7 +206,7 @@ module.exports = {
 			"hash": false,
 			"inject": true,
 			"compile": true,
-			"favicon": false,
+			"favicon": './front/favicon.ico',
 			"minify": false,
 			"cache": true,
 			"showErrors": true,

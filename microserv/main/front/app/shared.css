@@ -1,0 +1,23 @@
+[hidden] {
+    display: none !important;
+}
+
+.centered {
+    vertical-align: middle;
+}
+
+div.center {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* white-space: nowrap; */
+}
+
+div.passthrough {
+    pointer-events: none;
+}

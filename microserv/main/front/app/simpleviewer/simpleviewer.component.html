@@ -1,0 +1,17 @@
+<label>Uploaded Audio</label>
+<table class="table table-striped">
+	<tbody *ngFor="let audio of cache.toArray()">
+		<tr>
+			<td class="col-md-5 centered" [hidden]=audio.getEdit()><label class="form-control-label">{{audio.model.name}}</label></td>
+			<td class="col-md-5 centered" *ngIf=audio.getEdit()>
+				<input (keyup.enter)=audio.toggleEdit() type="text" class="form-control" (change)="audio.changed()" [(ngModel)]="audio.model.name"/>
+			</td>
+			<td class="col-md-2 centered"><button class="btn btn-default" (click)=audio.toggleEdit()>{{audio.getEdit() ? "done" : "edit"}}</button></td>
+			<td class="col-md-5">
+				<audio controls="controls" preload='auto'>
+					<source [src]="audio.model.ref" type="audio/mp3"/>
+				</audio>
+			</td>
+		</tr>
+	</tbody>
+</table>

@@ -14,7 +14,7 @@
 			placeholder="paste link here: https://www.youtube.com/watch?v=..."/>
 		</td>
 		<td>
-			<label class="form-control-label">{{link.getStatus()}}</label>
+			<span class="label label-default">{{link.getStatus()}}</span>
 		</td>
 		<td>
 			<button (click)="processLink(index)" class="btn btn-success">Process</button>
@@ -27,4 +27,4 @@
 		</td>
 	<tbody>
 </table>
-<app-audioviewer></app-audioviewer>
+<app-simpleviewer></app-simpleviewer>

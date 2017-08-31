@@ -14,10 +14,10 @@
 	</thead>
 	<tbody class="valid" *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
 		<td scope="row">
-			<label>{{ file.file.name }}</label>
+			<label class="form-control-label">{{ file.file.name }}</label>
 		</td>
 		<td>
-			<label class="form-control-label">{{file.getStatus()}}</label>
+			<span class="label label-default">{{file.getStatus()}}</span>
 		</td>
 		<td>
 			<button (click)="uploadFile(index)" class="btn btn-success">Process</button>
@@ -27,4 +27,4 @@
 		</td>
 	<tbody>
 </table>
-<app-audioviewer [limit]=20></app-audioviewer>
+<app-simpleviewer></app-simpleviewer>

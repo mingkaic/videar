@@ -68,9 +68,10 @@ exports.concat = (chunks) => {
 	var tempfile = tempPath + uuid;
 
 	var audStream = ffmpeg();
-	var fnames = []
+	var fnames = [];
 	chunks.forEach((chunk, idx) => {
 		var fname = tempfile + JSON.stringify(idx) + ".mp3";
+		console.log('in concat: writing to file ' + fname);
 		var ws = fs.createWriteStream(fname);
 		audStream.input(fname);
 		fnames.push(fname);
@@ -87,6 +88,7 @@ exports.concat = (chunks) => {
 	return new Promise((resolve, reject) => {
 		audStream.on('end', () => {
 			fnames.forEach((fname) => {
+				console.log('in concat: unlinking file ' + fname);
 				fs.unlink(fname);
 			});
 			var outStream = fs.createReadStream(tempfile + ".mp3");

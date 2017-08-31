@@ -5,9 +5,11 @@ import { Component } from '@angular/core';
 import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
+import { NguiPopupModule } from '@ngui/popup';
+
 import { AppComponent } from './app.component';
-import { AudioviewerComponent } from './audioviewer/audioviewer.component';
 import { AudioHandleService } from './_services/audio.service';
+import { WarningService } from './_services/warning.service';
 
 @Component({
   template: ''
@@ -21,15 +23,16 @@ describe('AppComponent', () => {
 				RouterTestingModule.withRoutes([
 					{ path: 'settings/:collection/edit/:item', component: DummyComponent }
 				]),
-				HttpModule
+				HttpModule,
+				NguiPopupModule
 			],
 			declarations: [
 				AppComponent,
-				DummyComponent,
-				AudioviewerComponent
+				DummyComponent
 			],
 			providers: [
 				AudioHandleService, 
+				WarningService,
 				DomSanitizer,
         		{ provide: XHRBackend, useClass: MockBackend },
 			]

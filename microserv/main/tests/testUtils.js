@@ -2,10 +2,11 @@ const fs = require('fs');
 const mongo = require('mongodb');
 
 const connectionInfo = require('../server/db/connectMongo');
+const transcript2Map = require('../server/utils').transcript2Map;
 
 const dbSource = __dirname + '/data/dbtest.mp3';
 const wordSource = __dirname + '/data/wordtest.mp3';
-const wordMapPath = __dirname + '/data/mockWordMap.json';
+const transcriptPath = __dirname + '/data/mockTranscript.json';
 
 function clearCollections(db, collections) {
 	const prefixLen = connectionInfo.db.length;
@@ -92,7 +93,12 @@ exports.getTestWordStream = () => {
 };
 
 exports.getTestWordMap = () => {
-	return JSON.parse(fs.readFileSync(wordMapPath, 'utf8'));
+	var transcript = exports.getTestTranscript();
+	return transcript2Map(transcript);
+};
+
+exports.getTestTranscript = () => {
+	return JSON.parse(fs.readFileSync(transcriptPath, 'utf8'));
 };
 
 function objEq(obj1, obj2) {

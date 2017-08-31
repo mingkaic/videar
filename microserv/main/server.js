@@ -14,12 +14,13 @@ const localStrats = require('passport-local').Strategy;
 // Connect to DB
 require('./server/db/connectMongo');
 const vidDb = require('./server/db/vidDb');
+const wordDb = require('./server/db/wordDb');
 const userDb = require('./server/db/userDb');
 const cache = require('./server/db/redisCache');
 
 // Services
 const converter = require('./server/services/audioConv');
-const synthesize = require('./server/services/synthesize').synthesize;
+const synthesize = require('./server/services/synthesize');
 
 // Auths
 var User = require('./server/models/userModel');
@@ -114,17 +115,20 @@ app.post('/api/authenticate', (req, res, next) => {
 				});
 			}
 			res.json({
-				"status": 'Login successful'
+				"name": user.username,
+				"id": user._id
 			});
 		})
 	})(req, res, next);
 });
 
+// unimplemented
 app.put('/api/users/:id', (req, res) => {
 	var id = req.params.id;
 	userDb.updateUser(id, req.body);
 });
 
+// unimplemented
 app.delete('/api/users/:id', (req, res) => {
 	var id = req.params.id;
 	userDb.rmUser(id);
@@ -136,6 +140,35 @@ app.get('/api/vidinfos', (req, res) => {
 	vidDb.getAllVidInfo()
 	.then((infos) => {
 		res.json(infos); 
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
+	});
+});
+
+app.get('/api/audio_subtitles/:id', (req, res) => {
+	var vidId = req.params.id;
+	wordDb.getTranscript(vidId)
+	.then((transcriptInfo) => {
+		console.log('getting transcript ' + transcriptInfo);
+		var status = "none";
+		var subtitle = "";
+		console.log("TRANSCRIPT INFO ", transcriptInfo);
+		if (transcriptInfo) {
+			status = "partial";
+			if (0 > transcriptInfo.startTime) {
+				status = "complete";
+			}
+			subtitle = transcriptInfo.subtitles
+			.map((wordObj) => wordObj.word)
+			.join(' ');
+		}
+		res.json({"status": status, "subtitle": subtitle});
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
 	});
 });
 
@@ -147,14 +180,32 @@ app.post('/api/req_audio', (req, res) => {
 	(streamInfo) => {
 		var dbStream = streamInfo.stream;
 		// stream exists
-		console.log('stream '+id+' found. transmitting...');
+		console.log('stream ' + id + ' found. transmitting...');
 		var outStream = ss.createStream();
 		ss(socket).emit('audio-stream', outStream, id);
 		dbStream.pipe(outStream);
-		res.json({ "source": streamInfo.source });
+		res.json({ "name": streamInfo.name });
 	},
 	() => {
-		res.json({ "source": null });
+		res.json({ "name": null });
+	});
+});
+
+app.post('/api/audio_meta', (req, res) => {
+	var id = req.body.vidId;
+	var name = req.body.name;
+	vidDb.updateVidMeta(id, name)
+	.then((success) => {
+		if (success) {
+			res.status(400).send("success");
+		}
+		else {
+			res.status(404).send("audio not found");
+		}
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
 	});
 });
 
@@ -171,7 +222,7 @@ app.put('/api/synthesize', (req, res) => {
 			console.log("synthesizing for request " + synthId);
 			// synthesis handles params validation
 			// params should be of form 
-			return synthesize(req.body.params)
+			return synthesize.synthesize(req.body.params)
 			.then((result) => {
 				var missing = result.missing;
 				var synth = result.stream;
@@ -204,6 +255,45 @@ app.put('/api/synthesize', (req, res) => {
 	});
 });
 
+app.post('/api/audio_subtitles/:id', (req, res) => {
+	var vidId = req.params.id;
+	var reqId = req.body.reqId;
+	var sid = req.body.socketId;
+	var socket = sockets[sid];
+	const context = "subtitles";
+	cache.hasKey(context, reqId)
+	.then((existence) => {
+		if (1 !== existence) {
+			console.log('processing subtitles for vidId ' + vidId);
+			synthesize.processSubtitles(vidId)
+			.then((transcript) => {
+				cache.deCache(context, reqId);
+				var status = "none";
+				var subtitle = "";
+				if (transcript) {
+					status = "complete";
+					subtitle = transcript
+					.map((wordObj) => wordObj.word)
+					.join(' ');
+				}
+				res.json({"status": status, "subtitle": subtitle});
+			})
+			.catch((err) => {
+				console.log(err);
+				cache.deCache(context, reqId);
+				res.status(500).send(err);
+			});
+		}
+		else {
+			console.log("processing subtitles for request " + reqId + " in progress");
+		}
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
+	});
+});
+
 app.put('/api/verify_id', (req, res) => {
 	var id = req.body.vidId;
 	// check if id already exists in our database
@@ -211,7 +301,7 @@ app.put('/api/verify_id', (req, res) => {
 	(streamInfo) => {
 		var dbStream = streamInfo.stream;
 		// stream exists, tell client
-		res.json({ "onDb": true, "source": streamInfo.source });
+		res.json({ "onDb": true, "name": streamInfo.name });
 	},
 	() => {
 		// non-existent stream
@@ -220,7 +310,7 @@ app.put('/api/verify_id', (req, res) => {
 		}
 		catch (err) {
 			console.log(err);
-			res.json({ "onDb": false, "source": null });
+			res.json({ "onDb": false, "name": null });
 		}
 
 		// save in vidDb
@@ -236,7 +326,7 @@ app.put('/api/verify_id', (req, res) => {
 				});
 			}
 		});
-		res.json({ "onDb": false, "source": source });
+		res.json({ "onDb": false, "name": "http://www.youtube.com/watch?v=" + id });
 	});
 });
 
