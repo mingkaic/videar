@@ -1,23 +1,31 @@
 import { Http } from '@angular/http'
 import { Injectable, EventEmitter } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { UUID } from 'angular2-uuid';
 
+import { Socket } from 'socket.io-client';
 import * as ss from 'socket.io-stream';
+import 'rxjs/add/operator/timeout';
 
 import { AudioModel } from '../_models/audio.model';
 import { AbstractSocketAudio } from '../_interfaces/socketaudio.abstract';
 
 @Injectable()
 export class AudioHandleService extends AbstractSocketAudio {
-	constructor(_sanitizer: DomSanitizer, private _http: Http) {
+	constructor(_sanitizer: DomSanitizer, 
+		private _http: Http) {
 		super(_sanitizer);
 
-		this._http.get('/api/vidinfos').subscribe((data) => {
+		this._http.get('/api/vidinfos')
+		.subscribe((data) => {
 			data.json().forEach((vidInfo) => {
 				var id = vidInfo.vidId;
 				this.requestAudio(id);
 				this.setName(id, vidInfo.name);
 			});
+		},
+		(err) => {
+			console.log(err);
 		});
 
 		// socket listeners
@@ -52,15 +60,21 @@ export class AudioHandleService extends AbstractSocketAudio {
 		});
 	};
 
-	requestSubtitles(vidId: string) {
+	getSubtitles(vidId: string) {
 		return this._http.get('/api/audio_subtitles/' + vidId)
 		.map((data) => {
 			return data.json();
-		},
-		(err) => {
-			console.log(err);
 		});
 	};
+
+	processSubtitles(vidId: string, progressSocket: Socket) {
+		return this._http.post('/api/audio_subtitles/' + vidId, 
+		{ "reqId":  UUID.UUID(), "socketId": progressSocket.id })
+		.timeout(100000)
+		.map((data) => {
+			return data.json();
+		});
+	}
 
 	sendAudio(file: File, onSuccess?: (() => void)) {
 		var outStream = ss.createStream();
@@ -84,6 +98,9 @@ export class AudioHandleService extends AbstractSocketAudio {
 			else {
 				console.log("notified of new id, but can't find video of id " + vidId);
 			}
+		},
+		(err) => {
+			console.log(err);
 		});
 	};
 
@@ -113,6 +130,9 @@ export class AudioHandleService extends AbstractSocketAudio {
 				console.log('id '+vidId+" doesn't exists");
 				onFail();
 			}
+		},
+		(err) => {
+			console.log(err);
 		});
 	};
 }

@@ -20,7 +20,7 @@ const cache = require('./server/db/redisCache');
 
 // Services
 const converter = require('./server/services/audioConv');
-const synthesize = require('./server/services/synthesize').synthesize;
+const synthesize = require('./server/services/synthesize');
 
 // Auths
 var User = require('./server/models/userModel');
@@ -140,6 +140,10 @@ app.get('/api/vidinfos', (req, res) => {
 	vidDb.getAllVidInfo()
 	.then((infos) => {
 		res.json(infos); 
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
 	});
 });
 
@@ -147,8 +151,10 @@ app.get('/api/audio_subtitles/:id', (req, res) => {
 	var vidId = req.params.id;
 	wordDb.getTranscript(vidId)
 	.then((transcriptInfo) => {
+		console.log('getting transcript ' + transcriptInfo);
 		var status = "none";
 		var subtitle = "";
+		console.log("TRANSCRIPT INFO ", transcriptInfo);
 		if (transcriptInfo) {
 			status = "partial";
 			if (0 > transcriptInfo.startTime) {
@@ -159,6 +165,10 @@ app.get('/api/audio_subtitles/:id', (req, res) => {
 			.join(' ');
 		}
 		res.json({"status": status, "subtitle": subtitle});
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
 	});
 });
 
@@ -194,6 +204,7 @@ app.post('/api/audio_meta', (req, res) => {
 		}
 	})
 	.catch((err) => {
+		console.log(err);
 		res.status(500).send(err);
 	});
 });
@@ -211,7 +222,7 @@ app.put('/api/synthesize', (req, res) => {
 			console.log("synthesizing for request " + synthId);
 			// synthesis handles params validation
 			// params should be of form 
-			return synthesize(req.body.params)
+			return synthesize.synthesize(req.body.params)
 			.then((result) => {
 				var missing = result.missing;
 				var synth = result.stream;
@@ -236,6 +247,45 @@ app.put('/api/synthesize', (req, res) => {
 		}
 		else {
 			console.log("synthesizing for request " + synthId + " in progress");
+		}
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
+	});
+});
+
+app.post('/api/audio_subtitles/:id', (req, res) => {
+	var vidId = req.params.id;
+	var reqId = req.body.reqId;
+	var sid = req.body.socketId;
+	var socket = sockets[sid];
+	const context = "subtitles";
+	cache.hasKey(context, reqId)
+	.then((existence) => {
+		if (1 !== existence) {
+			console.log('processing subtitles for vidId ' + vidId);
+			synthesize.processSubtitles(vidId)
+			.then((transcript) => {
+				cache.deCache(context, reqId);
+				var status = "none";
+				var subtitle = "";
+				if (transcript) {
+					status = "complete";
+					subtitle = transcript
+					.map((wordObj) => wordObj.word)
+					.join(' ');
+				}
+				res.json({"status": status, "subtitle": subtitle});
+			})
+			.catch((err) => {
+				console.log(err);
+				cache.deCache(context, reqId);
+				res.status(500).send(err);
+			});
+		}
+		else {
+			console.log("processing subtitles for request " + reqId + " in progress");
 		}
 	})
 	.catch((err) => {

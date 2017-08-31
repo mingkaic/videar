@@ -43,8 +43,8 @@ describe('Synthesis:', function() {
 	
 			synthesize.lazyPartition(testId, 0, mockSet)
 			.then((subtitleInfo) => {
-				var subtitles = subtitleInfo[0];
-				var completion = subtitleInfo[1];
+				var subtitles = subtitleInfo.subtitles;
+				var completion = subtitleInfo.endtime;
 	
 				expect(completion).to.equal(10); // chunk duration
 				expect(mockSpeech.count).to.equal(n_split);
@@ -66,8 +66,8 @@ describe('Synthesis:', function() {
 	
 			synthesize.lazyPartition(testId, testDur, mockSet)
 			.then((subtitleInfo) => {
-				var subtitles = subtitleInfo[0];
-				var completion = subtitleInfo[1];
+				var subtitles = subtitleInfo.subtitles;
+				var completion = subtitleInfo.endtime;
 	
 				expect(completion).to.equal(-1); // completion flag
 				expect(mockSpeech.count).to.equal(0);
@@ -87,8 +87,8 @@ describe('Synthesis:', function() {
 	
 			synthesize.fulfill(testId, 0, mockSet, mockTranscript)
 			.then((subtitleInfo) => {
-				var subtitles = subtitleInfo[0];
-				var completion = subtitleInfo[1];
+				var subtitles = subtitleInfo.subtitles;
+				var completion = subtitleInfo.endtime;
 	
 				expect(completion).to.equal(0);
 				expect(mockSpeech.count).to.equal(0);
@@ -118,8 +118,8 @@ describe('Synthesis:', function() {
 	
 			synthesize.fulfill(testId, 0, mockSet, mockIncompleteTranscript)
 			.then((subtitleInfo) => {
-				var subtitles = subtitleInfo[0];
-				var completion = subtitleInfo[1];
+				var subtitles = subtitleInfo.subtitles;
+				var completion = subtitleInfo.endtime;
 	
 				expect(completion).to.equal((n_split - 1) * 10);
 				expect(mockSpeech.count).to.equal(n_split);

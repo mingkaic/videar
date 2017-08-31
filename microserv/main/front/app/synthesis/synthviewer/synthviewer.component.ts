@@ -6,6 +6,7 @@ import { AbstractViewerComponent, AudioWrapper } from '../../_interfaces/viewer.
 
 class SynthAudio extends AudioWrapper {
 	script: string;
+	synthProgress: number = 0;
 
 	constructor(public model: AudioModel) { super(model); }
 };
@@ -15,7 +16,7 @@ class SynthAudio extends AudioWrapper {
 	templateUrl: './synthviewer.component.html',
 	styleUrls: ['./synthviewer.component.css', '../../shared.css']
 })
-export class SynthviewerComponent extends AbstractViewerComponent implements OnInit {
+export class SynthViewerComponent extends AbstractViewerComponent implements OnInit {
 	constructor(private _synthService: SynthesisService) {
 		super(20, _synthService);
 	};

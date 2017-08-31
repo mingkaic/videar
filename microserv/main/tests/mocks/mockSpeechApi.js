@@ -27,7 +27,7 @@ function split(nsplit) {
 }
 
 module.exports = function (audioChunkStream) {
-	var promise = Promise.resolve(mockTranscripts[module.exports.count % module.exports.nsplit]);
+	var promise = Promise.resolve({ "subtitles": mockTranscripts[module.exports.count % module.exports.nsplit], "error": null });
 	module.exports.count++;
 	return promise;
 };

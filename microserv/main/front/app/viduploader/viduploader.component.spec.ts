@@ -1,7 +1,8 @@
 import { HttpModule, XHRBackend } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
-import { DomSanitizer } from '@angular/platform-browser';
+import { BrowserModule, DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 
 import { VidUploadComponent } from './viduploader.component';
 import { AudioHandleService } from '../_services/audio.service';
@@ -14,7 +15,7 @@ describe('VidUploadComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-  			imports: [HttpModule],
+			imports: [ BrowserModule, FormsModule, HttpModule ],
 			declarations: [ 
 				VidUploadComponent, 
 				VidUploaderDirective,

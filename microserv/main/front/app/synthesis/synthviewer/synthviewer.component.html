@@ -13,5 +13,6 @@
 				<label class="form-control-label">{{audio.script}}</label>
 			</ul>
 		</tr>
-	</tbody> 
+		<progressbar [hidden]="audio.synthProgress===1" [animate]="true" [value]="audio.synthProgress" [type]="type"></progressbar>
+	</tbody>
 </table>

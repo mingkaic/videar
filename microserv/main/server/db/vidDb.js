@@ -87,7 +87,7 @@ exports.updateVidMeta = (vidId, humanReadable) => {
 		return vidInfo.save()
 		.then((data) => {
 			console.log('saved ', data);
-			return truel
+			return true;
 		});
 	});
 };

@@ -34,19 +34,33 @@ public class SpeechController {
         System.out.println("Received id " + id);
         Query query = new Query();
         query.addCriteria(Criteria.where("filename").is(id));
+        String error = null;
         GridFSDBFile gridFSDBFile = gridFsTemplate.findOne(query);
         List<WordModel> subtitles;
         if (null != gridFSDBFile) {
             InputStream fstream = gridFSDBFile.getInputStream();
-            subtitles = transcriptService.process(id, fstream);
+            try {
+                subtitles = transcriptService.process(id, fstream);
+            }
+            catch (OutOfMemoryError e) {
+                subtitles = new ArrayList<>();
+                error = "sphinx4 resource limit";
+            }
         }
         else {
             System.out.println("chunk not found: " + id);
             subtitles = new ArrayList<>();
+            error = "chunk not found: " + id;
         }
 
-        System.out.println("word map processing complete for " + id);
-        return new TranscribeResponse(subtitles);
+        System.out.print("word map processing complete for " + id);
+        if (null != error) {
+            System.out.println(" ERROR: " + error);
+        }
+        else {
+            System.out.println();
+        }
+        return new TranscribeResponse(subtitles, error);
     }
 
 }

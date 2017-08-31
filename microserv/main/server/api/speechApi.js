@@ -8,7 +8,7 @@ const s2tPort = process.env.SPEECH_PORT || '8000';
 
 const speechURL = process.env.SPEECH_URI || 'http://' + s2tHost + ':' + s2tPort;
 
-const timeout = 600000; // maximum: 10 minutes per job
+const timeout = 100000; // maximum: 1:40 minutes per job
 
 // sphinx4 s2t is resource expensive, 
 // so to avoid scaling/overloading the server, we place a queue on each job
@@ -30,7 +30,7 @@ function sphinxCall() {
 		jobQueue.shift(); // pop first
 		sphinxCall();
 		if (response) {
-			return response.subtitles;
+			return response;
 		}
 		else {
 			throw "unable to retreive transcript";

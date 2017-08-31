@@ -109,6 +109,7 @@ describe('Database Tests:', function() {
 				expect(vids.length).to.equal(1);
 				var entry = vids[0];
 				expect(entry.vidId).to.equal(testId);
+				expect(entry.name).to.equal(testSrc);
 				expect(entry.source).to.equal(testSrc);
 			
 				done();
@@ -122,7 +123,7 @@ describe('Database Tests:', function() {
 			.then((foundInfo) => {
 				expect(foundInfo).to.not.equal(null);
 				expect(testUtils.isStream(foundInfo.stream)).to.equal(true);
-				expect(foundInfo.source).to.equal(testSrc);
+				expect(foundInfo.name).to.equal(testSrc);
 
 				done();
 			})

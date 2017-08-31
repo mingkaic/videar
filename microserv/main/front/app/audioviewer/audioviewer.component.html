@@ -16,6 +16,12 @@
 			<div class="well well-lg">
 				{{audio.script}}
 			</div>
+			<div [hidden]=audio.scriptComplete>
+				<progressbar *ngIf=audio.scriptDisable [animate]="true" [value]="audio.scriptProgress" [type]="type"></progressbar>
+				<button class="btn btn-primary" (click)=audio.processSubtitles() [disabled]="audio.scriptDisable">
+					Process Subtitles
+				</button>
+			</div>
 		</div>
 	</tbody> 
 </table>
