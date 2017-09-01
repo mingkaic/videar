@@ -29,6 +29,11 @@ public class SpeechController {
         }
     }
 
+    @RequestMapping("/opstatus")
+    public StatusResponse getStatus() {
+        return new StatusResponse();
+    }
+
     @RequestMapping("/transcribe/{id}")
     public TranscribeResponse getTranscript(@PathVariable(value="id") String id) {
         System.out.println("Received id " + id);

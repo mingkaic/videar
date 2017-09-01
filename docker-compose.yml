@@ -38,8 +38,7 @@ services:
     environment:
       - SPRING_VIDEAR_DB_HOST=centralmongodb.videar.17d3bded.svc.dockerapp.io
       - SPRING_VIDEAR_DB_NAME=videar
-    ports:
-      - "8000:8000"
+      - SPRING_PORT=80
   # temporary java service for speech using sphinx4
   java_speech2text:
     image: mkaichen/sphinx-s2t:latest
@@ -51,6 +50,7 @@ services:
     environment:
       - SPRING_VIDEAR_DB_HOST=central_mongodb
       - SPRING_VIDEAR_DB_NAME=videar
+      - SPRING_PORT=8000
     ports:
       - "8000:8000"
     depends_on:
@@ -86,5 +86,4 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
-    command: [ "redis-server" ]
     restart: always
