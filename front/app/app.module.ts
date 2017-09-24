@@ -29,7 +29,8 @@ import { AudioHandleService, WarningService } from './_services';
 const routes: Routes = [
 	// basic routes
 	{ path: '', redirectTo: 'home', pathMatch: 'full' },
-	{ path: 'home', component: VidUploadComponent },
+	{ path: 'home', component: SynthesisComponent },
+	{ path: 'upload', component: VidUploadComponent },
 	{ path: 'vidlink', component: VidLinkerComponent },
 	{ path: 'synthesis', component: SynthesisComponent },
 	{ path: 'vidview', component: AudioViewerComponent },

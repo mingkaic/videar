@@ -20,7 +20,7 @@ room for improvement:
 once upgraded to Rocnnet:
     - match by syllables
 
-[] Visualize available monologues from videos
+[/] Visualize available monologues from videos
 
 [] Save & Download Synthesized audios
 
