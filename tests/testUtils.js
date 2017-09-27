@@ -1,7 +1,7 @@
 const fs = require('fs');
 const mongo = require('mongodb');
 
-const connectionInfo = require('../server/db/connectMongo');
+const connectionInfo = require('../server/database');
 const transcript2Map = require('../server/utils').transcript2Map;
 
 const dbSource = __dirname + '/data/dbtest.mp3';

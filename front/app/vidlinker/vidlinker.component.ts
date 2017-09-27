@@ -9,7 +9,7 @@ enum linkStatus {
 };
 
 const linkString: string[] = ["unprocessed", "processing", "rejected"];
-const utubeReg: RegExp = /^.*youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?=]*)?.*/;
+const utubeReg: RegExp = /^.*youtu(?:be\.com\/watch\?(?:.*&)*v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?=]*)?.*/;
 
 class YtLink {
 	link: string = "";
@@ -44,19 +44,23 @@ export class VidLinkerComponent implements OnInit {
 
 	processLink(index: number) {
 		let link = this.links[index];
-		if (link.status === linkStatus.processing) return;
+		if (link.status === linkStatus.processing) {
+			return;
+		}
 		link.status = linkStatus.processing;
 		if (utubeReg.test(link.link)) {
 			let vidId = utubeReg.exec(link.link)[1];
-			this._audioService.setYTId(vidId, 
+			this._audioService.getYoutube(vidId, 
 			() => {
 				this.removeLink(index);
-			}, 
+			},
 			() => {
-                link.status = linkStatus.rejected;
-            });
+				console.log('rejected from service');
+				link.status = linkStatus.rejected;
+			});
 		}
 		else {
+			console.log(link.link);
 			link.status = linkStatus.rejected;
 		}
 	};

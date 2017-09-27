@@ -1,23 +1,6 @@
 version: '2'
 
 services:
-  # main service
-  videar:
-    image: mkaichen/videar:latest
-    build: .
-    volumes:
-      - /usr/src/videar
-    environment:
-      - DB_HOST=central_mongodb
-      - CACHE_HOST=central_redis
-      - SPEECH_HOST=java_speech2text
-      - NODE_ENV=production
-      - PORT=80
-    ports:
-      - "80:80"
-    depends_on: 
-      - central_mongodb
-      - central_redis
   videar-test:
     image: mkaichen/videar:latest
     environment:
@@ -29,54 +12,35 @@ services:
     depends_on: 
       - central_mongodb
       - central_redis
+      - uni_audio
 
-
-  # temporary java service for speech using sphinx4
-  hosted_java_s2t:
-    image: mkaichen/sphinx-s2t:latest
-    environment:
-      - SPRING_VIDEAR_DB_HOST=centralmongodb.videar.17d3bded.svc.dockerapp.io
-      - SPRING_VIDEAR_DB_NAME=videar
-      - SPRING_PORT=80
-  java_speech2text:
-    image: mkaichen/sphinx-s2t:latest
-    environment:
-      - SPRING_VIDEAR_DB_HOST=central_mongodb
-      - SPRING_VIDEAR_DB_NAME=videar
-      - SPRING_PORT=8000
-    ports:
-      - "8000:8000"
-    depends_on:
-      - central_mongodb
-
-
-  # # placeholder for Rocnnet
+  # # placeholder for s2t
   # speech2text:
   #   image: mkaichen/rocnnet-s2t:latest
-  #   build: services/s2t
+  #   build: _services/s2t
   #   environment:
   #     - DB_HOST=central_mongodb
   #   volumes:
   #     - /usr/src/s2t
 
-
   # obtain audio from multiple 3rd party sources
   uni_audio:
     image: mkaichen/uni_audio:latest
-    build: services/uni_audio
-    volumes:
-      - /usr/src/audio
-  
+    environment:
+      - DB_HOST=central_mongodb
+      - AUDIOSEARCH_APP_ID=$AUDIOSEARCH_APP_ID
+      - AUDIOSEARCH_SECRET=$AUDIOSEARCH_SECRET
+    ports:
+      - "3124:3124"
+    depends_on: 
+      - central_mongodb
 
   # mongo
   central_mongodb:
     image: mongo:latest
     ports:
-      - "27017:27017"
-    volumes: 
-      - /data/db
+      - "27017:27017" 
     restart: always
-
 
   # redis
   central_redis:

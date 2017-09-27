@@ -7,7 +7,7 @@ RUN mkdir -p $VIDEAR_DIR
 WORKDIR $VIDEAR_DIR
 
 # move everything
-COPY ./microserv/main $VIDEAR_DIR
+COPY . $VIDEAR_DIR
 
 # setup everything
 RUN bash setup.sh

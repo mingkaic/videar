@@ -1,7 +1,7 @@
 const request = require('request-promise');
 const utils = require('../utils');
 
-const db = require('../db/vidDb');
+const db = require('../database/vidDb');
 
 const s2tHost = process.env.SPEECH_HOST || '127.0.0.1';
 const s2tPort = process.env.SPEECH_PORT || '8000';

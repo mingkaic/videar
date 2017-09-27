@@ -16,8 +16,8 @@ if (process.env.NODE_ENV !== 'production') {
 	partition = () => { return null; };
 }
 else {
-	vidDb = require('../db/vidDb');
-	wordDb = require('../db/wordDb');
+	vidDb = require('../database/vidDb');
+	wordDb = require('../database/wordDb');
 	s2tRequest = require('../api/speechApi');
 	partition = audioConv.partition;
 }

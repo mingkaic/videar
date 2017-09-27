@@ -4,9 +4,9 @@ const mongoose = require('mongoose');
 // connect mongoose to mongo then get service
 const utils = require('../../server/utils');
 const testUtils = require('../testUtils');
-const connectionInfo = require('../../server/db/connectMongo');
-var vidDb = require('../../server/db/vidDb');
-var wordDb = require('../../server/db/wordDb');
+const connectionInfo = require('../../server/database');
+var vidDb = require('../../server/database/vidDb');
+var wordDb = require('../../server/database/wordDb');
 
 var expect = chai.expect; // we are using the "expect" style of Chai
 

@@ -2,7 +2,7 @@ language: generic
 
 script:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker-compose build
+  - docker-compose build videar-test
   - docker images
   - docker-compose run --rm videar-test
 

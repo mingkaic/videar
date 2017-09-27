@@ -58,7 +58,7 @@ exports.setVidStream = (vidId, source, dbStream) => {
 		var writeStream = gfs.createWriteStream({ filename: vidId });
 		var callsign = source;
 		if (source === ".<youtube>") {
-			callsign = "http://www.youtube.com/watch?v=" + id;
+			callsign = "http://www.youtube.com/watch?v=" + vidId;
 		}
 		var instance = new vidModel({
 			'vidId': vidId,

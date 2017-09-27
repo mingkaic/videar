@@ -23,7 +23,7 @@ export class SynthesisService extends AbstractSocketAudio {
 				soundData.push(chunk);
 			});
 			synStream.on('end', () => {
-				this.setAudioData(synthId, soundData);
+				this.setAudioData(synthId, new Blob(soundData));
             });
 		});
 	};

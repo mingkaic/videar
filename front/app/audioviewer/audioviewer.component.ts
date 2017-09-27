@@ -72,6 +72,8 @@ export class AudioViewerComponent extends AbstractViewerComponent implements OnI
 	ngOnInit() {
 		this._audioService.getAllKeys()
 		.forEach(key => this.cacheUpdate(key, this._audioService));
+
+		this._audioService.frontPage();
 	};
 
 	ngOnDestroy() {};

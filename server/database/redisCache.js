@@ -46,7 +46,8 @@ exports.setCache = (context, value) => {
 };
 
 exports.setCacheKey = (context, id, value) => {
-    return promisify((cb) => client.set(contextualize(context, id), value, cb));
+    // expires after an hour
+    return promisify((cb) => client.set(contextualize(context, id), value, 'EX', 3600, cb));
 };
 
 exports.hasKey = (context, id) => {
