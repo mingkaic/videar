@@ -20,7 +20,7 @@ exports.youtube_search = (link) => {
 
         var yid = response.ids[0];
         // search for yid in shared database
-        return audDb.get(yid, ".youtube");
+        return audDb.get(yid);
     });
 };
 
@@ -50,7 +50,6 @@ exports.front_page = () => {
         "json": true
     })
     .then((response) => {
-        console.log(response);
         var err = response.error;
         if (err) {
             throw err;

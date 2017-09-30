@@ -4,8 +4,7 @@ import { MockBackend } from '@angular/http/testing';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SynthesisComponent } from './synthesis.component';
-import { AudioHandleService, SynthesisService, WarningService } from '../_services';
-import { AudioViewerComponent } from '../audioviewer/audioviewer.component';
+import { QueuedAudioService, SynthesisService, WarningService } from '../_services';
 import { SynthViewerComponent } from './synthviewer/synthviewer.component';
 import { CollapseDirective } from '../_directives/collapse.directive';
 import { ProgressDirective } from '../_directives/progress.directive';
@@ -19,8 +18,7 @@ describe('SynthesisComponent', () => {
 		TestBed.configureTestingModule({
   			imports: [ HttpModule, FormsModule ],
 			declarations: [ 
-				SynthesisComponent, 
-				AudioViewerComponent,
+				SynthesisComponent,
 				CollapseDirective,
 				SynthViewerComponent,
 				ProgressDirective,
@@ -28,7 +26,7 @@ describe('SynthesisComponent', () => {
 				Bar
 			],
 			providers: [
-				AudioHandleService,
+				QueuedAudioService,
 				SynthesisService,
 				WarningService,
         		{ provide: XHRBackend, useClass: MockBackend },

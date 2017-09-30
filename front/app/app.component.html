@@ -12,9 +12,10 @@
 	
     	<div class="collapse navbar-collapse" id="videarnav">
 			<ul class="nav navbar-nav navbar-right">
-				<li [routerLinkActive]="['active']"><a [routerLink]="['/upload']">Upload Videos</a></li>
         		<li [routerLinkActive]="['active']"><a [routerLink]="['/synthesis']">Synthesize</a></li>
-        		<li [routerLinkActive]="['active']"><a [routerLink]="['/vidview']">Browse Audio</a></li>
+				<li [routerLinkActive]="['active']"><a [routerLink]="['/upload']"><i class="material-icons">file_upload</i></a></li>
+				<li><a (click)="openModal('web_services_health')"><i class="material-icons">queue_music</i></a></li>
+        		<li><a (click)="openModal('web_services_health')"><i class="material-icons">cloud</i></a></li>
         		<li [hidden]=hasUser() [routerLinkActive]="['active']"><a [routerLink]="['/login']">Login</a></li>
         		<li *ngIf=hasUser() class="dropdown">
 					<a data-toggle="dropdown" class="dropdown-toggle">
@@ -30,8 +31,25 @@
 	</div><!-- /.container-fluid -->
 </nav>
 <ngui-popup #popup></ngui-popup>
-<div id="content">
-	<div class="container">
-		<router-outlet></router-outlet>
+<div id="content"> 
+    <div class="container"> 
+		<router-outlet></router-outlet> 
+		<modal id="web_services_health">
+			<div class="angular-modal">
+				<div class="modal-body">
+					<h1>Service Health</h1>
+					<table class="table table-striped">
+						<tbody *ngFor="let mservice of services">
+							<ul>
+								<span>{{mservice.name}}</span>
+								<span class="badge badge-default">{{mservice.status}}</span>
+							</ul>
+						</tbody>
+					</table>
+					<button (click)="closeModal('web_services_health');">Close</button>
+				</div>
+			</div>
+			<div class="modal-background"></div>
+		</modal>
 	</div>
 </div>

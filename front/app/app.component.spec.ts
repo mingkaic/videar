@@ -8,7 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NguiPopupModule } from '@ngui/popup';
 
 import { AppComponent } from './app.component';
-import { AudioHandleService } from './_services/audio.service';
+import { UploadAudioService, QueuedAudioService } from './_services/audioservices';
 import { WarningService } from './_services/warning.service';
 
 @Component({
@@ -31,7 +31,8 @@ describe('AppComponent', () => {
 				DummyComponent
 			],
 			providers: [
-				AudioHandleService, 
+				UploadAudioService,
+				QueuedAudioService,
 				WarningService,
 				DomSanitizer,
         		{ provide: XHRBackend, useClass: MockBackend },

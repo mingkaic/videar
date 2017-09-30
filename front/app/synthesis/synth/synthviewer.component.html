@@ -1,0 +1,18 @@
+<label>Synthesized Assets</label>
+<table class="table table-striped">
+	<tbody *ngFor="let audio of cache.toArray()">
+		<tr>
+			<ul>
+				<td>
+					<audio controls="controls" preload='auto'>
+						<source [src]="audio.ref" type="audio/mp3"/>
+					</audio>
+				</td>
+			</ul>
+			<ul>
+				<label class="form-control-label">{{audio.script}}</label>
+			</ul>
+		</tr>
+		<progressbar [hidden]="audio.synthProgress===1" [animate]="true" [value]="audio.synthProgress" [type]="type"></progressbar>
+	</tbody>
+</table>

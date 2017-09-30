@@ -8,32 +8,38 @@ import { NguiPopupModule } from '@ngui/popup';
 
 import { AppComponent } from './app.component';
 
-import { VidUploadComponent } from './viduploader/viduploader.component';
-import { VidLinkerComponent } from './vidlinker/vidlinker.component';
-import { SimpleViewerComponent } from './simpleviewer/simpleviewer.component';
+import { UploadComponent, UploadViewerComponent } from './uploader';
+import { YtLinkerComponent, YtViewerComponent } from './ytlink';
 
-import { SynthesisComponent } from './synthesis/synthesis.component';
-import { AudioViewerComponent } from './audioviewer/audioviewer.component';
-import { SynthViewerComponent } from './synthesis/synthviewer/synthviewer.component';
+import { SynthesisComponent, SynthViewerComponent, QueuedViewerComponent } from './synthesis';
+import { MainViewerComponent, PopularViewerComponent, ExposedViewerComponent } from './mainviewer';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './login/register/register.component';
 
-import { VidUploaderDirective } from './_directives/viduploader.directive';
-import { CollapseDirective } from './_directives/collapse.directive';
-import { ProgressDirective } from './_directives/progress.directive';
+import { 
+	UploaderDirective,
+	CollapseDirective,
+	ProgressDirective,
+	ModalDirective
+} from './_directives';
 
 import { Progressbar, Bar } from './progressbar';
 
-import { AudioHandleService, WarningService } from './_services';
+import {
+	QueuedAudioService,
+	UploadAudioService,
+	YoutubeAudioService,
+	WarningService,
+	ModalService
+} from './_services';
 
 const routes: Routes = [
 	// basic routes
 	{ path: '', redirectTo: 'home', pathMatch: 'full' },
-	{ path: 'home', component: SynthesisComponent },
-	{ path: 'upload', component: VidUploadComponent },
-	{ path: 'vidlink', component: VidLinkerComponent },
+	{ path: 'home', component: MainViewerComponent },
+	{ path: 'upload', component: UploadComponent },
+	{ path: 'ytlink', component: YtLinkerComponent },
 	{ path: 'synthesis', component: SynthesisComponent },
-	{ path: 'vidview', component: AudioViewerComponent },
 
 	{ path: 'login', component: LoginComponent },
 	{ path: 'register', component: RegisterComponent }
@@ -43,35 +49,48 @@ const routes: Routes = [
 	declarations: [
 		AppComponent,
 
-		VidUploadComponent,
-		VidUploaderDirective,
-		VidLinkerComponent,
-		SimpleViewerComponent,
+		MainViewerComponent,
+		PopularViewerComponent,
+		ExposedViewerComponent,
+
+		UploadComponent,
+		UploadViewerComponent,
+
+		YtLinkerComponent,
+		YtViewerComponent,
 
 		SynthesisComponent,
 		SynthViewerComponent,
+		QueuedViewerComponent,
 
-		AudioViewerComponent,
-		CollapseDirective,
-		ProgressDirective,
-		
 		Progressbar,
 		Bar,
 
 		LoginComponent,
-		RegisterComponent
+		RegisterComponent,
+
+		UploaderDirective,
+		CollapseDirective,
+		ProgressDirective,
+		ModalDirective
 	],
 	imports: [
 		NguiPopupModule,
 		BrowserModule,
 		FormsModule,
 		HttpModule,
-	    RouterModule.forRoot(
+		RouterModule.forRoot(
 			routes,
 			{ enableTracing: true }
 		)
 	],
-	providers: [ AudioHandleService, WarningService ],
+	providers: [
+		UploadAudioService, 
+		YoutubeAudioService, 
+		QueuedAudioService, 
+		WarningService, 
+		ModalService
+	],
 	bootstrap: [ AppComponent ]
 })
 export class AppModule {};

@@ -7,18 +7,29 @@ class KTPair<K, T> {
 	};
 }
 
+class OrderedNode<T> {
+	constructor(public value: T, public idx: number) {}
+}
+
 // todo: test
 export class Cache<K, T> {
-	private list: LinkedList<KTPair<K, T>>;
-	private map: Map<K, LinkedNode<KTPair<K, T>>>;
+	private list: LinkedList<KTPair<K, OrderedNode<T>>>;
+	private map: Map<K, LinkedNode<KTPair<K, OrderedNode<T>>>>;
+	private counter: number = 0;
 
 	constructor(public limit: number) {
-		this.list = new LinkedList<KTPair<K, T>>();
+		this.list = new LinkedList<KTPair<K, OrderedNode<T>>>();
 		this.map = new Map();
 	};
-	
+
 	toArray(): T[] {
-		return this.list.toArray().map((pair: KTPair<K, T>) => pair.value);
+		return this.list.toArray()
+		.sort((left, right) => {
+			return left.value.idx - right.value.idx;
+		})
+		.map((pair: KTPair<K, OrderedNode<T>>) => {
+			return pair.value.value;
+		});
 	};
 
 	changeLimit(limit: number) {
@@ -29,7 +40,7 @@ export class Cache<K, T> {
 		if (this.has(key)) {
 			// update
 			this.update(key);
-			this.list.tail.value.value = value;
+			this.list.tail.value.value.value = value;
 			return;
 		}
 		if (this.list.length >= this.limit) {
@@ -37,7 +48,8 @@ export class Cache<K, T> {
 			this.remove();
 		}
 		// enqueue
-		let pair = new KTPair(key, value);
+		let pair = new KTPair(key, 
+			new OrderedNode<T>(value, this.counter++));
 		this.list.push_back(pair);
 		this.map.set(key, this.list.tail);
 	};
@@ -48,12 +60,19 @@ export class Cache<K, T> {
 		}
 		// update
 		this.update(key);
-		return this.map.get(key).value.value;
+		return this.map.get(key).value.value.value;
 	};
 
 	has(key: K) {
 		return this.map.has(key);
 	};
+
+	delete(key: K) {
+		// move linked node from center to end of list, then dequeue
+		this.list.stealBack(this.map.get(key));
+		this.list.pop_back();
+		this.map.delete(key);
+	}
 
 	private remove() {
 		let key = this.list.head.value.key;

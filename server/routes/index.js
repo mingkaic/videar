@@ -228,7 +228,7 @@ router.post('/api/audio_subtitles/:id', (req, res) => {
 });
 
 
-// ===== NON-UAS AUDIO INTERFACES =====
+// ===== GENERAL AUDIO INTERFACES =====
 router.get('/api/all_audio', (req, res) => {
 	audDb.all()
 	.then((infos) => {
@@ -240,9 +240,16 @@ router.get('/api/all_audio', (req, res) => {
 	});
 });
 
+router.get('/api/uploaded/:limit', (req, res) => {
+	var limit = parseInt(req.params.limit);
+
+	console.log(limit); // IMPLEMENT
+	res.json({ "ids": [] });
+});
+
 router.get('/api/audio/:id', (req, res) => {
 	var id = req.params.id;
-	audDb.get(id, ".audiosearch")
+	audDb.get(id)
 	.then((audio) => {
 		if (audio) {
 			audio.pipe(res);
@@ -260,7 +267,12 @@ router.get('/api/audio_meta/:id', (req, res) => {
 	var id = req.params.id;
 	audDb.metadata(id)
 	.then((data) => {
-		res.json(data);
+		if (data) {
+			res.json(data);
+		}
+		else { // todo: look into why this happens
+			res.status(404).json({ "err": "metadata for " + id + " not found"});
+		}
 	})
 	.catch((err) => {
 		res.status(500).json({ "err": err });

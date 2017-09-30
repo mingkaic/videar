@@ -1,0 +1,25 @@
+<div class="dropzone" uploadDir (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFileInvalids($event)" [allowed_extensions]="['mp3', 'mp4', 'wav', 'flac']" >
+	<div class="text-wrapper">
+		<div class="centered">Drop your file here! (mp3, mp4, wav, flac)</div>
+	</div>
+</div>
+<table class="table table-striped dropzone-list">
+	<tbody class="valid" *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
+		<div scope="row">
+			<span class="col=md-4 centered ellipsize">
+				<label class="form-control-label">{{ file.file.name }}</label>
+			</span>
+			<span class="col=md-2 badge" 
+			[ngClass]="{'processing': badge-success, 'unprocessed': badge-default}[file.getStatus()]">
+				{{file.getStatus()}}
+			</span>
+			<span class="col=md-3">
+				<button (click)="uploadFile(index)" class="btn btn-success">Process</button>
+			</span>
+			<span class="col=md-3">
+				<button (click)="removeFile(index)" class="btn btn-danger">Remove</button>
+			</span>
+		</div>
+	</tbody>
+</table>
+<app-uploadviewer></app-uploadviewer>

@@ -1,0 +1,34 @@
+<div class="panel panel-default">
+	<div class="panel-heading">Uploaded Audio</div>
+	<div class="panel-body">
+		<table class="table table-striped">
+			<tbody *ngFor="let audio of cache.toArray()">
+				<div class="row">
+					<span [hidden]=isSelected(audio._id) class="col=md-2 centered side-button">
+						<a (click)="addToSelected(audio._id)">
+							<i class="material-icons">add_circle</i>
+						</a>
+					</span>
+					<span *ngIf=isSelected(audio._id) class="col=md-2 centered side-button">
+						<a (click)="removeFromSelected(audio._id)">
+							<i class="material-icons">remove_circle</i>
+						</a>
+					</span>
+					<span (click)=audio.toggleEdit() [hidden]=audio.getEdit() class="col=md-4 centered ellipsize">
+						<label class="form-control-label">{{audio.name}}</label>
+					</span>
+					<span *ngIf=audio.getEdit() class="col-md-4 centered">
+						<input (keyup.enter)=audio.toggleEdit() type="text" class="form-control" (change)="audio.changed()" [(ngModel)]="audio.name"/>
+					</span>
+					<span *ngIf=isSelected(audio._id) class="centered badge badge-primary">selected</span>
+					<span class="col-md-4 pull-right">
+						<audio controls="controls" preload='auto'>
+							<source [src]="audio.ref" type="audio/mp3"/>
+						</audio>
+					</span>
+				</div>
+			</tbody> 
+		</table>
+	</div>
+</div>
+	

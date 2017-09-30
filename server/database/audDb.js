@@ -19,15 +19,15 @@ exports.metadata = (id) => {
     return AudioModel.findOne({ "id": id }).exec();
 };
 
-exports.get = (id, source) => {
+exports.get = (id) => {
     return exports.metadata(id)
     .then((info) => {
         var strm = null;
         if (info) {
-            strm = gfs.createReadStream({ filename: source + id });
+            strm = gfs.createReadStream({ filename: id });
         }
         return strm;
-    })
+    });
 };
 
 // POST
