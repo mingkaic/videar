@@ -7,9 +7,9 @@ import { IAudioService } from './audioservice.interface';
 
 export abstract class AbstractAudioService implements IAudioService {
 	private audioChange = new EventEmitter<string>();
-	
+
 	constructor(private _sanitizer: DomSanitizer, protected _http: Http) {}
-	
+
 	getAudioChangeEmitter(): EventEmitter<string> {
 		return this.audioChange;
 	};
@@ -17,15 +17,15 @@ export abstract class AbstractAudioService implements IAudioService {
 	getAudioModel(key: string): AudioModel {
 		return this.getAudioMap().get(key);
 	};
-	
+
 	getAllKeys(): string[] {
 		return Array.from(this.getAudioMap().keys());
 	};
-	
+
 	hasAudioModel(key: string): boolean {
 		return this.getAudioMap().has(key);
 	};
-	
+
 	addAudio(aud: AudioModel) {
 		let id = aud._id;
 		this.getAudioMap().set(id, aud);
@@ -36,9 +36,9 @@ export abstract class AbstractAudioService implements IAudioService {
 		this.getAudioMap().delete(id);
 		this.audioChange.emit(id);
 	}
-	
+
 	protected abstract getAudioMap(): Map<string, AudioModel>;
-	
+
 	protected metadata (id: string) {
 		return this._http.get('/api/audio_meta/' + id).map((data: Response) => data.json());
 	};
@@ -61,7 +61,7 @@ export abstract class AbstractAudioService implements IAudioService {
 			(err) => { console.log(err); });
 		}
 	};
-	
+
 	protected setAudioForm(id: string, name: string, soundBlob: Blob) {
 		let safeURL = this._sanitizer.bypassSecurityTrustResourceUrl(
 			URL.createObjectURL(soundBlob));

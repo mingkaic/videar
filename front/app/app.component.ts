@@ -2,10 +2,12 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NguiPopupComponent, NguiMessagePopupComponent } from '@ngui/popup';
 
+import { AbstractViewerComponent } from './_interfaces/viewer.abstract';
 import { Microservice } from './_models/mservice.model';
 import {
 	AuthenticationService,
 	ModalService,
+	QueuedAudioService,
 	WarningService
 } from './_services';
 
@@ -15,17 +17,19 @@ import {
 	styleUrls: ['./app.component.css', './shared.css'],
 	providers: [ AuthenticationService, ModalService ]
 })
-export class AppComponent implements OnInit {
+export class AppComponent extends AbstractViewerComponent implements OnInit {
 	@ViewChild(NguiPopupComponent) popup: NguiPopupComponent;
-	
+
 	title = 'Videar';
 	private bodyText: string;
 	private services: Microservice[];
 
 	constructor(private router: Router, 
 		private modalService: ModalService,
-		private authenticationService: AuthenticationService,
+		private _authService: AuthenticationService,
+		private _queuedService: QueuedAudioService,
 		warningService: WarningService) {
+		super(20, _queuedService);
 		warningService.getWarningEmitter().subscribe((message) => {
 			this.popup.open(NguiMessagePopupComponent, {
 				"title": 'WARNING',
@@ -34,7 +38,7 @@ export class AppComponent implements OnInit {
 		});
 		this.services = new Array();
 	};
-	
+
 	ngOnInit() {
 		this.bodyText = 'This text can be updated in modal 1';
 	};
@@ -52,9 +56,9 @@ export class AppComponent implements OnInit {
 	};
 
 	logout() {
-		this.authenticationService.logout();
+		this._authService.logout();
 	};
-	
+
 	openModal(id: string){
 		this.modalService.open(id);
 	};

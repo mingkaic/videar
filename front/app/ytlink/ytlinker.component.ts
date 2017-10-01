@@ -22,7 +22,8 @@ class YtLink {
 
 @Component({
 	selector: 'app-vidlinker',
-	templateUrl: './ytlinker.component.html'
+	templateUrl: './ytlinker.component.html',
+	styleUrls: ['../shared.css'],
 })
 export class YtLinkerComponent implements OnInit {
 	links: YtLink[];

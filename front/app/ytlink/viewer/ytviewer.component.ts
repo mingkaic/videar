@@ -5,10 +5,13 @@ import { YoutubeAudioService, QueuedAudioService } from '../../_services/audiose
 
 @Component({
 	selector: 'app-ytviewer',
-	templateUrl: './ytviewer.component.html',
+	templateUrl: '../../_html/plainviewer.component.html',
 	styleUrls: ['../../shared.css']
 })
 export class YtViewerComponent extends SelectableViewerComponent implements OnInit {
+	viewtitle: string = "Youtube Audio";
+	emptymessage: string = "No Youtube Audios Discovered";
+
 	constructor(private _ytService: YoutubeAudioService, queuedService: QueuedAudioService) {
 		super(20, _ytService, queuedService);
 	};

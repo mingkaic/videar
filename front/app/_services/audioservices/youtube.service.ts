@@ -1,4 +1,4 @@
-import { Http, Response } from '@angular/http';
+import { Http, Response, ResponseContentType } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -21,11 +21,12 @@ export class YoutubeAudioService extends AbstractAudioService {
 			return;
 		}
 		console.log('verifying id existence');
-		this._http.post('/api/youtube', { "id": youtubeId })
+		this._http.post('/api/youtube', { "id": youtubeId }, 
+		{ "responseType": ResponseContentType.ArrayBuffer })
 		.subscribe((data: Response) => {
 			this.metadata(youtubeId)
 			.subscribe((meta) => {
-				let audio = new Blob([data], { type: "application/octet-stream" });
+				let audio = new Blob([data.arrayBuffer()], { type: "application/octet-stream" });
 				this.setAudioForm(youtubeId, meta.title, audio);
 				if (onSuccess) {
 					onSuccess();

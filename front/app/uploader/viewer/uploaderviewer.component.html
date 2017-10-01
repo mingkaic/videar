@@ -2,33 +2,34 @@
 	<div class="panel-heading">Uploaded Audio</div>
 	<div class="panel-body">
 		<table class="table table-striped">
-			<tbody *ngFor="let audio of cache.toArray()">
-				<div class="row">
-					<span [hidden]=isSelected(audio._id) class="col=md-2 centered side-button">
-						<a (click)="addToSelected(audio._id)">
+			<tbody>
+				<div class="row vcenter wide" [hidden]='cache.toArray().length > 0'>
+					Nothing Uploaded
+				</div>
+				<div class="row vcenter wide" *ngFor="let audio of cache.toArray()">
+					<div class="col-xs-2 col-md-1">
+						<a [hidden]=isSelected(audio._id) (click)="addToSelected(audio._id)">
 							<i class="material-icons">add_circle</i>
 						</a>
-					</span>
-					<span *ngIf=isSelected(audio._id) class="col=md-2 centered side-button">
-						<a (click)="removeFromSelected(audio._id)">
+						<a *ngIf=isSelected(audio._id) (click)="removeFromSelected(audio._id)">
 							<i class="material-icons">remove_circle</i>
 						</a>
-					</span>
-					<span (click)=audio.toggleEdit() [hidden]=audio.getEdit() class="col=md-4 centered ellipsize">
-						<label class="form-control-label">{{audio.name}}</label>
-					</span>
-					<span *ngIf=audio.getEdit() class="col-md-4 centered">
-						<input (keyup.enter)=audio.toggleEdit() type="text" class="form-control" (change)="audio.changed()" [(ngModel)]="audio.name"/>
-					</span>
-					<span *ngIf=isSelected(audio._id) class="centered badge badge-primary">selected</span>
-					<span class="col-md-4 pull-right">
-						<audio controls="controls" preload='auto'>
-							<source [src]="audio.ref" type="audio/mp3"/>
-						</audio>
-					</span>
+					</div>
+					<label [attr.title]="audio.name" (click)=audio.toggleEdit() [hidden]=audio.getEdit() 
+					class="col-xs-7 col-sm-10 col-md-6 ellipsize form-control-label">
+						{{audio.name}}
+					</label>
+					<input *ngIf=audio.getEdit() (keyup.enter)=audio.toggleEdit() type="text" 
+					class="col-xs-7 col-sm-10 col-md-6 ellipsize form-control" (change)="audio.changed()" 
+					[(ngModel)]="audio.name"/>
+					<div class="clearfix visible-sm-block"></div>
+					<div class="col-xs-3 col-sm-2 col-md-1">
+						<span *ngIf=isSelected(audio._id) class="badge">selected</span>
+					</div>
+					<div class="clearfix visible-xs-block"></div>
+					<audio class="col-xs-12 col-sm-10 col-md-4" controls [src]="audio.ref" type="audio/mpeg"></audio>
 				</div>
 			</tbody> 
 		</table>
 	</div>
 </div>
-	

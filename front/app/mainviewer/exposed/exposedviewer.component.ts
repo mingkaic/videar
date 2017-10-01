@@ -6,12 +6,13 @@ import { SelectableViewerComponent } from '../../_interfaces/viewer.abstract';
 
 @Component({
 	selector: 'app-exposedviewer',
-	templateUrl: '../plainviewer.component.html',
+	templateUrl: '../../_html/plainviewer.component.html',
 	styleUrls: ['../../shared.css'],
 	providers: [ ExposedAudioService ]
 })
 export class ExposedViewerComponent extends SelectableViewerComponent implements OnInit {
-	viewtitle: string = "Public Added";
+	viewtitle: string = "Public Audio";
+	emptymessage: string = "No Public Audio Available";
 
 	constructor(private _exposedService: ExposedAudioService, queuedService: QueuedAudioService) {
 		super(10, _exposedService, queuedService);

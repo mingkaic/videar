@@ -1,18 +1,16 @@
 <table class="table table-striped">
     <tbody *ngFor="let audio of cache.toArray()">
         <div class="row">
-            <div (click)=audio.getScript() class="col-md-1 centered ellipsize">
+            <div (click)=audio.getScript() class="col-1 centered ellipsize">
                 <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
             </div>
-            <td class="col-md-5 centered"><label class="form-control-label">{{audio.name}}</label></td>
-            <td class="col-md-5">
-                <audio controls="controls" preload='auto'>
-                    <source [src]="audio.ref" type="audio/mp3"/>
-                </audio>
+            <td class="col-5 centered"><label class="form-control-label">{{audio.name}}</label></td>
+            <td class="col-5">
+                <audio controls [src]="audio.ref" type="audio/mpeg"></audio>
             </td>
             <button><i (click)=audio.toggleSelect()>add_circle</i></button>
-            <td class="col-md-2 centered" *ngIf=audio.selected><span class="label label-success"> selected </span></td>
-            <td class="col-md-2 centered" [hidden]=audio.selected><span class="label label-warning">unselected</span></td>
+            <td class="col-2 centered" *ngIf=audio.selected><span class="label label-success"> selected </span></td>
+            <td class="col-2 centered" [hidden]=audio.selected><span class="label label-warning">unselected</span></td>
             <div [collapse]=audio.uncollapseScript class="card card-block card-header">
                 <div class="well well-lg">
                     {{audio.script}}

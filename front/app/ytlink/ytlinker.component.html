@@ -1,33 +1,21 @@
 <table class="table table-striped">
-	<thead>
-		<tr>
-			<th class="col-md-8"><button (click)="addLink()" class="btn btn-primary">Link More Videos</button></th>
-			<th class="col-md-1"></th>
-			<th class="col-md-1"></th>
-			<th class="col-md-1"></th>
-			<th class="col-md-1"></th>
-		</tr>
-	</thead>
-	<tbody *ngFor="let link of links; let index = index; trackBy: trackByIndex;">
-		<div scope="row">
-			<span class="col-md-4 ellipsize">
-				<input class="form-control" [(ngModel)]="link.link"
-				placeholder="paste link here: https://www.youtube.com/watch?v=..."/>
-			</span>
-			<span class="col-md-2 badge centered" 
-			[ngClass]="{'processing': badge-success, 'unprocessed': badge-default, 'rejected': badge-danger}[link.getStatus()]">
-				{{link.getStatus()}}
-			</span>
-			<span class="col-md-2">
-				<button (click)="processLink(index)" class="btn btn-success">Process</button>
-			</span>
-			<span class="col-md-2">
-				<button (click)="clearLink(index)" class="btn btn-warning">Clear</button>
-			</span>
-			<span class="col-md-2">
-				<button (click)="removeLink(index)" class="btn btn-danger">Remove</button>
-			</span>
-		</div>
 	<tbody>
+		<div class="wide vcenter row">
+			<a (click)="addLink()" class="col-1 col-xs-offset-10">
+				<i class="material-icons">add_circle</i>
+			</a>
+		</div>
+		<div class="wide vcenter row" *ngFor="let link of links; let index = index; trackBy: trackByIndex;">
+			<input class="ellipsize col-xs-4 form-control" [(ngModel)]="link.link"
+			placeholder="paste link here: https://www.youtube.com/watch?v=..."/>
+			<div class="label col-xs-2" 
+			[ngClass]="{'processing': 'label-success', 'unprocessed': 'label-default', 'rejected': 'label-danger'}[link.getStatus()]">
+				{{link.getStatus()}}
+			</div>
+			<button (click)="processLink(index)" class="col-xs-2 btn btn-success">Process</button>
+			<button (click)="clearLink(index)" class="col-xs-2 btn btn-warning">Clear</button>
+			<button (click)="removeLink(index)" class="col-xs-2 btn btn-danger">Remove</button>
+		</div>
+	</tbody>
 </table>
 <app-ytviewer></app-ytviewer>

@@ -1,40 +1,25 @@
 [hidden] {
-    display: none !important;
-}
-
-.centered {
-    vertical-align: middle;
-}
-
-div.centered, span.centered {
-    position: relative;
-    top: 50%;
-    transform: translateY(50%);
-}
-
-.side-button {
-    display: inline-block;
-    margin-right: 5%;
-}
-
-.row {
-    margin-left: 2%;
-    margin-right: 2%;
+	display: none !important;
 }
 
 .ellipsize {
-    width: 35%;
-    display: inline-block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline-block;
 }
 
-.ellipsize label {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-    max-width: 100%;
+.panel-body > table {
+	margin-bottom: 0px;
 }
 
-.panel-body>table {
-    margin-bottom: 0px;
+.wide {
+	max-width: 92.5vw;
+}
+
+@media (min-width: 440px) {
+	.vcenter {
+		display:flex;
+		align-items:center;
+	}
 }

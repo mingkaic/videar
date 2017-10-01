@@ -15,7 +15,7 @@ class FileInfo {
 @Component({
 	selector: 'app-viduploader',
 	templateUrl: './uploader.component.html',
-	styleUrls: ['./uploader.component.css']
+	styleUrls: ['../shared.css', './uploader.component.css']
 })
 export class UploadComponent implements OnInit {
 	private files: FileInfo[] = [];

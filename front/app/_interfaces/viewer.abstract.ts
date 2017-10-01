@@ -11,11 +11,11 @@ export class AbstractViewerComponent {
 		aservice.getAudioChangeEmitter()
 		.subscribe((key: string) => this.cacheUpdate(key, aservice));
 	};
-	
+
 	protected wrapAudio(audio: AudioModel): AudioModel {
 		return audio;
 	}
-	
+
 	protected cacheUpdate(key: string, aservice: IAudioService) {
 		if (aservice.hasAudioModel(key)) {
 			let freshEntry = aservice.getAudioModel(key);
@@ -31,7 +31,7 @@ export class SelectableViewerComponent extends AbstractViewerComponent {
 	constructor(limit: number, aservice: IAudioService, private selector: QueuedAudioService) {
 		super(limit, aservice);
 	};
-	
+
 	addToSelected(id: string) {
 		if (this.cache.has(id)) {
 			this.selector.addAudio(this.cache.get(id));
