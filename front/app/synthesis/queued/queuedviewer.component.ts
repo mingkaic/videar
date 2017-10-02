@@ -2,17 +2,50 @@ import { Component, OnInit, SimpleChange } from '@angular/core';
 
 import { QueuedAudioService } from '../../_services';
 import { AudioModel } from '../../_models/audio.model';
+import { WarningService } from '../../_services';
 import { AbstractViewerComponent } from '../../_interfaces/viewer.abstract';
 
-class SynthAudio extends AudioModel {
+class QueuedAudio extends AudioModel {
 	script: string;
-	synthProgress: number = 0;
+	scriptComplete: boolean = false;
+	uncollapseScript: boolean = true;
+	scriptDisable: boolean = false;
 
-	constructor(public model: AudioModel) {
+	constructor(public model: AudioModel, 
+				private _queuedService: QueuedAudioService,
+				private _warningService: WarningService) {
 		super(model._id, model.name, model.ref);
 		this.source = model.source;
 	};
-};
+
+	getScript() {
+		this.uncollapseScript = !this.uncollapseScript; // toggle
+		if (this.script || this.scriptDisable) {
+			return;
+		}
+		// request script if local script is undefined
+		this.script = "";
+		this.updateSubtitles(this._queuedService.getSubtitles(this.model._id));
+	};
+
+	private updateSubtitles(audioCall) {
+		audioCall
+		.subscribe((response) => {
+			let status = response.status;
+			this.script = response.subtitle;
+			if (this.script.length === 0) {
+				this.script = "<NO SUBTITLES PROCESSED>"
+			}
+			this.scriptComplete = status === "complete";
+			this.scriptDisable = false;
+		},
+		(err) => {
+			console.log('SYNTHESIS: ', err);
+			// WARN ERROR
+			this._warningService.warn(err);
+		});
+	};
+}
 
 @Component({
 	selector: 'app-queuedviewer',
@@ -20,18 +53,18 @@ class SynthAudio extends AudioModel {
 	styleUrls: ['./queuedviewer.component.css', '../../shared.css']
 })
 export class QueuedViewerComponent extends AbstractViewerComponent implements OnInit {
-	constructor(private _synthService: QueuedAudioService) {
-		super(20, _synthService);
+	constructor(private _queuedService: QueuedAudioService, private _warningService: WarningService) {
+		super(20, _queuedService);
 	};
 	
 	ngOnInit() {
-		this._synthService.getAllKeys()
-		.forEach(key => this.cacheUpdate(key, this._synthService));
+		this._queuedService.getAllKeys()
+		.forEach(key => this.cacheUpdate(key, this._queuedService));
 	};
 	
 	ngOnDestroy() {};
 	
 	protected wrapAudio(audio: AudioModel): AudioModel {
-		return new SynthAudio(audio);
+		return new QueuedAudio(audio, this._queuedService, this._warningService);
 	};
 };

@@ -48,10 +48,8 @@ body.modal-open {
   
     overflow: hidden;
 }
-.dropdown-ellipsize {
-    width: 100%;
-    display: inline-block;
-}
 .dropdown-queue {
-    width: 20%;
+    margin-left: 2.5vw;
+    margin-right: 2.5vw;
+    width: 50vw;
 }

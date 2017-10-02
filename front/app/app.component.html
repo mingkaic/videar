@@ -18,12 +18,10 @@
 					<a class="dropdown-toggle" data-toggle="dropdown"><i class="material-icons">queue_music</i></a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-item dropdown-queue" [hidden]='cache.toArray().length > 0'>
-							Nothing Selected
+							<label class="ellipsize form-control-label">Nothing Selected</label>
 						</li>
-						<li class="dropdown-item dropdown-queue" *ngFor="let audio of cache.toArray()">
-							<span class="dropdown-ellipsize">
-								{{audio.name}}
-							</span>
+						<li [attr.title]="audio.name" class="dropdown-item dropdown-queue" *ngFor="let audio of cache.toArray()">
+							<label class="ellipsize form-control-label">{{audio.name}}</label>
 						</li>
 					</ul>
 				</li>
