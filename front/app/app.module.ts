@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule, Routes } from '@angular/router';
 import { NguiPopupModule } from '@ngui/popup';
+import { Uploader } from 'angular2-http-file-upload';
 
 import { AppComponent } from './app.component';
 
@@ -88,7 +89,8 @@ const routes: Routes = [
 		YoutubeAudioService, 
 		QueuedAudioService, 
 		WarningService, 
-		ModalService
+		ModalService,
+		Uploader
 	],
 	bootstrap: [ AppComponent ]
 })

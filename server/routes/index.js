@@ -15,7 +15,6 @@ const uas = require('../services/uas');
 
 const converter = require('../services/audioConv');
 const synthesize = require('../services/synthesize');
-var sockets = require('../sockets').sockets;
 
 // ===== AUTHENTICATION =====
 router.get('/api/users', (req, res) => {
@@ -123,27 +122,7 @@ router.get('/api/audio_subtitles/:id', (req, res) => {
 	});
 });
 
-router.post('/api/req_audio', (req, res) => {
-	var socket = sockets[req.body.socketId];
-	var id = req.body.vidId;
-	console.log('checking if '+id+' exists');
-	dbCheckStreamExist(id, 
-	(streamInfo) => {
-		var dbStream = streamInfo.stream;
-		// stream exists
-		console.log('stream ' + id + ' found. transmitting...');
-		var outStream = ss.createStream();
-		ss(socket).emit('audio-stream', outStream, id);
-		dbStream.pipe(outStream);
-		res.json({ "name": streamInfo.name });
-	},
-	() => {
-		res.json({ "name": null });
-	});
-});
-
 router.put('/api/synthesize', (req, res) => {
-	var socket = sockets[req.body.socketId];
 	var synthId = req.body.synthId;
 	const context = "synthId";
 
@@ -191,8 +170,6 @@ router.put('/api/synthesize', (req, res) => {
 router.post('/api/audio_subtitles/:id', (req, res) => {
 	var vidId = req.params.id;
 	var reqId = req.body.reqId;
-	var sid = req.body.socketId;
-	var socket = sockets[sid];
 	const context = "subtitles";
 	cache.hasKey(context, reqId)
 	.then((existence) => {
@@ -270,7 +247,7 @@ router.get('/api/audio_meta/:id', (req, res) => {
 		if (data) {
 			res.json(data);
 		}
-		else { // todo: look into why this happens
+		else { 											// todo: look into why this happens
 			res.status(404).json({ "err": "metadata for " + id + " not found"});
 		}
 	})
@@ -281,6 +258,8 @@ router.get('/api/audio_meta/:id', (req, res) => {
 
 router.post('/api/upload_audio', (req, res) => {
 	// check update and notify shared members
+	console.log('upload audio called'); 				// todo: implement
+	res.json({ "id": "ABCDEFG" });
 });
 
 router.post('/api/audio_meta/:id', (req, res) => {
@@ -301,7 +280,7 @@ router.post('/api/audio_meta/:id', (req, res) => {
 });
 
 // ===== UAS SERVICES =====
-router.get('/api/front_page', (req, res) => {
+router.get('/api/front_page', (req, res) => { 			// todo: cache front-page to lower traffic to uas
 	uas.front_page()
 	.then((audio_ids) => {
 		// check update and notify shared members

@@ -2,22 +2,27 @@ import { Http, Response, ResponseContentType } from '@angular/http'
 import { Injectable, EventEmitter } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { UUID } from 'angular2-uuid';
-
-import * as io from 'socket.io-client';
-import * as ss from 'socket.io-stream';
+import { UploadItem, Uploader } from 'angular2-http-file-upload';
 
 import 'rxjs/add/operator/timeout';
 
 import { AudioModel } from '../../_models/audio.model';
 import { AbstractAudioService } from './audioservice.abstract';
 
+class FileUploadItem extends UploadItem {
+	constructor(file: any) {
+		super();
+		this.url = '/api/upload_audio';
+		this.file = file;
+	}
+}
+
 @Injectable()
 export class UploadAudioService extends AbstractAudioService {
-	private socket: io.Socket = io();
 	private uploadedAudios: Map<string, AudioModel> = new Map;
 
-	constructor(_sanitizer: DomSanitizer, _http: Http) {
-		super(_sanitizer, _http);
+	constructor(sanitizer: DomSanitizer, http: Http, public _uploaderService: Uploader) {
+		super(sanitizer, http);
 	};
 
 	// move to user audio service
@@ -32,12 +37,19 @@ export class UploadAudioService extends AbstractAudioService {
 	};
 
 	sendAudio(file: File, onSuccess?: (() => void)) {
-		var outStream = ss.createStream();
-		ss(this.socket).emit('post-audio-client', outStream, file.name);
-		ss.createBlobReadStream(file).pipe(outStream);
-		outStream.on('finish', () => {
+		let uploadItem = new FileUploadItem(file);
+
+		this._uploaderService.onSuccessUpload = (item, res, status, headers) => {
+			this.setAudioForm(res.id, file.name, file);
 			onSuccess();
-		});
+		};
+		this._uploaderService.onErrorUpload = (item, res, status, headers) => {
+			// error callback
+		};
+		this._uploaderService.onProgressUpload = (item, percentComplete) => {
+			// progress callback
+		};
+		this._uploaderService.upload(uploadItem);
 	};
 
 	protected getAudioMap(): Map<string, AudioModel> {

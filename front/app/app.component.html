@@ -15,7 +15,9 @@
         		<li [routerLinkActive]="['active']"><a [routerLink]="['/synthesis']">Synthesize</a></li>
 				<li [routerLinkActive]="['active']"><a [routerLink]="['/upload']"><i class="material-icons">file_upload</i></a></li>
 				<li class="dropdown">
-					<a class="dropdown-toggle" data-toggle="dropdown"><i class="material-icons">queue_music</i></a>
+					<a class="dropdown-toggle" data-toggle="dropdown">
+						<i class="material-icons mdl-badge" [attr.data-badge]="cache.toArray().length ? cache.toArray().length : null">queue_music</i>
+					</a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-item dropdown-queue" [hidden]='cache.toArray().length > 0'>
 							<label class="ellipsize form-control-label">Nothing Selected</label>
@@ -25,7 +27,7 @@
 						</li>
 					</ul>
 				</li>
-        		<li><a (click)="openModal('web_services_health')"><i class="material-icons">cloud</i></a></li>
+				<li><a (click)="openModal('web_services_health')"><i class="material-icons">cloud</i></a></li>
         		<li [hidden]=hasUser() [routerLinkActive]="['active']"><a [routerLink]="['/login']">Login</a></li>
         		<li *ngIf=hasUser() class="dropdown">
 					<a data-toggle="dropdown" class="dropdown-toggle">

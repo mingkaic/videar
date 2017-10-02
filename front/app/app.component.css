@@ -53,3 +53,19 @@ body.modal-open {
     margin-right: 2.5vw;
     width: 50vw;
 }
+
+.material-icons.icon {
+  font-size: 4em;
+  line-height: 1;
+  display: block;
+  color: #424242;
+  margin: .5em 0
+}
+
+.material-icons.mdl-badge[data-badge]::after {
+  font-size: .4em;
+  width: 2em;
+  height: 2em;
+  top: -1em;
+  right: -1em;
+}

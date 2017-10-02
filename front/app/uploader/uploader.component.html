@@ -7,9 +7,11 @@
 	<tbody class="valid">
 		<div class="wide vcenter row" *ngFor="let file of files; let index = index; trackBy: trackByIndex;">
 			<label class="col-xs-6 ellipsize form-control-label">{{ file.file.name }}</label>
-			<div class="col-xs-2 label pull-right" 
-			[ngClass]="{'processing': 'label-success', 'unprocessed': 'label-default'}[file.getStatus()]">
-				{{file.getStatus()}}
+			<div class="col-xs-2">
+				<span class="label" 
+				[ngClass]="{'processing': 'label-success', 'unprocessed': 'label-default'}[file.getStatus()]">
+					{{file.getStatus()}}
+				</span>
 			</div>
 			<button (click)="uploadFile(index)" class="col-xs-2 btn btn-success">Process</button>
 			<button (click)="removeFile(index)" class="col-xs-2 btn btn-danger">Remove</button>

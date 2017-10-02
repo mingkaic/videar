@@ -44,7 +44,6 @@ export class UploaderDirective {
 			for (let i = 0; i < files.length; i++) {
 				let file = files[i];
 				let ext = file.name.split('.')[file.name.split('.').length - 1];
-				console.log(file);
 				if(this.allowed_extensions.lastIndexOf(ext) != -1) {
 					valid_files.push(file);
 				}

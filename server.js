@@ -22,8 +22,6 @@ const app = express();
 const server = http.createServer(app);
 var io = socketio.listen(server);
 
-require('./server/sockets').connect(io);
-
 // Parse POST data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
