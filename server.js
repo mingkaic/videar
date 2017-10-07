@@ -13,7 +13,7 @@ const localStrats = require('passport-local').Strategy;
 require('./server/database');
 
 // Auths
-var User = require('./server/models/userModel');
+var User = require('./server/local_db/_models/user_model');
 
 const default_port = '8080';
 const default_host = '0.0.0.0';

@@ -11,17 +11,20 @@ services:
     command: [ "npm", "test" ]
     depends_on: 
       - central_mongodb
-      - central_redis
+      - speech2text
       - uni_audio
 
-  # # placeholder for s2t
-  # speech2text:
-  #   image: mkaichen/rocnnet-s2t:latest
-  #   build: _services/s2t
-  #   environment:
-  #     - DB_HOST=central_mongodb
-  #   volumes:
-  #     - /usr/src/s2t
+  # handle speech to text and audio synthesis
+  speech2text:
+    image: mkaichen/s2t:latest
+    environment:
+      - DB_HOST=central_mongodb
+    ports:
+      - "8008:8008"
+    volumes:
+      - /usr/src/s2t
+    depends_on: 
+      - central_mongodb
 
   # obtain audio from multiple 3rd party sources
   uni_audio:
@@ -40,11 +43,4 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017" 
-    restart: always
-
-  # redis
-  central_redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
     restart: always
