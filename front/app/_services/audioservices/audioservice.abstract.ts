@@ -30,12 +30,12 @@ export abstract class AbstractAudioService implements IAudioService {
 		let id = aud._id;
 		this.getAudioMap().set(id, aud);
 		this.audioChange.emit(id);
-	}
+	};
 
 	removeAudio(id: string) {
 		this.getAudioMap().delete(id);
 		this.audioChange.emit(id);
-	}
+	};
 
 	protected abstract getAudioMap(): Map<string, AudioModel>;
 

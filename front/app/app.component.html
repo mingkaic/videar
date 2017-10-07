@@ -50,11 +50,13 @@
 			<div class="modal-body">
 				<h1>Service Health</h1>
 				<table class="table table-striped">
-					<tbody *ngFor="let mservice of services">
-						<ul>
-							<span>{{mservice.name}}</span>
-							<span class="badge badge-default">{{mservice.status}}</span>
-						</ul>
+					<tbody>
+						<div class="row vcenter wide" *ngFor="let mservice of services">
+							<label class="col-xs-10">{{mservice.name}}</label>
+							<div class="col-xs-2">
+								<span class="badge">{{mservice.status}}</span>
+							</div>
+						</div>
 					</tbody>
 				</table>
 				<button (click)="closeModal('web_services_health');">Close</button>

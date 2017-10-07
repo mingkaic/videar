@@ -7,6 +7,7 @@ import { Microservice } from './_models/mservice.model';
 import {
 	AuthenticationService,
 	ModalService,
+	MonitorService,
 	QueuedAudioService,
 	WarningService
 } from './_services';
@@ -15,7 +16,7 @@ import {
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css', './shared.css'],
-	providers: [ AuthenticationService, ModalService ]
+	providers: [ AuthenticationService, ModalService, MonitorService ]
 })
 export class AppComponent extends AbstractViewerComponent implements OnInit {
 	@ViewChild(NguiPopupComponent) popup: NguiPopupComponent;
@@ -28,6 +29,7 @@ export class AppComponent extends AbstractViewerComponent implements OnInit {
 		private modalService: ModalService,
 		private _authService: AuthenticationService,
 		private _queuedService: QueuedAudioService,
+		private _monitorService: MonitorService,
 		warningService: WarningService) {
 		super(20, _queuedService);
 		warningService.getWarningEmitter().subscribe((message) => {
@@ -37,6 +39,10 @@ export class AppComponent extends AbstractViewerComponent implements OnInit {
 			});
 		});
 		this.services = new Array();
+		_monitorService.getHealthUpdateEmitter()
+		.subscribe((services: Microservice[]) => {
+			this.services = services;
+		});
 	};
 
 	ngOnInit() {
@@ -60,6 +66,7 @@ export class AppComponent extends AbstractViewerComponent implements OnInit {
 	};
 
 	openModal(id: string){
+		this._monitorService.update();
 		this.modalService.open(id);
 	};
 

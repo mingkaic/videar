@@ -30,6 +30,7 @@ import {
 	UploadAudioService,
 	YoutubeAudioService,
 	WarningService,
+	MonitorService,
 	ModalService
 } from './_services';
 
@@ -88,6 +89,7 @@ const routes: Routes = [
 		UploadAudioService, 
 		YoutubeAudioService, 
 		QueuedAudioService, 
+		MonitorService,
 		WarningService, 
 		ModalService,
 		Uploader

@@ -85,18 +85,6 @@ router.delete('/api/users/:id', (req, res) => {
 });
 
 // ===== SERVICES =====
-function dbCheckStreamExist(vidId, exists, notexist) {
-	vidDb.getVidStream(vidId)
-	.then((streamInfo) => {
-		if (streamInfo === null) {
-			notexist();
-		}
-		else {
-			exists(streamInfo);
-		}
-	});
-}
-
 router.get('/api/audio_subtitles/:id', (req, res) => {
 	var vidId = req.params.id;
 	wordDb.getTranscript(vidId)
@@ -265,6 +253,20 @@ router.get('/api/audio_meta/:id', (req, res) => {
 	});
 });
 
+router.get('/api/health', (req, res) => {
+	// visit all services
+	Promise.all([
+		uas.health()
+	])
+	.then((statuses) => {
+		res.json({
+			"services": [
+				{"name": "uas", "status": statuses[0]},
+			]
+		});
+	});
+});
+
 router.post('/api/upload_audio', (req, res) => {
 	// check update and notify shared members
 	var file = req.files.file;
@@ -295,7 +297,7 @@ router.post('/api/audio_meta/:id', (req, res) => {
 });
 
 // ===== UAS SERVICES =====
-router.get('/api/front_page', (req, res) => { 			// todo: cache front-page to lower traffic to uas
+router.get('/api/front_page', (req, res) => {
 	uas.front_page()
 	.then((audio_ids) => {
 		// check update and notify shared members

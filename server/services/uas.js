@@ -59,3 +59,15 @@ exports.front_page = () => {
         return response.ids;
     });
 };
+
+exports.health = () => {
+    return request({
+        "encoding": 'utf8',
+        "method": 'GET',
+        "uri": uasURL + '/health',
+        "json": true
+    })
+    .then((response) => {
+        return response.status;
+    });
+}
