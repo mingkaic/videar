@@ -4,6 +4,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketio = require('socket.io');
+const fileUpload = require('express-fileupload');
 
 const passport = require('passport');
 const localStrats = require('passport-local').Strategy;
@@ -25,6 +26,8 @@ var io = socketio.listen(server);
 // Parse POST data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(fileUpload());
 
 // Point static path to dist
 app.use(express.static(path.join(__dirname, 'dist')));

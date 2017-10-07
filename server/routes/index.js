@@ -207,7 +207,7 @@ router.post('/api/audio_subtitles/:id', (req, res) => {
 
 // ===== GENERAL AUDIO INTERFACES =====
 router.get('/api/all_audio', (req, res) => {
-	audDb.all()
+	audDb.all({})
 	.then((infos) => {
 		res.json(infos);
 	})
@@ -220,8 +220,15 @@ router.get('/api/all_audio', (req, res) => {
 router.get('/api/uploaded/:limit', (req, res) => {
 	var limit = parseInt(req.params.limit);
 
-	console.log(limit); // IMPLEMENT
-	res.json({ "ids": [] });
+	audDb.all({
+		"source": { $in: ['uploaded', '.youtube'] }	
+	}, limit)
+	.then((infos) => {
+		res.json({ "ids": infos.map((datum) => datum.id) });
+	})
+	.catch((err) => {
+		res.status(500).send(err);
+	});
 });
 
 router.get('/api/audio/:id', (req, res) => {
@@ -247,8 +254,10 @@ router.get('/api/audio_meta/:id', (req, res) => {
 		if (data) {
 			res.json(data);
 		}
-		else { 											// todo: look into why this happens
-			res.status(404).json({ "err": "metadata for " + id + " not found"});
+		else {											// todo: look into why this happens
+			res.status(404).json({
+				"err": "metadata for " + id + " not found"
+			});
 		}
 	})
 	.catch((err) => {
@@ -258,8 +267,14 @@ router.get('/api/audio_meta/:id', (req, res) => {
 
 router.post('/api/upload_audio', (req, res) => {
 	// check update and notify shared members
-	console.log('upload audio called'); 				// todo: implement
-	res.json({ "id": "ABCDEFG" });
+	var file = req.files.file;
+	audDb.upload(file)
+	.then((id) => {
+		res.json({ "id": id });
+	})
+	.catch((err) => {
+		res.status(500).send(err);
+	});
 });
 
 router.post('/api/audio_meta/:id', (req, res) => {
