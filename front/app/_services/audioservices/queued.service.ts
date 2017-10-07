@@ -16,6 +16,14 @@ export class QueuedAudioService extends AbstractAudioService {
 
 	constructor(_sanitizer: DomSanitizer, _http: Http) {
 		super(_sanitizer, _http);
+
+		// retrieve queued from cookie
+		let selectedIDs = localStorage.getItem('selectedIDs');
+		if (selectedIDs) {
+			JSON.parse(selectedIDs).forEach((sid) => {
+				this.getAudio(sid);
+			});
+		}
 	};
 
 	getSubtitles(vidId: string) {

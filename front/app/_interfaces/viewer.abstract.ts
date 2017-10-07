@@ -35,6 +35,14 @@ export class SelectableViewerComponent extends AbstractViewerComponent {
 	addToSelected(id: string) {
 		if (this.cache.has(id)) {
 			this.selector.addAudio(this.cache.get(id));
+			// save to id to local
+			let selectedIDs = localStorage.getItem('selectedIDs');
+			let sids = [];
+			if (selectedIDs) {
+				sids = JSON.parse(selectedIDs);
+			}
+			sids.push(id);
+			localStorage.setItem('selectedIDs', JSON.stringify(sids));
 		}
 	};
 

@@ -53,6 +53,14 @@ body.modal-open {
     margin-right: 2.5vw;
     width: 50vw;
 }
+@media (max-width: 767px) {
+    .dropdown-queue {
+        margin-left: 2.5vw;
+        margin-right: 2.5vw;
+        width: 95vw;
+        color: white;
+    }
+}
 
 .material-icons.icon {
   font-size: 4em;

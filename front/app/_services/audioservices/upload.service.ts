@@ -23,6 +23,13 @@ export class UploadAudioService extends AbstractAudioService {
 
 	constructor(sanitizer: DomSanitizer, http: Http, public _uploaderService: Uploader) {
 		super(sanitizer, http);
+		// retrieve uploaded from local
+		let uploadedIDs = localStorage.getItem('uploadedIDs');
+		if (uploadedIDs) {
+			JSON.parse(uploadedIDs).forEach((uid) => {
+				this.getAudio(uid);
+			});
+		}
 	};
 
 	// move to user audio service
@@ -40,7 +47,17 @@ export class UploadAudioService extends AbstractAudioService {
 		let uploadItem = new FileUploadItem(file);
 
 		this._uploaderService.onSuccessUpload = (item, res, status, headers) => {
-			this.setAudioForm(res.id, file.name, file);
+			let id = JSON.parse(res).id;
+			// save res.id to local
+			let uploadedIDs = localStorage.getItem('uploadedIDs');
+			let uids = [];
+			if (uploadedIDs) {
+				uids = JSON.parse(uploadedIDs);
+			}
+			uids.push(id);
+			localStorage.setItem('uploadedIDs', JSON.stringify(uids));
+
+			this.setAudioForm(id, file.name, file);
 			onSuccess();
 		};
 		this._uploaderService.onErrorUpload = (item, res, status, headers) => {

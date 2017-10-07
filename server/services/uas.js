@@ -30,7 +30,8 @@ exports.audio_search = (keyword) => {
         "method": 'POST',
         "uri": uasURL + '/search/' + link,
         "body": { "source": 'audiosearch' },
-        "json": true
+        "json": true,
+        "timeout": 5000
     })
     .then((response) => {
         var err = response.error;

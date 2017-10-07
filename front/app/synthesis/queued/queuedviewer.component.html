@@ -6,18 +6,20 @@
                 <div class="row vcenter wide" [hidden]='cache.toArray().length > 0'>
                     <label class="text-center col-xs-12">Nothing Selected</label>
                 </div>
-                <div class="row vcenter wide" *ngFor="let audio of cache.toArray()">
-                    <div class="col-xs-2">
-                        <a *ngIf=audio.uncollapseScript (click)=audio.getScript()>
-                            <i class="material-icons">keyboard_arrow_right</i>
-                        </a>
-                        <a [hidden]=audio.uncollapseScript (click)=audio.getScript()>
-                            <i class="material-icons">keyboard_arrow_down</i>
-                        </a>
+                <div *ngFor="let audio of cache.toArray()">
+                    <div class="row vcenter wide">
+                        <div class="col-xs-1">
+                            <a *ngIf=audio.uncollapseScript (click)=audio.getScript()>
+                                <i class="material-icons">keyboard_arrow_right</i>
+                            </a>
+                            <a [hidden]=audio.uncollapseScript (click)=audio.getScript()>
+                                <i class="material-icons">keyboard_arrow_down</i>
+                            </a>
+                        </div>
+                        <label [attr.title]="audio.name" class="col-xs-11 col-md-6 ellipsize form-control-label">{{audio.name}}</label>
+                        <div class="clearfix visible-xs-block"></div>
+                        <audio class="col-xs-12 col-md-5" controls [src]="audio.ref" type="audio/mpeg"></audio>
                     </div>
-                    <label [attr.title]="audio.name" class="col-xs-10 col-md-6 ellipsize form-control-label">{{audio.name}}</label>
-                    <div class="clearfix visible-xs-block"></div>
-                    <audio class="col-xs-12 col-md-4" controls [src]="audio.ref" type="audio/mpeg"></audio>
                     <div [collapse]=audio.uncollapseScript class="card card-block card-header">
                         <div class="well well-lg">
                             {{audio.script}}
@@ -34,4 +36,3 @@
         </table>
     </div>
 </div>
-
