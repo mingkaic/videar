@@ -1,25 +1,6 @@
 version: '2'
 
 services:
-  # main service
-  videar:
-    image: mkaichen/videar:latest
-    build: 
-      context: .
-      dockerfile: dockerbuilds/Dockerfile-main
-    volumes:
-      - /usr/src/videar
-    environment:
-      - DB_HOST=central_mongodb
-      - CACHE_HOST=central_redis
-      - SPEECH_HOST=java_speech2text
-      - NODE_ENV=production
-      - PORT=80
-    ports:
-      - "80:80"
-    depends_on: 
-      - central_mongodb
-      - central_redis
   videar-test:
     image: mkaichen/videar:latest
     environment:
@@ -30,61 +11,36 @@ services:
     command: [ "npm", "test" ]
     depends_on: 
       - central_mongodb
-      - central_redis
+      - speech2text
+      - uni_audio
 
-
-  hosted_java_s2t:
-    image: mkaichen/sphinx-s2t:latest
+  # handle speech to text and audio synthesis
+  speech2text:
+    image: mkaichen/s2t:latest
     environment:
-      - SPRING_VIDEAR_DB_HOST=centralmongodb.videar.17d3bded.svc.dockerapp.io
-      - SPRING_VIDEAR_DB_NAME=videar
+      - DB_HOST=central_mongodb
     ports:
-      - "8000:8000"
-  # temporary java service for speech using sphinx4
-  java_speech2text:
-    image: mkaichen/sphinx-s2t:latest
-    build:
-      context: .
-      dockerfile: dockerbuilds/Dockerfile-java_s2t
+      - "8008:8008"
     volumes:
       - /usr/src/s2t
-    environment:
-      - SPRING_VIDEAR_DB_HOST=central_mongodb
-      - SPRING_VIDEAR_DB_NAME=videar
-    ports:
-      - "8000:8000"
-    depends_on:
+    depends_on: 
       - central_mongodb
 
-
-  # # placeholder for Rocnnet
-  # speech2text:
-  #   image: mkaichen/rocnnet-s2t:latest
-  #   build: 
-  #     context: .
-  #     dockerfile: dockerbuilds/Dockerfile-s2t
-  #   environment:
-  #     - DB_HOST=central_mongodb
-  #   volumes:
-  #     - /usr/src/s2t
-  #   depends_on: 
-  #     - central_mongodb
-  
+  # obtain audio from multiple 3rd party sources
+  uni_audio:
+    image: mkaichen/uni_audio:latest
+    environment:
+      - DB_HOST=central_mongodb
+      - AUDIOSEARCH_APP_ID=$AUDIOSEARCH_APP_ID
+      - AUDIOSEARCH_SECRET=$AUDIOSEARCH_SECRET
+    ports:
+      - "3124:3124"
+    depends_on: 
+      - central_mongodb
 
   # mongo
   central_mongodb:
     image: mongo:latest
     ports:
-      - "27017:27017"
-    volumes: 
-      - /data/db
-    restart: always
-
-
-  # redis
-  central_redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    command: [ "redis-server" ]
+      - "27017:27017" 
     restart: always

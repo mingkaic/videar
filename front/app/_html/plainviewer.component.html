@@ -1,0 +1,29 @@
+<div class="panel panel-default">
+    <div class="panel-heading">{{viewtitle}}</div>
+    <div class="panel-body">
+        <table class="table table-striped">
+            <tbody>
+                <div class="row vcenter wide" [hidden]='cache.toArray().length > 0'>
+                    <label class="text-center col-xs-12">{{emptymessage}}</label>
+                </div>
+                <div class="row vcenter wide" *ngFor="let audio of cache.toArray()">
+                    <div class="col-xs-2 col-md-1">
+                        <a [hidden]=isSelected(audio._id) (click)="addToSelected(audio._id)">
+                            <i class="material-icons">add_circle</i>
+                        </a>
+                        <a *ngIf=isSelected(audio._id) (click)="removeFromSelected(audio._id)">
+                            <i class="material-icons">remove_circle</i>
+                        </a>
+                    </div>
+                    <label [attr.title]="audio.name" class="col-xs-7 col-sm-10 col-md-6 ellipsize form-control-label">{{audio.name}}</label>
+                    <div class="clearfix visible-sm-block"></div>
+                    <div class="col-xs-3 col-sm-2 col-md-1">
+                        <span *ngIf=isSelected(audio._id) class="badge">selected</span>
+                    </div>
+                    <div class="clearfix visible-xs-block"></div>
+                    <audio class="col-xs-12 col-sm-10 col-md-4" controls [src]="audio.ref" type="audio/mpeg"></audio>
+                </div>
+            </tbody> 
+        </table>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+<nav class="navbar navbar-inverse bg-inverse">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#videarnav" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" [routerLink]="['/home']">{{title}}</a>
+		</div><!-- /.navbar-header -->
+	
+    	<div class="collapse navbar-collapse" id="videarnav">
+			<ul class="nav navbar-nav navbar-right">
+        		<li [routerLinkActive]="['active']"><a [routerLink]="['/synthesis']">Synthesize</a></li>
+				<li [routerLinkActive]="['active']"><a [routerLink]="['/upload']"><i class="material-icons">file_upload</i></a></li>
+				<li class="dropdown">
+					<a class="dropdown-toggle" data-toggle="dropdown">
+						<i class="material-icons mdl-badge" [attr.data-badge]="cache.toArray().length ? cache.toArray().length : null">queue_music</i>
+					</a>
+					<ul class="dropdown-menu">
+						<li class="dropdown-item dropdown-queue" [hidden]='cache.toArray().length > 0'>
+							<label class="ellipsize form-control-label">Nothing Selected</label>
+						</li>
+						<li [attr.title]="audio.name" class="dropdown-item dropdown-queue" *ngFor="let audio of cache.toArray()">
+							<label class="ellipsize form-control-label">{{audio.name}}</label>
+						</li>
+					</ul>
+				</li>
+				<li><a (click)="openModal('web_services_health')"><i class="material-icons">cloud</i></a></li>
+        		<li [hidden]=hasUser() [routerLinkActive]="['active']"><a [routerLink]="['/login']">Login</a></li>
+        		<li *ngIf=hasUser() class="dropdown">
+					<a data-toggle="dropdown" class="dropdown-toggle">
+						{{getUser()}}
+						<span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a (click)="logout()">Logout</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</div><!-- /.container-fluid -->
+</nav>
+<ngui-popup #popup></ngui-popup>
+<div id="content" class="container-fluid">
+	<router-outlet></router-outlet> 
+	<modal id="web_services_health">
+		<div class="angular-modal">
+			<div class="modal-body">
+				<h1>Service Health</h1>
+				<table class="table table-striped">
+					<tbody>
+						<div class="row vcenter wide" *ngFor="let mservice of services">
+							<label class="col-xs-10">{{mservice.name}}</label>
+							<div class="col-xs-2">
+								<span class="badge">{{mservice.status}}</span>
+							</div>
+						</div>
+					</tbody>
+				</table>
+				<button (click)="closeModal('web_services_health');">Close</button>
+			</div>
+		</div>
+		<div class="modal-background"></div>
+	</modal>
+</div>

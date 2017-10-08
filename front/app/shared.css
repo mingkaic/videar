@@ -1,0 +1,25 @@
+[hidden] {
+	display: none !important;
+}
+
+.ellipsize {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline-block;
+}
+
+.panel-body > table {
+	margin-bottom: 0px;
+}
+
+.wide {
+	max-width: 92.5vw;
+}
+
+@media (min-width: 440px) {
+	.vcenter {
+		display:flex;
+		align-items:center;
+	}
+}

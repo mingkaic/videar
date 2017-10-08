@@ -1,0 +1,79 @@
+.nav i.material-icons {
+    font-size: 24px;
+    color: lightgray;
+    top: 50%;
+}
+modal {
+    display: none;
+}
+modal .angular-modal {
+    /* modal container fixed across whole screen */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    /* z-index must be higher than .modal-background */
+  
+    z-index: 1000;
+    /* enables scrolling for tall modals */
+  
+    overflow: auto;
+}
+modal .angular-modal .modal-body {
+    padding: 20px;
+    background: #fff;
+    /* margin exposes part of the modal background */
+  
+    margin: 40px;
+}
+modal .modal-background {
+    /* modal background fixed across whole screen */
+  
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    /* semi-transparent black  */
+  
+    background-color: #000;
+    opacity: 0.75;
+    /* z-index must be below .modal and above everything else  */
+  
+    z-index: 900;
+}
+body.modal-open {
+    /* body overflow is hidden to hide main scrollbar when modal window is open */
+  
+    overflow: hidden;
+}
+.dropdown-queue {
+    margin-left: 2.5vw;
+    margin-right: 2.5vw;
+    width: 50vw;
+}
+@media (max-width: 767px) {
+    .dropdown-queue {
+        margin-left: 2.5vw;
+        margin-right: 2.5vw;
+        width: 95vw;
+        color: white;
+    }
+}
+
+.material-icons.icon {
+  font-size: 4em;
+  line-height: 1;
+  display: block;
+  color: #424242;
+  margin: .5em 0
+}
+
+.material-icons.mdl-badge[data-badge]::after {
+  font-size: .4em;
+  width: 2em;
+  height: 2em;
+  top: -1em;
+  right: -1em;
+}

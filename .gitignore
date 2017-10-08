@@ -57,6 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+.*
+
 # compiled output
 **/dist
 **/tmp
@@ -95,3 +97,10 @@ Thumbs.db
 
 !*test.mp3
 *.rdb
+
+!.gitignore
+!.dockerignore
+!.travis.yml
+!.angular-cli.json
+
+server/database
