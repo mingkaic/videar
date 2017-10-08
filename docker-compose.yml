@@ -11,8 +11,6 @@ services:
     command: [ "npm", "test" ]
     depends_on: 
       - central_mongodb
-      - speech2text
-      - uni_audio
 
   # handle speech to text and audio synthesis
   speech2text:
