@@ -4,19 +4,20 @@ import { BrowserModule, DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
-import { SimpleViewerComponent } from './simpleviewer.component';
-import { UploadAudioService } from '../_services/audioservices';
+import { YtViewerComponent } from './ytviewer.component';
+import { YoutubeAudioService, QueuedAudioService } from '../../_services/audioservices';
 
-describe('SimpleViewerComponent', () => {
-	let component: SimpleViewerComponent;
-	let fixture: ComponentFixture<SimpleViewerComponent>;
+describe('YtViewerComponent', () => {
+	let component: YtViewerComponent;
+	let fixture: ComponentFixture<YtViewerComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			imports: [ BrowserModule, FormsModule, HttpModule],
-			declarations: [ SimpleViewerComponent ],
+			declarations: [ YtViewerComponent ],
 			providers: [
-				UploadAudioService,
+				YoutubeAudioService,
+				QueuedAudioService,
 				DomSanitizer,
 				{ provide: XHRBackend, useClass: MockBackend },
 			]
@@ -25,7 +26,7 @@ describe('SimpleViewerComponent', () => {
 	}));
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(SimpleViewerComponent);
+		fixture = TestBed.createComponent(YtViewerComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

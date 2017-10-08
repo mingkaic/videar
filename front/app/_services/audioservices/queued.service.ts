@@ -3,8 +3,6 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { UUID } from 'angular2-uuid';
 
-import { Socket } from 'socket.io-client';
-import * as ss from 'socket.io-stream';
 import 'rxjs/add/operator/timeout';
 
 import { AudioModel } from '../../_models/audio.model';
@@ -33,13 +31,13 @@ export class QueuedAudioService extends AbstractAudioService {
 		});
 	};
 
-	processSubtitles(vidId: string, progressSocket: Socket) {
-		return this._http.post('/api/audio_subtitles/' + vidId, 
-		{ "reqId":  UUID.UUID(), "socketId": progressSocket.id })
-		.timeout(100000)
-		.map((data: Response) => {
-			return data.json();
-		});
+	processSubtitles(vidId: string) {
+		// return this._http.post('/api/audio_subtitles/' + vidId, 
+		// { "reqId":  UUID.UUID() })
+		// .timeout(100000)
+		// .map((data: Response) => {
+		// 	return data.json();
+		// });
 	}
 
 	protected getAudioMap(): Map<string, AudioModel> {

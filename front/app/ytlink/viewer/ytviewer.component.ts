@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SelectableViewerComponent } from '../../_interfaces/viewer.abstract';
+import { SelectableViewerComponent } from '../../_utils/viewer.abstract';
 import { YoutubeAudioService, QueuedAudioService } from '../../_services/audioservices';
 
 @Component({
 	selector: 'app-ytviewer',
-	templateUrl: '../../_html/plainviewer.component.html',
-	styleUrls: ['../../shared.css']
+	templateUrl: '../../_html/plainviewer.component.html'
 })
 export class YtViewerComponent extends SelectableViewerComponent implements OnInit {
 	viewtitle: string = "Youtube Audio";

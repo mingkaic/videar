@@ -74,12 +74,14 @@ router.post('/api/authenticate', (req, res, next) => {
 router.put('/api/users/:id', (req, res) => {
 	var id = req.params.id;
 	userDb.updateUser(id, req.body);
+	res.status(405).send("unimplemented put of users");
 });
 
 // unimplemented
 router.delete('/api/users/:id', (req, res) => {
 	var id = req.params.id;
 	userDb.rmUser(id);
+	res.status(405).send("unimplemented deletion of users");
 });
 
 // ===== GENERAL AUDIO INTERFACES =====
@@ -145,16 +147,20 @@ router.get('/api/audio_meta/:id', (req, res) => {
 router.get('/api/health', (req, res) => {
 	// visit all services
 	Promise.all([
-		uas.health(),
-		s2t.health()
+		s2t.health(),
+		uas.health()
 	])
 	.then((statuses) => {
+		console.log(statuses);
 		res.json({
 			"services": [
-				{"name": "unified audio service", "status": statuses[0]},
-				{"name": "speech-to-text service", "status": statuses[1]},
+				{"name": "speech-to-text service", "status": statuses[0]},
+				{"name": "unified audio service", "status": statuses[1]},
 			]
 		});
+	})
+	.catch((err) => {
+		res.status(500).json({ "err": err });
 	});
 });
 

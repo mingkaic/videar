@@ -11,11 +11,11 @@ describe('PopularAudioService', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-  			imports: [ HttpModule ],
+			imports: [ HttpModule ],
 			providers: [
 				PopularAudioService, 
 				DomSanitizer,
-        		{ provide: XHRBackend, useClass: MockBackend },
+				{ provide: XHRBackend, useClass: MockBackend },
 			]
 		});
 	}))

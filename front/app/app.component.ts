@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NguiPopupComponent, NguiMessagePopupComponent } from '@ngui/popup';
 
-import { AbstractViewerComponent } from './_interfaces/viewer.abstract';
+import { AbstractViewerComponent } from './_utils/viewer.abstract';
 import { Microservice } from './_models/mservice.model';
 import {
 	AuthenticationService,
@@ -15,8 +15,14 @@ import {
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
-	styleUrls: ['./app.component.css', './shared.css'],
-	providers: [ AuthenticationService, ModalService, MonitorService ]
+	styleUrls: ['./app.component.css'],
+	providers: [
+		AuthenticationService, 
+		ModalService, 
+		MonitorService, 
+		QueuedAudioService,
+		WarningService, 
+	]
 })
 export class AppComponent extends AbstractViewerComponent implements OnInit {
 	@ViewChild(NguiPopupComponent) popup: NguiPopupComponent;

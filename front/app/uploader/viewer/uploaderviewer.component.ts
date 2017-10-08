@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { AudioModel } from '../../_models/audio.model';
 import { UploadAudioService, QueuedAudioService } from '../../_services';
-import { SelectableViewerComponent } from '../../_interfaces/viewer.abstract';
+import { SelectableViewerComponent } from '../../_utils/viewer.abstract';
 
 class EditableAudio extends AudioModel {
 	private edit = false;
@@ -31,8 +31,7 @@ class EditableAudio extends AudioModel {
 
 @Component({
 	selector: 'app-uploadviewer',
-	templateUrl: './uploaderviewer.component.html',
-	styleUrls: ['../../shared.css']
+	templateUrl: './uploaderviewer.component.html'
 })
 export class UploadViewerComponent extends SelectableViewerComponent implements OnInit {
 	constructor(private _uploadService: UploadAudioService, queuedService: QueuedAudioService) {

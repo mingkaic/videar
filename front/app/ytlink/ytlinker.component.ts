@@ -11,19 +11,19 @@ enum linkStatus {
 const linkString: string[] = ["unprocessed", "processing", "rejected"];
 const utubeReg: RegExp = /^.*youtu(?:be\.com\/watch\?(?:.*&)*v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?=]*)?.*/;
 
-class YtLink {
+export class YtLink {
 	link: string = "";
 	status: linkStatus = linkStatus.unprocessed;
 
 	getStatus() {
 		return linkString[this.status];
-	}
+	};
 }
 
 @Component({
 	selector: 'app-vidlinker',
 	templateUrl: './ytlinker.component.html',
-	styleUrls: ['../shared.css'],
+	providers: [ YoutubeAudioService ]
 })
 export class YtLinkerComponent implements OnInit {
 	links: YtLink[];
@@ -55,12 +55,10 @@ export class YtLinkerComponent implements OnInit {
 				this.removeLink(index);
 			},
 			() => {
-				console.log('rejected from service');
 				link.status = linkStatus.rejected;
 			});
 		}
 		else {
-			console.log(link.link);
 			link.status = linkStatus.rejected;
 		}
 	};
@@ -77,4 +75,4 @@ export class YtLinkerComponent implements OnInit {
 			this.addLink();
 		}
 	};
-};
+}

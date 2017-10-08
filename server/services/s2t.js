@@ -14,13 +14,19 @@ exports.subtitles = (id) => {
 };
 
 exports.health = () => {
-    return request({
-        "encoding": 'utf8',
-        "method": 'GET',
-        "uri": s2tURL + '/health',
-        "json": true
-    })
-    .then((response) => {
-        return response.status;
+    return new Promise((resolve) => {
+        request({
+            "encoding": 'utf8',
+            "method": 'GET',
+            "uri": s2tURL + '/health',
+            "json": true,
+            "timeout": 1000
+        })
+        .then((response) => {
+            resolve(response.status);
+        })
+        .catch((err) => {
+            resolve("not connected");
+        });
     });
 };

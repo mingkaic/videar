@@ -3,7 +3,7 @@ import { Component, OnInit, SimpleChange } from '@angular/core';
 import { QueuedAudioService } from '../../_services';
 import { AudioModel } from '../../_models/audio.model';
 import { WarningService } from '../../_services';
-import { AbstractViewerComponent } from '../../_interfaces/viewer.abstract';
+import { AbstractViewerComponent } from '../../_utils/viewer.abstract';
 
 class QueuedAudio extends AudioModel {
 	script: string;
@@ -50,21 +50,19 @@ class QueuedAudio extends AudioModel {
 @Component({
 	selector: 'app-queuedviewer',
 	templateUrl: './queuedviewer.component.html',
-	styleUrls: ['./queuedviewer.component.css', '../../shared.css']
+	styleUrls: ['./queuedviewer.component.css']
 })
 export class QueuedViewerComponent extends AbstractViewerComponent implements OnInit {
 	constructor(private _queuedService: QueuedAudioService, private _warningService: WarningService) {
 		super(20, _queuedService);
 	};
-	
+
 	ngOnInit() {
 		this._queuedService.getAllKeys()
 		.forEach(key => this.cacheUpdate(key, this._queuedService));
 	};
-	
-	ngOnDestroy() {};
-	
+
 	protected wrapAudio(audio: AudioModel): AudioModel {
 		return new QueuedAudio(audio, this._queuedService, this._warningService);
 	};
-};
+}

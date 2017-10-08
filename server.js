@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const socketio = require('socket.io');
 const fileUpload = require('express-fileupload');
 
 const passport = require('passport');
@@ -21,7 +20,6 @@ const default_host = '0.0.0.0';
 // Create HTTP server.
 const app = express();
 const server = http.createServer(app);
-var io = socketio.listen(server);
 
 // Parse POST data
 app.use(bodyParser.json());

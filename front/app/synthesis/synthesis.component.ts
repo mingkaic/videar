@@ -1,11 +1,9 @@
 import { Http } from '@angular/http';
 import { Component, OnInit } from '@angular/core';
 
-import * as ss from 'socket.io-stream';
-
 import { AudioModel } from '../_models/audio.model';
 import { QueuedAudioService, SynthesisService, WarningService } from '../_services';
-import { AbstractViewerComponent } from '../_interfaces/viewer.abstract';
+import { AbstractViewerComponent } from '../_utils/viewer.abstract';
 
 class SelectedAudio extends AudioModel {
 	script: string;
@@ -61,8 +59,6 @@ export class SynthesisComponent extends AbstractViewerComponent implements OnIni
 		.forEach(key => this.cacheUpdate(key, this._audioService));
 		this.script = "";
 	};
-
-	ngOnDestroy() {};
 
 	synthesize() {
 		this._synthService.synthesize(this.script, []); // todo: implement

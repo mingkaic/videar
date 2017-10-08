@@ -3,16 +3,16 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MockBackend } from '@angular/http/testing';
 import { async, inject, TestBed } from '@angular/core/testing';
 
-import { SynthesisService } from './synthesis.service';
+import { MonitorService } from './monitor.service';
 
-describe('SynthesisService', () => {
-	let service: SynthesisService;
+describe('MonitorService', () => {
+	let service: MonitorService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			imports: [ HttpModule ],
 			providers: [
-				SynthesisService,
+				MonitorService,
 				DomSanitizer,
 				{ provide: XHRBackend, useClass: MockBackend },
 			]
@@ -20,10 +20,10 @@ describe('SynthesisService', () => {
 	}));
 
 	it('should create', () => {
-		inject([SynthesisService], (service) => {
+		inject([MonitorService], (service) => {
 			expect(service).toBeTruthy();;
 		});
 	});
 
-	// test synthesize call (with mock server)
+	// todo: get health from mock server
 });

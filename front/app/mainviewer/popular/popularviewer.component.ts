@@ -2,12 +2,11 @@ import { Component, OnInit } from '@angular/core';
 
 import { AudioModel } from '../../_models/audio.model';
 import { PopularAudioService, QueuedAudioService } from '../../_services';
-import { SelectableViewerComponent } from '../../_interfaces/viewer.abstract';
+import { SelectableViewerComponent } from '../../_utils/viewer.abstract';
 
 @Component({
 	selector: 'app-popularviewer',
 	templateUrl: '../../_html/plainviewer.component.html',
-	styleUrls: ['../../shared.css'],
 	providers: [ PopularAudioService ]
 })
 export class PopularViewerComponent extends SelectableViewerComponent implements OnInit {

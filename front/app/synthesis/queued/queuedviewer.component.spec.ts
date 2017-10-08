@@ -3,27 +3,27 @@ import { MockBackend } from '@angular/http/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SynthViewerComponent } from './synthviewer.component';
-import { SynthesisService } from '../../_services/synthesis.service';
-import { WarningService } from '../../_services/warning.service';
-import { ProgressDirective } from '../../_directives/progress.directive';
+import { QueuedViewerComponent } from './queuedviewer.component';
+import { QueuedAudioService, WarningService } from '../../_services';
+import { CollapseDirective, ProgressDirective } from '../../_directives';
 import { Progressbar, Bar } from '../../progressbar';
 
-describe('SynthViewerComponent', () => {
-	let component: SynthViewerComponent;
-	let fixture: ComponentFixture<SynthViewerComponent>;
+describe('QueuedViewerComponent', () => {
+	let component: QueuedViewerComponent;
+	let fixture: ComponentFixture<QueuedViewerComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			imports: [ HttpModule ],
 			declarations: [
-				SynthViewerComponent,
+				QueuedViewerComponent,
 				ProgressDirective,
+				CollapseDirective,
 				Progressbar,
 				Bar
 			],
 			providers: [
-				SynthesisService,
+				QueuedAudioService,
 				WarningService,
 				DomSanitizer,
 				{ provide: XHRBackend, useClass: MockBackend },
@@ -33,7 +33,7 @@ describe('SynthViewerComponent', () => {
 	}));
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(SynthViewerComponent);
+		fixture = TestBed.createComponent(QueuedViewerComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

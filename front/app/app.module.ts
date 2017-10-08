@@ -4,15 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule, Routes } from '@angular/router';
 import { NguiPopupModule } from '@ngui/popup';
-import { Uploader } from 'angular2-http-file-upload';
 
 import { AppComponent } from './app.component';
 
-import { UploadComponent, UploadViewerComponent } from './uploader';
-import { YtLinkerComponent, YtViewerComponent } from './ytlink';
-
 import { SynthesisComponent, SynthViewerComponent, QueuedViewerComponent } from './synthesis';
 import { MainViewerComponent, PopularViewerComponent, ExposedViewerComponent } from './mainviewer';
+import { UploadComponent, UploadViewerComponent } from './uploader';
+import { YtLinkerComponent, YtViewerComponent } from './ytlink';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './login/register/register.component';
 
@@ -24,27 +22,7 @@ import {
 } from './_directives';
 
 import { Progressbar, Bar } from './progressbar';
-
-import {
-	QueuedAudioService,
-	UploadAudioService,
-	YoutubeAudioService,
-	WarningService,
-	MonitorService,
-	ModalService
-} from './_services';
-
-const routes: Routes = [
-	// basic routes
-	{ path: '', redirectTo: 'home', pathMatch: 'full' },
-	{ path: 'home', component: MainViewerComponent },
-	{ path: 'upload', component: UploadComponent },
-	{ path: 'ytlink', component: YtLinkerComponent },
-	{ path: 'synthesis', component: SynthesisComponent },
-
-	{ path: 'login', component: LoginComponent },
-	{ path: 'register', component: RegisterComponent }
-];
+import { routes } from './routes';
 
 @NgModule({
 	declarations: [
@@ -85,15 +63,7 @@ const routes: Routes = [
 			{ enableTracing: true }
 		)
 	],
-	providers: [
-		UploadAudioService, 
-		YoutubeAudioService, 
-		QueuedAudioService, 
-		MonitorService,
-		WarningService, 
-		ModalService,
-		Uploader
-	],
+	providers: [],
 	bootstrap: [ AppComponent ]
 })
 export class AppModule {};

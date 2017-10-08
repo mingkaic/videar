@@ -55,13 +55,19 @@ exports.audio_search = (keyword) => {
 };
 
 exports.health = () => {
-    return request({
-        "encoding": 'utf8',
-        "method": 'GET',
-        "uri": uasURL + '/health',
-        "json": true
-    })
-    .then((response) => {
-        return response.status;
+    return new Promise((resolve) => {
+        request({
+            "encoding": 'utf8',
+            "method": 'GET',
+            "uri": uasURL + '/health',
+            "json": true,
+            "timeout": 1000
+        })
+        .then((response) => {
+            resolve(response.status);
+        })
+        .catch((err) => {
+            resolve("not connected");
+        });
     });
 };

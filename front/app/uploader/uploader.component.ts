@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Uploader } from 'angular2-http-file-upload';
 
 import { UploadAudioService } from '../_services/audioservices';
 
@@ -9,13 +10,14 @@ class FileInfo {
 
 	getStatus() {
 		return this.processing ? "processing" : "unprocessed";
-	}
+	};
 }
 
 @Component({
 	selector: 'app-viduploader',
 	templateUrl: './uploader.component.html',
-	styleUrls: ['../shared.css', './uploader.component.css']
+	styleUrls: ['./uploader.component.css'],
+	providers: [ UploadAudioService, Uploader ]
 })
 export class UploadComponent implements OnInit {
 	private files: FileInfo[] = [];
@@ -34,7 +36,7 @@ export class UploadComponent implements OnInit {
 		});
 	};
 
-	onFileInvalids(fileList : Array<File>){
+	onFileInvalids(fileList : Array<File>) {
 		if (fileList.length > 0) {
 			// warn of bad files...
 			console.log("bad file change");
@@ -55,4 +57,4 @@ export class UploadComponent implements OnInit {
 			this.removeFile(index);
 		});
 	};
-};
+}

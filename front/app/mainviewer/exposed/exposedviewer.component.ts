@@ -2,12 +2,11 @@ import { Component, OnInit } from '@angular/core';
 
 import { AudioModel } from '../../_models/audio.model';
 import { ExposedAudioService, QueuedAudioService } from '../../_services';
-import { SelectableViewerComponent } from '../../_interfaces/viewer.abstract';
+import { SelectableViewerComponent } from '../../_utils/viewer.abstract';
 
 @Component({
 	selector: 'app-exposedviewer',
 	templateUrl: '../../_html/plainviewer.component.html',
-	styleUrls: ['../../shared.css'],
 	providers: [ ExposedAudioService ]
 })
 export class ExposedViewerComponent extends SelectableViewerComponent implements OnInit {
