@@ -3,6 +3,7 @@ version: '2'
 services:
   videar-test:
     image: mkaichen/videar:latest
+    build: .
     environment:
       - DB_HOST=central_mongodb
       - CACHE_HOST=central_redis
