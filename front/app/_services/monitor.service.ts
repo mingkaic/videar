@@ -33,7 +33,6 @@ export class MonitorService {
 				else {
 					status = res[sid].error.code;
 				}
-				console.log(sid, name, status)
 				services.push(new Microservice(sid, name, status));
 			}
 			this.healthUpdate.emit(services);

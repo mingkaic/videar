@@ -18,11 +18,11 @@ const s2t = require('./services/s2t');
 var service_config = {
 	"uas":{
 		"probe": "ping",
-		"url": uas.url + '/lasterror'
+		"url": uas.url + '/reachable'
 	},
 	"s2t":{
 		"probe": "ping",
-		"url": s2t.url + '/lasterror'
+		"url": s2t.url + '/reachable'
 	}
 };
 

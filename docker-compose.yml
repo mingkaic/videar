@@ -20,12 +20,12 @@ services:
     command: [ "bash", "test.sh" ]
 
   # handle speech to text and audio synthesis
-  # speech2text:
-  #   image: mkaichen/s2t:latest
-  #   environment:
-  #     - DB_HOST=centralmongodb
-  #   depends_on: 
-  #     - centralmongodb
+  speech2text:
+    image: mkaichen/s2t:latest
+    environment:
+      - DB_HOST=centralmongodb
+    depends_on: 
+      - centralmongodb
 
   # obtain audio from multiple 3rd party sources
   uniaudio:
