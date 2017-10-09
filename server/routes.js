@@ -151,7 +151,6 @@ router.get('/api/health', (req, res) => {
 		uas.health()
 	])
 	.then((statuses) => {
-		console.log(statuses);
 		res.json({
 			"services": [
 				{"name": "speech-to-text service", "status": statuses[0]},
