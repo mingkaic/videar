@@ -10,7 +10,7 @@ services:
       - NODE_ENV=test
     command: [ "npm", "test" ]
     depends_on: 
-      - central_mongodb
+      - centralmongodb
 
   # handle speech to text and audio synthesis
   speech2text:
@@ -22,10 +22,10 @@ services:
     volumes:
       - /usr/src/s2t
     depends_on: 
-      - central_mongodb
+      - centralmongodb
 
   # obtain audio from multiple 3rd party sources
-  uni_audio:
+  uniaudio:
     image: mkaichen/uni_audio:latest
     environment:
       - DB_HOST=central_mongodb
@@ -34,10 +34,10 @@ services:
     ports:
       - "3124:3124"
     depends_on: 
-      - central_mongodb
+      - centralmongodb
 
   # mongo
-  central_mongodb:
+  centralmongodb:
     image: mongo:latest
     ports:
       - "27017:27017" 

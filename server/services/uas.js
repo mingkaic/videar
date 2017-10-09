@@ -1,6 +1,5 @@
 const request = require('request-promise');
 const uasURL = process.env.UAS_URL || 'http://127.0.0.1:3124';
-console.log("connected to uas @", uasURL);
 
 exports.front_page = () => {
     return request({
