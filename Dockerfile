@@ -12,9 +12,4 @@ COPY . $VIDEAR_DIR
 # setup everything
 RUN bash setup.sh
 
-# todo: move to some test environment
-RUN npm install mocha -g
-RUN npm install phantomjs-prebuilt -g
-RUN npm install phantomjs-prebuilt
-
 CMD [ "npm", "start" ]

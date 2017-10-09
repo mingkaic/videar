@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const uuidv1 = require('uuid/v1');
 const Readable = require('stream').Readable;
+const service = require('node-health-service').Service;
 
 const router = express.Router();
 
@@ -13,6 +14,17 @@ const userDb = require('./local_db/userDb');
 // Services
 const uas = require('./services/uas');
 const s2t = require('./services/s2t');
+
+var service_config = {
+	"uas":{
+		"probe": "ping",
+		"url": uas.url + '/lasterror'
+	},
+	"s2t":{
+		"probe": "ping",
+		"url": s2t.url + '/lasterror'
+	}
+};
 
 // ===== AUTHENTICATION =====
 router.get('/api/users', (req, res) => {
@@ -144,24 +156,7 @@ router.get('/api/audio_meta/:id', (req, res) => {
 	});
 });
 
-router.get('/api/health', (req, res) => {
-	// visit all services
-	Promise.all([
-		s2t.health(),
-		uas.health()
-	])
-	.then((statuses) => {
-		res.json({
-			"services": [
-				{"name": "speech-to-text service", "status": statuses[0]},
-				{"name": "unified audio service", "status": statuses[1]},
-			]
-		});
-	})
-	.catch((err) => {
-		res.status(500).json({ "err": err });
-	});
-});
+router.get('/api/health', service.route(service_config));
 
 router.post('/api/upload_audio', (req, res) => {
 	// check update and notify shared members
@@ -302,6 +297,7 @@ router.get('/api/audio_subtitles/:id', (req, res) => {
 router.get('/api/front_page', (req, res) => {
 	sharedDb.popularQuery()
 	.then((existing_ids) => {
+		console.log('popular discovered from db', existing_ids);
 		if (existing_ids.length === 0) {
 			return uas.front_page();
 		}

@@ -35,7 +35,7 @@ export class YtLinkerComponent implements OnInit {
 				private _monitorService: MonitorService) {
 		_monitorService.getHealthUpdateEmitter()
 		.subscribe((services: Microservice[]) => {
-			let uasServ = services.find((service) => service.name === "unified audio service" );
+			let uasServ = services.find((service) => service.id === "uas" );
 			this.uasServiceUp = uasServ.status === "OK";
 		});
 	};

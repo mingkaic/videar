@@ -1,11 +1,13 @@
 const request = require('request-promise');
 const uasURL = process.env.UAS_URL || 'http://127.0.0.1:3124';
 
+exports.url = uasURL;
+
 exports.front_page = () => {
     return request({
         "encoding": 'utf8',
         "method": 'POST',
-        "uri": uasURL + '/sounds',
+        "uri": uasURL + '/popular',
         "json": true
     })
     .then((response) => {
@@ -54,12 +56,12 @@ exports.audio_search = (keyword) => {
     });
 };
 
-exports.health = () => {
+exports.problems = () => {
     return new Promise((resolve) => {
         request({
             "encoding": 'utf8',
             "method": 'GET',
-            "uri": uasURL + '/health',
+            "uri": uasURL + '/lasterror',
             "json": true,
             "timeout": 1000
         })

@@ -1,32 +1,39 @@
 version: '2'
 
 services:
+  videar:
+    environment:
+      - DB_HOST=centralmongodb
+      - PORT=80
+      - 'UAS_URL=http://uniaudio:3124'
+    image: 'mkaichen/videar:latest'
+    ports:
+      - '80:80'
+    depends_on: 
+      - centralmongodb
+
   videar-test:
     image: mkaichen/videar:latest
     build: .
     environment:
-      - DB_HOST=central_mongodb
-      - SPEECH_HOST=speech2text
       - NODE_ENV=test
-    command: [ "npm", "test" ]
-    depends_on: 
-      - centralmongodb
+    command: [ "bash", "test.sh" ]
 
   # handle speech to text and audio synthesis
-  speech2text:
-    image: mkaichen/s2t:latest
-    environment:
-      - DB_HOST=central_mongodb
-    depends_on: 
-      - centralmongodb
+  # speech2text:
+  #   image: mkaichen/s2t:latest
+  #   environment:
+  #     - DB_HOST=centralmongodb
+  #   depends_on: 
+  #     - centralmongodb
 
   # obtain audio from multiple 3rd party sources
   uniaudio:
     image: mkaichen/uni_audio:latest
     environment:
-      - DB_HOST=central_mongodb
       - AUDIOSEARCH_APP_ID=$AUDIOSEARCH_APP_ID
       - AUDIOSEARCH_SECRET=$AUDIOSEARCH_SECRET
+      - DB_HOST=centralmongodb
     depends_on: 
       - centralmongodb
 

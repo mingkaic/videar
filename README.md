@@ -10,17 +10,7 @@ Disclaimer: the speech2text performance is currently poor, please use the provid
 Currently, this application only synthesizes audio from a given script. The next version should generate video.
 
 ## Checklist
-[/] Construct a word map (from a speech model)
-temporary speech2text: sphinx4
-todo: upgrade to Rocnnet
-
-[/] Construct best match from word map
-room for improvement:
-    - use more diverse matches (currently First Match First Serve)
-once upgraded to Rocnnet:
-    - match by syllables
-
-[/] Visualize available monologues from videos
+[] search selectable audio functionality
 
 [] Save & Download Synthesized audios
 
