@@ -300,7 +300,13 @@ router.get('/api/audio_subtitles/:id', (req, res) => {
 
 // ===== UAS SERVICES =====
 router.get('/api/front_page', (req, res) => {
-	uas.front_page()
+	sharedDb.popularQuery()
+	.then((existing_ids) => {
+		if (existing_ids.length === 0) {
+			return uas.front_page();
+		}
+		return existing_ids;
+	})
 	.then((audio_ids) => {
 		// check update and notify shared members
 
