@@ -17,10 +17,6 @@ services:
     image: mkaichen/s2t:latest
     environment:
       - DB_HOST=central_mongodb
-    ports:
-      - "8008:8008"
-    volumes:
-      - /usr/src/s2t
     depends_on: 
       - centralmongodb
 
@@ -31,14 +27,10 @@ services:
       - DB_HOST=central_mongodb
       - AUDIOSEARCH_APP_ID=$AUDIOSEARCH_APP_ID
       - AUDIOSEARCH_SECRET=$AUDIOSEARCH_SECRET
-    ports:
-      - "3124:3124"
     depends_on: 
       - centralmongodb
 
   # mongo
   centralmongodb:
     image: mongo:latest
-    ports:
-      - "27017:27017" 
     restart: always
