@@ -1,11 +1,16 @@
 import { Component, OnInit, SimpleChange } from '@angular/core';
 
-import { QueuedAudioService } from '../../_services';
+import { Microservice } from '../../_models/mservice.model';
 import { AudioModel } from '../../_models/audio.model';
-import { WarningService } from '../../_services';
+import {
+	QueuedAudioService,
+	MonitorService,
+	WarningService
+} from '../../_services';
 import { AbstractViewerComponent } from '../../_utils/viewer.abstract';
 
 class QueuedAudio extends AudioModel {
+	s2tServiceUp: boolean = false;
 	script: string;
 	scriptComplete: boolean = false;
 	uncollapseScript: boolean = true;
@@ -13,9 +18,16 @@ class QueuedAudio extends AudioModel {
 
 	constructor(public model: AudioModel, 
 				private _queuedService: QueuedAudioService,
+				private _monitorService: MonitorService,
 				private _warningService: WarningService) {
 		super(model._id, model.name, model.ref);
 		this.source = model.source;
+
+		_monitorService.getHealthUpdateEmitter()
+		.subscribe((services: Microservice[]) => {
+			let s2tServ = services.find((service) => service.name === "speech-to-text service" );
+			this.s2tServiceUp = s2tServ.status === "OK";
+		});
 	};
 
 	getScript() {
@@ -29,6 +41,7 @@ class QueuedAudio extends AudioModel {
 	};
 
 	private updateSubtitles(audioCall) {
+		this._monitorService.update();
 		audioCall
 		.subscribe((response) => {
 			let status = response.status;
@@ -53,7 +66,9 @@ class QueuedAudio extends AudioModel {
 	styleUrls: ['./queuedviewer.component.css']
 })
 export class QueuedViewerComponent extends AbstractViewerComponent implements OnInit {
-	constructor(private _queuedService: QueuedAudioService, private _warningService: WarningService) {
+	constructor(private _queuedService: QueuedAudioService,
+				private _monitorService: MonitorService,
+				private _warningService: WarningService) {
 		super(20, _queuedService);
 	};
 
@@ -63,6 +78,7 @@ export class QueuedViewerComponent extends AbstractViewerComponent implements On
 	};
 
 	protected wrapAudio(audio: AudioModel): AudioModel {
-		return new QueuedAudio(audio, this._queuedService, this._warningService);
+		return new QueuedAudio(audio, this._queuedService, 
+			this._monitorService, this._warningService);
 	};
 }

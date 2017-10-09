@@ -3,15 +3,16 @@ import { FormsModule } from '@angular/forms';
 import { MockBackend } from '@angular/http/testing';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { 
+import {
 	SynthesisComponent,
 	QueuedViewerComponent,
 	SynthViewerComponent
 } from './index';
 import {
 	QueuedAudioService,
-	SynthesisService,
-	WarningService
+	SynthesisService, 
+	WarningService, 
+	MonitorService
 } from '../_services';
 import { CollapseDirective, ProgressDirective } from '../_directives';
 import { Progressbar, Bar } from '../progressbar';
@@ -35,6 +36,7 @@ describe('SynthesisComponent', () => {
 			providers: [
 				QueuedAudioService,
 				SynthesisService,
+				MonitorService,
 				WarningService,
 				{ provide: XHRBackend, useClass: MockBackend },
 			]

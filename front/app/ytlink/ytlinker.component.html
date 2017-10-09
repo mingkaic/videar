@@ -1,20 +1,28 @@
 <table class="table table-striped">
 	<tbody>
-		<div class="wide vcenter row">
-			<a (click)="addLink()" class="col-1 col-xs-offset-10">
+		<div class="table-margined vcenter row">
+			<a (click)="addLink()" class="col-1">
 				<i class="material-icons">add_circle</i>
 			</a>
 		</div>
-		<div class="wide vcenter row" *ngFor="let link of links; let index = index; trackBy: trackByIndex;">
+		<div class="table-margined vcenter row" *ngFor="let link of links; let index = index; trackBy: trackByIndex;">
 			<input class="ellipsize col-xs-4 form-control" [(ngModel)]="link.link"
 			placeholder="paste link here: https://www.youtube.com/watch?v=..."/>
-			<div class="label col-xs-2" 
-			[ngClass]="{'processing': 'label-success', 'unprocessed': 'label-default', 'rejected': 'label-danger'}[link.getStatus()]">
-				{{link.getStatus()}}
+			<div class="col-xs-2">
+				<div class="label" 
+				[ngClass]="{'processing': 'label-success', 'unprocessed': 'label-default', 'rejected': 'label-danger'}[link.getStatus()]">
+					{{link.getStatus()}}
+				</div>
 			</div>
-			<button (click)="processLink(index)" class="col-xs-2 btn btn-success">Process</button>
-			<button (click)="clearLink(index)" class="col-xs-2 btn btn-warning">Clear</button>
-			<button (click)="removeLink(index)" class="col-xs-2 btn btn-danger">Remove</button>
+			<div class="col-xs-2">
+				<button [disabled]="!uasServiceUp" (click)="processLink(index)" class="btn btn-success">Process</button>
+			</div>
+			<div class="col-xs-2">
+				<button (click)="clearLink(index)" class="btn btn-warning">Clear</button>
+			</div>
+			<div class="col-xs-2">
+				<button (click)="removeLink(index)" class="btn btn-danger">Remove</button>
+			</div>
 		</div>
 	</tbody>
 </table>

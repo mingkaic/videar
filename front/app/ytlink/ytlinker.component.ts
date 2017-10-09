@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { YoutubeAudioService } from '../_services/audioservices';
+import { Microservice } from '../_models/mservice.model';
+import { YoutubeAudioService, MonitorService } from '../_services';
 
 enum linkStatus {
 	unprocessed = 0,
@@ -23,12 +24,21 @@ export class YtLink {
 @Component({
 	selector: 'app-vidlinker',
 	templateUrl: './ytlinker.component.html',
+	styleUrls: ['./ytlinker.component.css'],
 	providers: [ YoutubeAudioService ]
 })
 export class YtLinkerComponent implements OnInit {
+	uasServiceUp: boolean = false;
 	links: YtLink[];
 
-	constructor(private _audioService: YoutubeAudioService) {};
+	constructor(private _audioService: YoutubeAudioService,
+				private _monitorService: MonitorService) {
+		_monitorService.getHealthUpdateEmitter()
+		.subscribe((services: Microservice[]) => {
+			let uasServ = services.find((service) => service.name === "unified audio service" );
+			this.uasServiceUp = uasServ.status === "OK";
+		});
+	};
 
 	ngOnInit() {
 		this.links = [ new YtLink() ];
@@ -43,6 +53,7 @@ export class YtLinkerComponent implements OnInit {
 	};
 
 	processLink(index: number) {
+		this._monitorService.update();
 		let link = this.links[index];
 		if (link.status === linkStatus.processing) {
 			return;
@@ -50,7 +61,7 @@ export class YtLinkerComponent implements OnInit {
 		link.status = linkStatus.processing;
 		if (utubeReg.test(link.link)) {
 			let vidId = utubeReg.exec(link.link)[1];
-			this._audioService.getYoutube(vidId, 
+			this._audioService.getYoutube(vidId,
 			() => {
 				this.removeLink(index);
 			},

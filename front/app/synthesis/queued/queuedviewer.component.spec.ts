@@ -4,7 +4,11 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { QueuedViewerComponent } from './queuedviewer.component';
-import { QueuedAudioService, WarningService } from '../../_services';
+import {
+	QueuedAudioService,
+	MonitorService,
+	WarningService
+} from '../../_services';
 import { CollapseDirective, ProgressDirective } from '../../_directives';
 import { Progressbar, Bar } from '../../progressbar';
 
@@ -24,6 +28,7 @@ describe('QueuedViewerComponent', () => {
 			],
 			providers: [
 				QueuedAudioService,
+				MonitorService,
 				WarningService,
 				DomSanitizer,
 				{ provide: XHRBackend, useClass: MockBackend },

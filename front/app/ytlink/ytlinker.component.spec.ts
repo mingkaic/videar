@@ -5,7 +5,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { YtLinkerComponent, YtLink } from './ytlinker.component';
-import { YoutubeAudioService, QueuedAudioService } from '../_services';
+import { YoutubeAudioService, QueuedAudioService, MonitorService } from '../_services';
 import { YtViewerComponent } from './viewer/ytviewer.component';
 
 describe('YtLinkerComponent', () => {
@@ -22,6 +22,7 @@ describe('YtLinkerComponent', () => {
 			providers: [
 				YoutubeAudioService,
 				QueuedAudioService,
+				MonitorService,
 				DomSanitizer,
 				{ provide: XHRBackend, useClass: MockBackend },
 			]
