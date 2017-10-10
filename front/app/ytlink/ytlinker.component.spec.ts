@@ -80,7 +80,7 @@ describe('YtLinkerComponent', () => {
 		component.processLink(0);
 
 		// remove
-		component.removeLink(0);
+		component.removeLink(link.id);
 		expect(component.links.length).toBe(1);
 		link = component.links[0];
 		expect(link.link.length).toBe(0);
@@ -94,17 +94,21 @@ describe('YtLinkerComponent', () => {
 		component.addLink();
 		expect(component.links.length).toBe(5);
 
+		let four = component.links[4];
+		let zero = component.links[0];
+		let two = component.links[2];
+
 		component.links.forEach((link, idx) => {
 			link.link = "" + idx;
 		});
 
-		component.removeLink(4); // expect order [0, 1, 2, 3]
+		component.removeLink(four.id); // expect order [0, 1, 2, 3]
 		expect(component.links.map((link) => link.link)).toEqual(["0", "1", "2", "3"]);
 
-		component.removeLink(0); // expect order [1, 2, 3]
+		component.removeLink(zero.id); // expect order [1, 2, 3]
 		expect(component.links.map((link) => link.link)).toEqual(["1", "2", "3"]);
 
-		component.removeLink(1); // expect order [1, 3]
+		component.removeLink(two.id); // expect order [1, 3]
 		expect(component.links.map((link) => link.link)).toEqual(["1", "3"]);
 	});
 });

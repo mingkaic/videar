@@ -13,14 +13,19 @@ export class YoutubeAudioService extends AbstractAudioService {
 
 	constructor(_sanitizer: DomSanitizer, _http: Http) {
 		super(_sanitizer, _http);
+		// retrieve uploaded from local
+		let youtubeIDs = localStorage.getItem('youtubeIDs');
+		if (youtubeIDs) {
+			JSON.parse(youtubeIDs).forEach((uid) => {
+				this.getAudio(uid);
+			});
+		}
 	};
 
-	// move to upload audio service
 	getYoutube (youtubeId: string, onSuccess?: (() => void), onFail?: (() => void)) {
 		if (this.hasAudioModel(youtubeId)) {
 			return;
 		}
-		console.log('verifying id existence');
 		this._http.post('/api/youtube', { "id": youtubeId }, 
 		{ "responseType": ResponseContentType.ArrayBuffer })
 		.subscribe((data: Response) => {
@@ -29,6 +34,15 @@ export class YoutubeAudioService extends AbstractAudioService {
 				let audio = new Blob([data.arrayBuffer()], { type: "application/octet-stream" });
 				this.setAudioForm(youtubeId, meta.title, audio);
 				if (onSuccess) {
+					// save res.id to local
+					let youtubeIDs = localStorage.getItem('youtubeIDs');
+					let uids = [];
+					if (youtubeIDs) {
+						uids = JSON.parse(youtubeIDs);
+					}
+					uids.push(youtubeId);
+					localStorage.setItem('youtubeIDs', JSON.stringify(uids));
+
 					onSuccess();
 				}
 			},
