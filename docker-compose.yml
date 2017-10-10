@@ -5,7 +5,7 @@ services:
     environment:
       - DB_HOST=centralmongodb
       - PORT=80
-      - 'UAS_URL=http://uniaudio:3124'
+      - 'UAS_URL=http://uniaudio:8080'
     image: 'mkaichen/videar:latest'
     ports:
       - '80:80'

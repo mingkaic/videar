@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { UUID } from 'angular2-uuid';
 
 import { Microservice } from '../_models/mservice.model';
 import { YoutubeAudioService, MonitorService } from '../_services';
@@ -13,6 +14,7 @@ const linkString: string[] = ["unprocessed", "processing", "rejected"];
 const utubeReg: RegExp = /^.*youtu(?:be\.com\/watch\?(?:.*&)*v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?=]*)?.*/;
 
 export class YtLink {
+	id: string = UUID.UUID();
 	link: string = "";
 	status: linkStatus = linkStatus.unprocessed;
 
@@ -63,7 +65,7 @@ export class YtLinkerComponent implements OnInit {
 			let vidId = utubeReg.exec(link.link)[1];
 			this._audioService.getYoutube(vidId,
 			() => {
-				this.removeLink(index);
+				this.removeLink(link.id);
 			},
 			() => {
 				link.status = linkStatus.rejected;
@@ -80,7 +82,9 @@ export class YtLinkerComponent implements OnInit {
 		link.status = linkStatus.unprocessed;
 	};
 
-	removeLink(index: number) {
+	removeLink(id: string) {
+		let index = this.links.indexOf(
+			this.links.find((link) => link.id === id));
 		this.links.splice(index, 1);
 		if (this.links.length === 0) {
 			this.addLink();

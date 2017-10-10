@@ -314,7 +314,6 @@ router.get('/api/front_page', (req, res) => {
 
 router.post('/api/youtube', (req, res) => {
 	var id = req.body.id;
-	console.log('searching for ' + id);
 	uas.youtube_search(id)
 	.then((yid) => {
         // search for yid in shared database
