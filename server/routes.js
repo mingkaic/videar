@@ -297,7 +297,6 @@ router.get('/api/audio_subtitles/:id', (req, res) => {
 router.get('/api/front_page', (req, res) => {
 	sharedDb.popularQuery()
 	.then((existing_ids) => {
-		console.log('popular discovered from db', existing_ids);
 		if (existing_ids.length === 0) {
 			return uas.front_page();
 		}

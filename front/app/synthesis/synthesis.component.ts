@@ -25,7 +25,7 @@ export class SynthesisComponent implements OnInit {
 				private _warningService: WarningService) {
 		_monitorService.getHealthUpdateEmitter()
 		.subscribe((services: Microservice[]) => {
-			let s2tServ = services.find((service) => service.name === "s2t" );
+			let s2tServ = services.find((service) => service.id === "s2t" );
 			this.s2tServiceUp = s2tServ.status === "OK";
 		});
 	};

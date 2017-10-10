@@ -47,6 +47,7 @@ export abstract class AbstractAudioService implements IAudioService {
 		if (!title) {
 			this.metadata(id)
 			.subscribe((meta) => {
+				this.setAudioForm(id, meta.title, null); // set a placeholder
 				this.getAudio(id, meta.title);
 			},
 			(err) => { console.log(err); });
@@ -63,9 +64,12 @@ export abstract class AbstractAudioService implements IAudioService {
 	};
 
 	protected setAudioForm(id: string, name: string, soundBlob: Blob) {
-		let safeURL = this._sanitizer.bypassSecurityTrustResourceUrl(
-			URL.createObjectURL(soundBlob));
-
+		let safeURL = null;
+		
+		if (soundBlob) {
+			safeURL = this._sanitizer.bypassSecurityTrustResourceUrl(
+				URL.createObjectURL(soundBlob));
+		}
 		let soundInfo;
 		let audio = this.getAudioMap();
 		if (audio.has(id)) {
