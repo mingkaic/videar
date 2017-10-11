@@ -57,19 +57,17 @@ exports.audio_search = (keyword) => {
 };
 
 exports.problems = () => {
-    return new Promise((resolve) => {
-        request({
-            "encoding": 'utf8',
-            "method": 'GET',
-            "uri": uasURL + '/lasterror',
-            "json": true,
-            "timeout": 1000
-        })
-        .then((response) => {
-            resolve(response.status);
-        })
-        .catch((err) => {
-            resolve("not connected");
-        });
+    return request({
+        "encoding": 'utf8',
+        "method": 'GET',
+        "uri": uasURL + '/lasterror',
+        "json": true,
+        "timeout": 1000
+    })
+    .then((response) => {
+        return response.status;
+    })
+    .catch((err) => {
+        return "not connected";
     });
 };

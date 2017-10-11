@@ -14,5 +14,7 @@ Currently, this application only synthesizes audio from a given script. The next
 
 [] Save & Download Synthesized audios
 
+[] upload and synthesis notification using server-sent events
+
 ## Deployment
 `docker-compose up` to run all services on host.
