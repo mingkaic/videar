@@ -47,6 +47,7 @@
     "gridfs-stream": "^1.1.1",
     "jquery": "^3.2.1",
     "mongoose": "^4.11.4",
+    "ng2-drag-drop": "^2.9.2",
     "node-health-service": "^1.0.7",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",

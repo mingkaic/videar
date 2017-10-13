@@ -16,11 +16,11 @@ const uas = require('./services/uas');
 const s2t = require('./services/s2t');
 
 var service_config = {
-	"uas":{
+	"uas": {
 		"probe": "ping",
 		"url": uas.url + '/reachable'
 	},
-	"s2t":{
+	"s2t": {
 		"probe": "ping",
 		"url": s2t.url + '/reachable'
 	}
@@ -200,10 +200,10 @@ router.post('/api/audio_meta/:id', (req, res) => {
 
 // ===== S2T SERVICES =====
 router.get('/api/audio_subtitles/:id', (req, res) => {
-	var vidId = req.params.id;
+	var id = req.params.id;
 	s2t.subtitles(id)
-	.then((stitle_strm) => {
-		stitle_strm.pipe(res);
+	.then((transcript) => {
+		res.json(transcript);
 	})
 	.catch((err) => {
 		console.log(err);

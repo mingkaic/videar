@@ -4,11 +4,11 @@ services:
   videar:
     environment:
       - DB_HOST=centralmongodb
-      - PORT=80
       - 'UAS_URL=http://uniaudio:8080'
+      - 'S2T_URL=http://speech2text:8080'
     image: 'mkaichen/videar:latest'
     ports:
-      - '80:80'
+      - '8080:8080'
     depends_on: 
       - centralmongodb
 
@@ -24,6 +24,7 @@ services:
     image: mkaichen/s2t:latest
     environment:
       - DB_HOST=centralmongodb
+      - 'UAS_URL=http://uniaudio:8080'
     depends_on: 
       - centralmongodb
 
@@ -34,6 +35,8 @@ services:
       - AUDIOSEARCH_APP_ID=$AUDIOSEARCH_APP_ID
       - AUDIOSEARCH_SECRET=$AUDIOSEARCH_SECRET
       - DB_HOST=centralmongodb
+    expose:
+      - 8080
     depends_on: 
       - centralmongodb
 

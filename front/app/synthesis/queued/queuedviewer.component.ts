@@ -9,12 +9,22 @@ import {
 } from '../../_services';
 import { AbstractViewerComponent } from '../../_utils/viewer.abstract';
 
+const emptySub = {
+	"id": "",
+	"word": "<NO SUBTITLES PROCESSED>",
+	"start": 0,
+	"end": 0
+}
+
 class QueuedAudio extends AudioModel {
 	s2tServiceUp: boolean = false;
-	script: string;
-	scriptComplete: boolean = false;
+	script: any[];
+	list: any[] = [];
+	chrono: any[] = [];
+	limit: number = 20;
+	chronoView: boolean = false;
 	uncollapseScript: boolean = true;
-	scriptDisable: boolean = false;
+	loadingScript: boolean = false;
 
 	constructor(public model: AudioModel, 
 				private _queuedService: QueuedAudioService,
@@ -32,38 +42,56 @@ class QueuedAudio extends AudioModel {
 
 	getScript() {
 		this.uncollapseScript = !this.uncollapseScript; // toggle
-		if (this.script || this.scriptDisable) {
+		if (this.script || this.loadingScript) {
 			return;
 		}
 		// request script if local script is undefined
-		this.script = "";
+		this.script = [];
+		this.loadingScript = true;
 		this.updateSubtitles(this._queuedService.getSubtitles(this.model._id));
+	};
+
+	toggleChrono() {
+		this.chronoView = !this.chronoView;
 	};
 
 	private updateSubtitles(audioCall) {
 		this._monitorService.update();
 		audioCall
 		.subscribe((response) => {
-			let status = response.status;
-			this.script = response.subtitle;
+			this.list = this.script = response;
+			this.loadingScript = false;
 			if (this.script.length === 0) {
-				this.script = "<NO SUBTITLES PROCESSED>"
+				this.list = this.script = [emptySub];
 			}
-			this.scriptComplete = status === "complete";
-			this.scriptDisable = false;
+			this.setChronoview();
 		},
 		(err) => {
-			console.log('SYNTHESIS: ', err);
+			console.log('subtitle error: ', err);
 			// WARN ERROR
 			this._warningService.warn(err);
+			this.loadingScript = false;
+			this.list = this.script = [emptySub];
+			this.setChronoview();
 		});
+	};
+
+	private setChronoview() {
+		let words = new Set();
+		this.chrono = [];
+		for (let w of this.script) {
+			if (!words.has(w.word)) {
+				this.chrono.push(w);
+			}
+			words.add(w.word);
+		}
 	};
 }
 
 @Component({
 	selector: 'app-queuedviewer',
 	templateUrl: './queuedviewer.component.html',
-	styleUrls: ['./queuedviewer.component.css']
+	styleUrls: ['./queuedviewer.component.css', './loading.css']
 })
 export class QueuedViewerComponent extends AbstractViewerComponent implements OnInit {
 	constructor(private _queuedService: QueuedAudioService,

@@ -1,5 +1,5 @@
 const request = require('request-promise');
-const s2tURL = process.env.S2T_URL || 'http://127.0.0.1:8008';
+const s2tURL = process.env.S2T_URL || 'http://127.0.0.1:8080';
 
 exports.url = s2tURL;
 
@@ -9,9 +9,6 @@ exports.subtitles = (id) => {
         "method": 'POST',
         "uri": s2tURL + '/subtitles/' + id,
         "json": true
-    })
-    .then((response) => {
-
     });
 };
 

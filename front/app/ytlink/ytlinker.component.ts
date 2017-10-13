@@ -26,7 +26,6 @@ export class YtLink {
 @Component({
 	selector: 'app-vidlinker',
 	templateUrl: './ytlinker.component.html',
-	styleUrls: ['./ytlinker.component.css'],
 	providers: [ YoutubeAudioService ]
 })
 export class YtLinkerComponent implements OnInit {

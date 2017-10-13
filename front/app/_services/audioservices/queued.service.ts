@@ -31,15 +31,6 @@ export class QueuedAudioService extends AbstractAudioService {
 		});
 	};
 
-	processSubtitles(vidId: string) {
-		// return this._http.post('/api/audio_subtitles/' + vidId, 
-		// { "reqId":  UUID.UUID() })
-		// .timeout(100000)
-		// .map((data: Response) => {
-		// 	return data.json();
-		// });
-	}
-
 	protected getAudioMap(): Map<string, AudioModel> {
 		return this.queuedAudios;
 	}
