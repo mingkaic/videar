@@ -1,2 +1,2 @@
 export * from './synthesis.component';
-export * from './synth/synthviewer.component';
+export * from './viewer/synthviewer.component';
