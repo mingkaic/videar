@@ -125,8 +125,7 @@ export class SynthesisComponent extends AbstractViewerComponent implements OnIni
 	};
 
 	removeScriptToken(index: number) {
-		console.log("removing token", index);
-		this.synthesisScript = this.synthesisScript.slice(index);
+		this.synthesisScript.splice(index, 1);
 	};
 	
 	synthesize() {

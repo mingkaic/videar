@@ -211,87 +211,17 @@ router.get('/api/audio_subtitles/:id', (req, res) => {
 	});
 });
 
-// router.put('/api/synthesize', (req, res) => {
-// 	var synthId = req.body.synthId;
-// 	const context = "synthId";
-
-// 	// todo: move this functionality somewhere else
-// 	cache.hasKey(context, synthId)
-// 	.then((existence) => {
-// 		if (1 !== existence) {
-// 			cache.setCacheKey(context, synthId, "set");
-// 			console.log("synthesizing for request " + synthId);
-// 			// synthesis handles params validation
-// 			// params should be of form 
-// 			return synthesize.synthesize(req.body.params)
-// 			.then((result) => {
-// 				var missing = result.missing;
-// 				var synth = result.stream;
-// 				if (synth) {
-// 					// add to vidDb
-// 					// vidDb.setSynthStream(synthId, synth);
-// 					console.log('streaming synth');
-// 					var outStream = ss.createStream();
-// 					ss(socket).emit('synthesized-audio', synthId, outStream);
-// 					synth.pipe(outStream);
-// 					synth.on('end', () => {
-// 						console.log('synthStream complete');
-// 					});
-// 				}
-// 				else {
-// 					console.log('missing synthstream');
-// 				}
-// 				cache.deCache(context, synthId);
-// 				// reply about missing words
-// 				res.json({ "missing": missing || [] });
-// 			});
-// 		}
-// 		else {
-// 			console.log("synthesizing for request " + synthId + " in progress");
-// 		}
-// 	})
-// 	.catch((err) => {
-// 		console.log(err);
-// 		res.status(500).send(err);
-// 	});
-// });
-
-// router.post('/api/audio_subtitles/:id', (req, res) => {
-// 	var vidId = req.params.id;
-// 	var reqId = req.body.reqId;
-// 	const context = "subtitles";
-// 	cache.hasKey(context, reqId)
-// 	.then((existence) => {
-// 		if (1 !== existence) {
-// 			console.log('processing subtitles for vidId ' + vidId);
-// 			synthesize.processSubtitles(vidId)
-// 			.then((transcript) => {
-// 				cache.deCache(context, reqId);
-// 				var status = "none";
-// 				var subtitle = "";
-// 				if (transcript) {
-// 					status = "complete";
-// 					subtitle = transcript
-// 					.map((wordObj) => wordObj.word)
-// 					.join(' ');
-// 				}
-// 				res.json({"status": status, "subtitle": subtitle});
-// 			})
-// 			.catch((err) => {
-// 				console.log(err);
-// 				cache.deCache(context, reqId);
-// 				res.status(500).send(err);
-// 			});
-// 		}
-// 		else {
-// 			console.log("processing subtitles for request " + reqId + " in progress");
-// 		}
-// 	})
-// 	.catch((err) => {
-// 		console.log(err);
-// 		res.status(500).send(err);
-// 	});
-// });
+router.post('/api/synthesis', (req, res) => {
+	var script = req.body.script;
+	s2t.synthesize(script)
+	.then((meta) => {
+		res.json(meta);
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
+	});
+});
 
 // ===== UAS SERVICES =====
 router.get('/api/front_page', (req, res) => {

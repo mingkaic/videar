@@ -12,6 +12,16 @@ exports.subtitles = (id) => {
     });
 };
 
+exports.synthesize = (script) => {
+    return request({
+        "encoding": 'utf8',
+        "method": 'POST',
+        "uri": s2tURL + '/synthesize',
+        "body": { "script": script },
+        "json": true
+    });
+};
+
 exports.problems = () => {
     return request({
         "encoding": 'utf8',

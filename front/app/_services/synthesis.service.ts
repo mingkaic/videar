@@ -1,4 +1,4 @@
-import { Http } from '@angular/http'
+import { Http, Response, ResponseContentType } from '@angular/http'
 import { Injectable, EventEmitter } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -16,26 +16,21 @@ export class SynthesisService extends AbstractAudioService {
 	};
 
 	synthesize(script: any[]) {
-		// let uuid = UUID.UUID();
-		// this._http.put('/api/synthesize', { 
-		// 	"synthId": uuid, 
-		// 	"params": { "script": script, "vidIds": vidIds } 
-		// })
-		// .timeout(100000)
-		// .subscribe((data) => {
-		// 	console.log('synthesis completed');
-		// 	var missing = data.json().missing;
-		// 	if (missing.length > 0) {
-		// 		console.log(missing);
-		// 		// WARN MISSING
-		// 		this._warning.warn("missing tokens: " + missing);
-		// 	}
-		// },
-		// (err) => {
-		// 	console.log('SYNTHESIS: ', err);
-		// 	// WARN ERROR
-		// 	this._warning.warn(err);
-		// });
+		this._http.post('/api/synthesis', { "script": script })
+		.subscribe((metadata: Response) => {
+			let meta = metadata.json();
+			this._http.get('/api/audio/' + meta.id,
+			{ "responseType": ResponseContentType.ArrayBuffer })
+			.subscribe((data: Response) => {
+				let audio = new Blob([data.arrayBuffer()], { type: "application/octet-stream" });
+				this.setAudioForm(meta.id, meta.title, audio);
+			});
+		},
+		(err) => {
+			console.log('SYNTHESIS ERROR: ', err);
+			// WARN ERROR
+			this._warning.warn(err);
+		});
 	};
 
 	protected getAudioMap(): Map<string, AudioModel> {
