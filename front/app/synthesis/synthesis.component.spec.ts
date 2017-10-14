@@ -1,21 +1,16 @@
 import { HttpModule, XHRBackend } from '@angular/http';
-import { FormsModule } from '@angular/forms';
 import { MockBackend } from '@angular/http/testing';
+import { DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {
-	SynthesisComponent,
-	QueuedViewerComponent,
-	SynthViewerComponent
-} from './index';
+import { SynthesisComponent } from './synthesis.component';
 import {
 	QueuedAudioService,
-	SynthesisService, 
-	WarningService, 
-	MonitorService
-} from '../_services';
-import { CollapseDirective, ProgressDirective } from '../_directives';
-import { Progressbar, Bar } from '../progressbar';
+	MonitorService,
+	WarningService
+} from '../../_services';
+import { CollapseDirective, ProgressDirective } from '../../_directives';
+import { Progressbar, Bar } from '../../progressbar';
 
 describe('SynthesisComponent', () => {
 	let component: SynthesisComponent;
@@ -23,21 +18,19 @@ describe('SynthesisComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			imports: [ HttpModule, FormsModule ],
-			declarations: [ 
+			imports: [ HttpModule ],
+			declarations: [
 				SynthesisComponent,
-				QueuedViewerComponent,
-				SynthViewerComponent,
-				CollapseDirective,
 				ProgressDirective,
+				CollapseDirective,
 				Progressbar,
 				Bar
 			],
 			providers: [
 				QueuedAudioService,
-				SynthesisService,
 				MonitorService,
 				WarningService,
+				DomSanitizer,
 				{ provide: XHRBackend, useClass: MockBackend },
 			]
 		})
@@ -53,6 +46,6 @@ describe('SynthesisComponent', () => {
 	it('should create', () => {
 		expect(component).toBeTruthy();
 	});
-
+	
 	// todo: test synthesize (with mock server)
 });

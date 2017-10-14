@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule, Routes } from '@angular/router';
 import { NguiPopupModule } from '@ngui/popup';
+import { DndModule } from 'ng2-dnd';
 
 import { AppComponent } from './app.component';
 
-import { SynthesisComponent, SynthViewerComponent, QueuedViewerComponent } from './synthesis';
+import { SynthesisComponent, SynthViewerComponent } from './synthesis';
 import { MainViewerComponent, PopularViewerComponent, ExposedViewerComponent } from './mainviewer';
 import { UploadComponent, UploadViewerComponent } from './uploader';
 import { YtLinkerComponent, YtViewerComponent } from './ytlink';
@@ -22,7 +23,7 @@ import {
 } from './_directives';
 
 import { Progressbar, Bar } from './progressbar';
-import { routes } from './routes';
+import { routing } from './app.routing';
 
 @NgModule({
 	declarations: [
@@ -40,7 +41,6 @@ import { routes } from './routes';
 
 		SynthesisComponent,
 		SynthViewerComponent,
-		QueuedViewerComponent,
 
 		Progressbar,
 		Bar,
@@ -58,12 +58,12 @@ import { routes } from './routes';
 		BrowserModule,
 		FormsModule,
 		HttpModule,
+		DndModule.forRoot(),
 		RouterModule.forRoot(
-			routes,
+			routing,
 			{ enableTracing: true }
 		)
 	],
-	providers: [],
 	bootstrap: [ AppComponent ]
 })
 export class AppModule {};

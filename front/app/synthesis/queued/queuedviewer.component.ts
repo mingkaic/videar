@@ -3,6 +3,7 @@ import { Component, OnInit, SimpleChange } from '@angular/core';
 import { Microservice } from '../../_models/mservice.model';
 import { AudioModel } from '../../_models/audio.model';
 import {
+	SynthesisService,
 	QueuedAudioService,
 	MonitorService,
 	WarningService
@@ -42,7 +43,7 @@ class QueuedAudio extends AudioModel {
 
 	getScript() {
 		this.uncollapseScript = !this.uncollapseScript; // toggle
-		if (this.script || this.loadingScript) {
+		if (!this.s2tServiceUp || this.script || this.loadingScript) {
 			return;
 		}
 		// request script if local script is undefined
@@ -94,15 +95,43 @@ class QueuedAudio extends AudioModel {
 	styleUrls: ['./queuedviewer.component.css', './loading.css']
 })
 export class QueuedViewerComponent extends AbstractViewerComponent implements OnInit {
-	constructor(private _queuedService: QueuedAudioService,
+	s2tServiceUp: boolean = false;
+	synthesisScript: any[] = [];
+
+	constructor(private _synthService: SynthesisService,
+				private _queuedService: QueuedAudioService,
 				private _monitorService: MonitorService,
 				private _warningService: WarningService) {
 		super(20, _queuedService);
+		_monitorService.getHealthUpdateEmitter()
+		.subscribe((services: Microservice[]) => {
+			let s2tServ = services.find((service) => service.id === "s2t" );
+			this.s2tServiceUp = s2tServ.status === "OK";
+		});
 	};
 
 	ngOnInit() {
 		this._queuedService.getAllKeys()
 		.forEach(key => this.cacheUpdate(key, this._queuedService));
+	};
+	
+	trackByIndex(index: number, obj: any): any {
+		return index;
+	};
+
+	onWordDrop(data: any) {
+		this.synthesisScript.push(data.dragData);
+	};
+
+	removeScriptToken(index: number) {
+		this.synthesisScript = this.synthesisScript.slice(index);
+	};
+	
+	synthesize() {
+		this._monitorService.update();
+		if (this.s2tServiceUp) {
+			this._synthService.synthesize(this.synthesisScript);
+		}
 	};
 
 	protected wrapAudio(audio: AudioModel): AudioModel {

@@ -7,7 +7,7 @@ import { YtLinkerComponent } from './ytlink';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './login/register/register.component';
 
-export const routes: Routes = [
+export const routing: Routes = [
 	// basic routes
 	{ path: '', redirectTo: 'home', pathMatch: 'full' },
 	{ path: 'home', component: MainViewerComponent },

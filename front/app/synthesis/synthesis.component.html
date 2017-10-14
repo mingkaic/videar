@@ -1,7 +1,0 @@
-<div class="form-group">
-	<label for="scriptarea">Enter Script</label>
-	<textarea class="form-control" id="scriptarea" [(ngModel)]="script" rows="3"></textarea>
-	<button [disabled]="!s2tServiceUp" (click)="synthesize()" class="btn btn-success">Synthesize</button>
-</div>
-<app-queuedviewer></app-queuedviewer>
-<app-synthviewer></app-synthviewer>

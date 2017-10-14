@@ -12,6 +12,8 @@ Currently, this application only synthesizes audio from a given script. The next
 ## Checklist
 [] search selectable audio functionality
 
+[] Search available subtitle tokens (in all processed audio files [intensive] or within the selected set)
+
 [] Save & Download Synthesized audios
 
 [] upload and synthesis notification using server-sent events

@@ -1,3 +1,17 @@
+
+<div class="panel panel-default"
+dnd-droppable (onDropSuccess)="onWordDrop($event)">
+		<div class="panel-heading">Drop Script Here</div>
+		<div class="panel-body">
+				<div class="well well-lg">
+					<span *ngFor="let word of synthesisScript; let index = index; trackBy: trackByIndex;" class="badge">
+						{{word.word}}
+						<i class="material-icons" (click)="removeScriptToken(index)">close</i>
+					</span>
+				</div>
+				<button [disabled]="!s2tServiceUp" (click)="synthesize()" class="btn btn-success">Synthesize</button>
+		</div>
+</div>
 <div class="panel panel-default">
 	<div class="panel-heading">Queued Audio</div>
 	<div class="panel-body">
@@ -26,7 +40,8 @@
 						</div>
 						<div [hidden]="audio.loadingScript">
 							<div class="well well-lg">
-								<span *ngFor="let word of (audio.chronoView ? audio.chrono : audio.list) | slice:0:audio.limit" class="badge">
+								<span class="badge" *ngFor="let word of (audio.chronoView ? audio.chrono : audio.list) | slice:0:audio.limit"
+								dnd-draggable [dragData]="word" [dragEnabled]="true">
 									{{word.word}}
 								</span>
 								<span *ngIf="(audio.chronoView ? audio.chrono.length : audio.list.length) > audio.limit">

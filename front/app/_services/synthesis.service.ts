@@ -1,7 +1,6 @@
 import { Http } from '@angular/http'
 import { Injectable, EventEmitter } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { UUID } from 'angular2-uuid';
 
 import { AudioModel } from '../_models/audio.model';
 import { WarningService } from './warning.service';
@@ -16,8 +15,8 @@ export class SynthesisService extends AbstractAudioService {
 		super(_sanitizer, _http);
 	};
 
-	synthesize(script: String, vidIds: string[]) {
-		let uuid = UUID.UUID();
+	synthesize(script: any[]) {
+		// let uuid = UUID.UUID();
 		// this._http.put('/api/synthesize', { 
 		// 	"synthId": uuid, 
 		// 	"params": { "script": script, "vidIds": vidIds } 

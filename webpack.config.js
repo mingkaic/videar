@@ -14,7 +14,11 @@ const nodeModules = path.join(process.cwd(), 'node_modules');
 const entryPoints = ["inline","polyfills","sw-register","styles","vendor","main"];
 const baseHref = "";
 const deployUrl = "";
+var env_file = "environments/environment.ts";
 
+if (process.env.NODE_ENV === 'production') {
+	env_file = "environments/environment.prod.ts";	
+}
 
 module.exports = {
 	"devtool": "source-map",
@@ -278,7 +282,7 @@ module.exports = {
 		new AotPlugin({
 			"mainPath": "main.ts",
 			"hostReplacementPaths": {
-				"environments/environment.ts": "environments/environment.ts"
+				"environments/environment.ts": env_file
 			},
 			"exclude": [],
 			"tsConfigPath": "front/tsconfig.app.json",
