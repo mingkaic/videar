@@ -1,14 +1,14 @@
 import { Component, OnInit, SimpleChange } from '@angular/core';
 
-import { Microservice } from '../../_models/mservice.model';
-import { AudioModel } from '../../_models/audio.model';
+import { Microservice } from '../_models/mservice.model';
+import { AudioModel } from '../_models/audio.model';
 import {
 	SynthesisService,
 	QueuedAudioService,
 	MonitorService,
 	WarningService
-} from '../../_services';
-import { AbstractViewerComponent } from '../../_utils/viewer.abstract';
+} from '../_services';
+import { AbstractViewerComponent } from '../_utils/viewer.abstract';
 
 const emptySub = {
 	"id": "",
@@ -18,7 +18,7 @@ const emptySub = {
 }
 
 class QueuedAudio extends AudioModel {
-	s2tServiceUp: boolean = false;
+	s2tServiceUp: boolean = true;
 	script: any[];
 	list: any[] = [];
 	chrono: any[] = [];
@@ -42,6 +42,7 @@ class QueuedAudio extends AudioModel {
 	};
 
 	getScript() {
+		this._monitorService.update();
 		this.uncollapseScript = !this.uncollapseScript; // toggle
 		if (!this.s2tServiceUp || this.script || this.loadingScript) {
 			return;
@@ -57,7 +58,6 @@ class QueuedAudio extends AudioModel {
 	};
 
 	private updateSubtitles(audioCall) {
-		this._monitorService.update();
 		audioCall
 		.subscribe((response) => {
 			this.list = this.script = response;
@@ -90,11 +90,12 @@ class QueuedAudio extends AudioModel {
 }
 
 @Component({
-	selector: 'app-queuedviewer',
-	templateUrl: './queuedviewer.component.html',
-	styleUrls: ['./queuedviewer.component.css', './loading.css']
+	selector: 'app-synthesis',
+	templateUrl: './synthesis.component.html',
+	styleUrls: ['./synthesis.component.css', './loading.css'],
+	providers: [ SynthesisService ]
 })
-export class QueuedViewerComponent extends AbstractViewerComponent implements OnInit {
+export class SynthesisComponent extends AbstractViewerComponent implements OnInit {
 	s2tServiceUp: boolean = false;
 	synthesisScript: any[] = [];
 
@@ -124,6 +125,7 @@ export class QueuedViewerComponent extends AbstractViewerComponent implements On
 	};
 
 	removeScriptToken(index: number) {
+		console.log("removing token", index);
 		this.synthesisScript = this.synthesisScript.slice(index);
 	};
 	

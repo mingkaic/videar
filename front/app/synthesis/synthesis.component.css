@@ -60,3 +60,7 @@ input:focus + .slider {
 .badge .material-icons {
 	font-size: 1em;
 }
+
+.table tr.active td {
+    background-color: lightgray;
+}
