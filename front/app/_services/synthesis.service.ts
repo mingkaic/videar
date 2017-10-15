@@ -13,22 +13,33 @@ export class SynthesisService extends AbstractAudioService {
 	constructor(_sanitizer: DomSanitizer, _http: Http, 
 		private _warning: WarningService) {
 		super(_sanitizer, _http);
+		// retrieve uploaded from local
+		let synthIDs = localStorage.getItem('synthIDs');
+		if (synthIDs) {
+			JSON.parse(synthIDs).forEach((sid) => {
+				this.getAudio(sid);
+			});
+		}
 	};
 
 	synthesize(script: any[]) {
 		this._http.post('/api/synthesis', { "script": script })
 		.subscribe((metadata: Response) => {
 			let meta = metadata.json();
-			this._http.get('/api/audio/' + meta.id,
-			{ "responseType": ResponseContentType.ArrayBuffer })
-			.subscribe((data: Response) => {
-				let audio = new Blob([data.arrayBuffer()], { type: "application/octet-stream" });
-				this.setAudioForm(meta.id, meta.title, audio);
-			});
+			this.getAudio(meta.id, meta.title);
+
+			// save meta.id to local
+			let synthIDs = localStorage.getItem('synthIDs');
+			let sids = [];
+			if (synthIDs) {
+				sids = JSON.parse(synthIDs);
+			}
+			sids.push(meta.id);
+			localStorage.setItem('synthIDs', JSON.stringify(sids));
 		},
 		(err) => {
-			console.log('SYNTHESIS ERROR: ', err);
 			// WARN ERROR
+			console.log(err);
 			this._warning.warn(err);
 		});
 	};

@@ -7,7 +7,7 @@
 					<label class="text-center col-xs-12">Nothing Synthesized</label>
 				</div>
 				<div class="row vcenter wide" *ngFor="let audio of cache.toArray()">
-					<label class="col-xs-12 col-md-6 ellipsize form-control-label">{{audio.script}}</label>
+					<label class="col-xs-12 col-md-6 ellipsize form-control-label">{{audio.name}}</label>
 					<audio class="col-xs-12 col-md-6" controls [src]="audio.ref" type="audio/mpeg"></audio>
 					<progressbar [hidden]="audio.synthProgress===1" [animate]="true" [value]="audio.synthProgress" [type]="type"></progressbar>
 				</div>
