@@ -112,7 +112,7 @@ router.get('/api/uploaded/:limit', (req, res) => {
 	var limit = parseInt(req.params.limit);
 
 	sharedDb.audioQuery({
-		"source": { $in: ['sythesized', 'uploaded', '.youtube'] }	
+		"source": { $in: ['synthesized', 'uploaded', '.youtube'] }	
 	}, limit)
 	.then((infos) => {
 		res.json({ "ids": infos.map((datum) => datum.id) });
