@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "ng": "ng",
-    "start": "webpack && node server.js",
+    "start": "redis-server --daemonize yes && webpack && node server.js",
     "build": "webpack",
     "devstart": "webpack-dev-server --port=4200",
-    "test": "karma start ./karma.conf.js",
+    "test": "redis-server --daemonize yes && karma start ./karma.conf.js && mocha server/tests --recursive",
     "prepree2e": "npm start",
     "pree2e": "webdriver-manager update --standalone false --gecko false --quiet",
     "e2e": "protractor ./protractor.conf.js"
@@ -52,6 +52,7 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^4.2.0",
+    "redis": "^2.8.0",
     "request-promise": "^4.2.1",
     "rxjs": "^5.4.2",
     "schema-object": "^4.0.11",

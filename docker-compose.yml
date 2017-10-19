@@ -17,7 +17,7 @@ services:
     build: .
     environment:
       - NODE_ENV=test
-    command: [ "bash", "test.sh" ]
+    command: [ "bash", "test.sh"  ]
 
   # handle speech to text and audio synthesis
   speech2text:
@@ -46,3 +46,5 @@ services:
   centralmongodb:
     image: mongo:latest
     restart: always
+    ports:
+      - '27017:27017'

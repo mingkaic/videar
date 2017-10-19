@@ -9,10 +9,10 @@ const passport = require('passport');
 const localStrats = require('passport-local').Strategy;
 
 // Connect to DB
-require('./server/database');
+require('./server/data/database/connect_mongo');
 
 // Auths
-var User = require('./server/local_db/_models/user_model');
+var User = require('./server/data/local_db/_models/user_model');
 
 const default_port = '8080';
 const default_host = '0.0.0.0';

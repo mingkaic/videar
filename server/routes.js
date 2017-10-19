@@ -7,9 +7,10 @@ const service = require('node-health-service').Service;
 const router = express.Router();
 
 // Data sources
-const AudioSchema = require('./database/_schemas/audio_schema');
-const sharedDb = require('./database');
-const userDb = require('./local_db/userDb');
+const AudioSchema = require('./data/database/_schemas/audio_schema');
+const sharedDb = require('./data/database');
+const userDb = require('./data/local_db/userDb');
+const cache = require('./data/cache');
 
 // Services
 const uas = require('./services/uas');
@@ -225,10 +226,14 @@ router.post('/api/synthesis', (req, res) => {
 
 // ===== UAS SERVICES =====
 router.get('/api/front_page', (req, res) => {
-	sharedDb.popularQuery()
+	cache.getPopularToday()
 	.then((existing_ids) => {
-		if (existing_ids.length === 0) {
-			return uas.front_page();
+		if (!existing_ids) {
+			return uas.front_page()
+			.then((uas_ids) => {
+				cache.setPopularToday(uas_ids);
+				return uas_ids;
+			});
 		}
 		return existing_ids;
 	})
