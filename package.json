@@ -8,7 +8,9 @@
     "start": "redis-server --daemonize yes && webpack && node server.js",
     "build": "webpack",
     "devstart": "webpack-dev-server --port=4200",
-    "test": "redis-server --daemonize yes && karma start ./karma.conf.js && mocha server/tests --recursive",
+    "test": "npm run test-cli && npm run test-serv",
+    "test-cli": "karma start ./karma.conf.js",
+    "test-serv": "mocha server/tests --recursive",
     "prepree2e": "npm start",
     "pree2e": "webdriver-manager update --standalone false --gecko false --quiet",
     "e2e": "protractor ./protractor.conf.js"
@@ -47,6 +49,7 @@
     "gridfs-stream": "^1.1.1",
     "jquery": "^3.2.1",
     "mongoose": "^4.11.4",
+    "mocha": "^3.5.3",
     "ng2-dnd": "^4.2.0",
     "node-health-service": "^1.0.7",
     "passport": "^0.4.0",

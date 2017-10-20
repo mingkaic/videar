@@ -11,4 +11,5 @@ npm install phantomjs-prebuilt -g
 npm install phantomjs-prebuilt
 
 set +e
+redis-server --daemonize yes
 npm test
