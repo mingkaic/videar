@@ -15,6 +15,8 @@ const cache = require('./data/cache');
 // Services
 const uas = require('./services/uas');
 const s2t = require('./services/s2t');
+console.log('looking for uas at', uas.url);
+console.log('looking for s2t at', s2t.url);
 
 var service_config = {
 	"uas": {

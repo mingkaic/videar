@@ -8,8 +8,8 @@ services:
   videar:
     environment:
       - DB_HOST=centralmongodb
-      - 'UAS_URL=http://uniaudio:8080'
-      - 'S2T_URL=http://speech2text:8080'
+      - S2T_HOST=speech2text
+      - UAS_HOST=uniaudio
     image: 'mkaichen/videar:latest'
     ports:
       - '8080:8080'
@@ -28,7 +28,7 @@ services:
     image: mkaichen/s2t:latest
     environment:
       - DB_HOST=centralmongodb
-      - 'UAS_URL=http://uniaudio:8080'
+      - UAS_HOST=uniaudio
     expose:
       - 8080
     depends_on: 
