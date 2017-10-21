@@ -1,5 +1,9 @@
 version: '2'
 
+volumes:
+  db-data:
+    external: false
+
 services:
   videar:
     environment:

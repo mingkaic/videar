@@ -1,5 +1,8 @@
 const request = require('request-promise');
-const s2tURL = process.env.S2T_URL || 'http://127.0.0.1:8080';
+
+const s2tHost = process.env.S2T_HOST || '127.0.0.1';
+const s2tPort = process.env.S2T_PORT || 8080;
+const s2tURL = process.env.S2T_URL || 'http:' + s2tHost + ':' + s2tPort;
 
 exports.url = s2tURL;
 

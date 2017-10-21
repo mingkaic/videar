@@ -1,5 +1,8 @@
 const request = require('request-promise');
-const uasURL = process.env.UAS_URL || 'http://127.0.0.1:8080';
+
+const uasHost = process.env.UAS_HOST || '127.0.0.1';
+const uasPort = process.env.UAS_PORT || 8080;
+const uasURL = process.env.UAS_URL || 'http:' + uasHost + ':' + uasPort;
 
 exports.url = uasURL;
 
