@@ -27,6 +27,7 @@ export class QueuedAudioService extends AbstractAudioService {
 	getSubtitles(vidId: string) {
 		return this._http.get('/api/audio_subtitles/' + vidId)
 		.map((data: Response) => {
+			console.log('getSubtitles returned', data.json());
 			return data.json();
 		});
 	};

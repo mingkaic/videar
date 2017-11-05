@@ -4,15 +4,15 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const fileUpload = require('express-fileupload');
-
 const passport = require('passport');
-const localStrats = require('passport-local').Strategy;
 
 // Connect to DB
-require('./server/data/database/connect_mongo');
+require('shared_mongodb_api');
+
+const localStrats = require('passport-local').Strategy;
 
 // Auths
-var User = require('./server/data/local_db/_models/user_model');
+var User = require('./server/local_db/_models/user_model');
 
 const default_port = '8080';
 const default_host = '0.0.0.0';

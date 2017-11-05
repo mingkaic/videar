@@ -17,7 +17,9 @@ export class SearchAudioService extends AbstractAudioService {
 	search (keyword: string) {
 		this._http.post('/api/search', { "word": keyword })
 		.subscribe((data: Response) => {
-			data.json().ids.forEach((id) => this.getAudio(id));
+			let metas = data.json();
+			console.log('search returned', metas);
+			metas.forEach((id) => this.getAudio(id));
 		},
 		(err) => { console.log(err); });
 	};

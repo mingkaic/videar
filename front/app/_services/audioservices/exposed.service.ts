@@ -18,7 +18,9 @@ export class ExposedAudioService extends AbstractAudioService {
 		let params = new URLSearchParams();
 		this._http.get('/api/uploaded/' + String(limit || 10))
 		.subscribe((data: Response) => {
-			data.json().ids.forEach((id) => this.getAudio(id));
+			let metas = data.json();
+			console.log('exposedUploads returned', metas);
+			metas.forEach((meta) => this.getAudio(meta.id, meta.title));
 		},
 		(err) => { console.log(err); });
 	};

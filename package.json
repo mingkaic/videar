@@ -48,8 +48,8 @@
     "express-fileupload": "^0.2.0",
     "gridfs-stream": "^1.1.1",
     "jquery": "^3.2.1",
-    "mongoose": "^4.11.4",
     "mocha": "^3.5.3",
+    "mongoose": "^4.11.4",
     "ng2-dnd": "^4.2.0",
     "node-health-service": "^1.0.7",
     "passport": "^0.4.0",
@@ -59,6 +59,8 @@
     "request-promise": "^4.2.1",
     "rxjs": "^5.4.2",
     "schema-object": "^4.0.11",
+    "shared_grpc": "git+https://git@github.com/mingkaic/shared_grpc.git",
+    "shared_mongodb_api": "git+https://git@github.com/mingkaic/shared_mongodb_api.git",
     "underscore": "^1.8.3",
     "zone.js": "^0.8.4"
   },

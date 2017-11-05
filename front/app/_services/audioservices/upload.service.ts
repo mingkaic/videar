@@ -12,7 +12,7 @@ import { AbstractAudioService } from './audioservice.abstract';
 class FileUploadItem extends UploadItem {
 	constructor(file: any) {
 		super();
-		this.url = '/api/upload_audio';
+		this.url = '/api/audio';
 		this.file = file;
 	}
 }

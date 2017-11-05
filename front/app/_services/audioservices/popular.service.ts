@@ -17,7 +17,9 @@ export class PopularAudioService extends AbstractAudioService {
 	private frontPage () {
 		this._http.get('/api/front_page')
 		.subscribe((data: Response) => {
-			data.json().ids.forEach((id) => this.getAudio(id));
+			let metas = data.json();
+			console.log('frontPage returned', metas);
+			metas.forEach((meta) => this.getAudio(meta.id, meta.title));
 		},
 		(err) => { console.log(err); });
 	}

@@ -23,7 +23,7 @@ export class MonitorService {
 	update() {
 		let response_handler = (data) => {
 			let services: Microservice[] = [];
-			let res: { [index: string]: any } = data.json().details;
+			let res = data.json();
 			for (const sid of Object.keys(res)) {
 				let name = serviceMap[sid];
 				let status;

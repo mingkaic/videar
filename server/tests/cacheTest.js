@@ -1,7 +1,7 @@
 const chai = require('chai');
 const uuidv1 = require('uuid/v1');
 
-const cache = require('../data/cache');
+const cache = require('../cache');
 
 const expect = chai.expect;
 

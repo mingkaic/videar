@@ -1,33 +1,20 @@
 const express = require('express');
 const passport = require('passport');
 const uuidv1 = require('uuid/v1');
-const Readable = require('stream').Readable;
-const service = require('node-health-service').Service;
+const grpc = require('shared_grpc');
+const db = require('shared_mongodb_api');
+
+// Local data sources
+const userDb = require('./local_db/userDb');
+const cache = require('./cache');
 
 const router = express.Router();
+const Readable = require('stream').Readable;
 
-// Data sources
-const AudioSchema = require('./data/database/_schemas/audio_schema');
-const sharedDb = require('./data/database');
-const userDb = require('./data/local_db/userDb');
-const cache = require('./data/cache');
+const AudioSchema = db.AudioSchema;
+const grpcSchemas = grpc.schemas;
 
-// Services
-const uas = require('./services/uas');
-const s2t = require('./services/s2t');
-console.log('looking for uas at', uas.url);
-console.log('looking for s2t at', s2t.url);
-
-var service_config = {
-	"uas": {
-		"probe": "ping",
-		"url": uas.url + '/reachable'
-	},
-	"s2t": {
-		"probe": "ping",
-		"url": s2t.url + '/reachable'
-	}
-};
+const services = [ 's2t', 'uas' ];
 
 // ===== AUTHENTICATION =====
 router.get('/api/users', (req, res) => {
@@ -36,7 +23,10 @@ router.get('/api/users', (req, res) => {
 		users = users.map((usr) => {
 			return usr.id_;
 		});
-		res.json(usrs);
+		res.json(users);
+	})
+	.catch((err) => {
+		res.status(500).send(err);
 	});
 });
 
@@ -47,6 +37,9 @@ router.get('/api/users/:id', (req, res) => {
 		user = user.username;
 		res.json(user);
 	})
+	.catch((err) => {
+		res.status(500).send(err);
+	});
 });
 
 router.post('/api/users', (req, res) => {
@@ -57,7 +50,7 @@ router.post('/api/users', (req, res) => {
 		});
 	})
 	.catch((err) => {
-		res.status(500).json({ "err": err });
+		res.status(500).send(err);
 	});
 });
 
@@ -101,7 +94,7 @@ router.delete('/api/users/:id', (req, res) => {
 
 // ===== GENERAL AUDIO INTERFACES =====
 router.get('/api/all_audio', (req, res) => {
-	sharedDb.audioQuery({})
+	db.audio.query({})
 	.then((infos) => {
 		res.json(infos);
 	})
@@ -114,11 +107,11 @@ router.get('/api/all_audio', (req, res) => {
 router.get('/api/uploaded/:limit', (req, res) => {
 	var limit = parseInt(req.params.limit);
 
-	sharedDb.audioQuery({
+	db.audio.query({
 		"source": { $in: ['synthesized', 'uploaded', '.youtube'] }	
 	}, limit)
 	.then((infos) => {
-		res.json({ "ids": infos.map((datum) => datum.id) });
+		res.json(infos);
 	})
 	.catch((err) => {
 		res.status(500).send(err);
@@ -127,7 +120,7 @@ router.get('/api/uploaded/:limit', (req, res) => {
 
 router.get('/api/audio/:id', (req, res) => {
 	var id = req.params.id;
-	sharedDb.getAudio(id)
+	db.audio.get(id)
 	.then((audio) => {
 		if (audio) {
 			audio.pipe(res);
@@ -137,31 +130,11 @@ router.get('/api/audio/:id', (req, res) => {
 		}
 	})
 	.catch((err) => {
-		res.status(500).json({ "err": err });
+		res.status(500).send(err);
 	});
 });
 
-router.get('/api/audio_meta/:id', (req, res) => {
-	var id = req.params.id;
-	sharedDb.audioQuery({ "id": id })
-	.then((info) => {
-		if (info.length > 0) {
-			res.json(info[0]);
-		}
-		else {											// todo: look into why this happens
-			res.status(404).json({
-				"err": "metadata for " + id + " not found"
-			});
-		}
-	})
-	.catch((err) => {
-		res.status(500).json({ "err": err });
-	});
-});
-
-router.get('/api/health', service.route(service_config));
-
-router.post('/api/upload_audio', (req, res) => {
+router.post('/api/audio', (req, res) => {
 	// check update and notify shared members
 	var file = req.files.file;
 	var id = uuidv1();
@@ -169,9 +142,9 @@ router.post('/api/upload_audio', (req, res) => {
 	var reader = new Readable();
 	reader.push(file.data);
 	reader.push(null);
-	sharedDb.audioSave([new AudioSchema({
+	db.audio.save([new AudioSchema({
 		"id": id,
-		"source": "uploaded",
+		"source": 'UPLOADED',
 		"title": file.name,
 		"audio": reader
 	})])
@@ -184,10 +157,28 @@ router.post('/api/upload_audio', (req, res) => {
 	});
 });
 
+router.get('/api/audio_meta/:id', (req, res) => {
+	var id = req.params.id;
+	db.audio.query({ "id": id })
+	.then((info) => {
+		if (info.length > 0) {
+			res.json(info[0]);
+		}
+		else {											// todo: look into why this happens
+			res.status(404).json({
+				"err": "metadata for " + id + " not found"
+			});
+		}
+	})
+	.catch((err) => {
+		res.status(500).send(err);
+	});
+});
+
 router.post('/api/audio_meta/:id', (req, res) => {
 	var id = req.params.id;
 	var name = req.body.name;
-	sharedDb.updateTitle(id, name)
+	db.audio.updateTitle(id, name)
 	.then((success) => {
 		if (success) {
 			res.status(400).send("success");
@@ -201,12 +192,57 @@ router.post('/api/audio_meta/:id', (req, res) => {
 	});
 });
 
-// ===== S2T SERVICES =====
+router.get('/api/health', (req, res) => {
+	Promise.all(services.map((servname) => {
+		var cli = grpc[servname + '_cli'];
+		return cli.reachable()
+		.then((status) => {
+			if (status !== 'SERVING') {
+				return cli.lastError()
+				.then((err) => {
+					return {
+						"name": servname,
+						"ok": false,
+						"error": err.msg
+					};
+				});
+			}
+			return { "name": servname, "ok": true, "error": null };
+		})
+		.catch((err) => {
+			return { "name": servname, "ok": false, "error": err };
+		});
+	}))
+	.then((statuses) => {
+		var msg = {};
+		statuses.forEach((status) => {
+			msg[status.name] = status;
+		});
+		res.json(msg);
+	})
+	.catch((err) => {
+		console.log(err);
+		res.status(500).send(err);
+	});
+});
+
+// ===== CAPTION OPERATIONS =====
 router.get('/api/audio_subtitles/:id', (req, res) => {
 	var id = req.params.id;
-	s2t.subtitles(id)
-	.then((transcript) => {
-		res.json(transcript);
+	var request = new grpcSchemas.AudioRequest({ "id": id });
+
+	grpc.uas_cli.getCaption(request)
+	.then((captions) => {
+		if (captions.length === 0) {
+			return grpc.s2t_cli.processCaptions();
+		}
+		return captions;
+	})
+	.then((captions) => {
+		captions.forEach((captionSegment) => {
+			captionSegment.id = id;	
+		});
+		res.json(captions);
 	})
 	.catch((err) => {
 		console.log(err);
@@ -215,10 +251,11 @@ router.get('/api/audio_subtitles/:id', (req, res) => {
 });
 
 router.post('/api/synthesis', (req, res) => {
-	var script = req.body.script;
-	s2t.synthesize(script)
-	.then((meta) => {
-		res.json(meta);
+	var script = req.body.script.map((mixedCaption) => 
+		new grpcSchemas.MixedCaptionRequest(mixedCaption));
+	grpc.s2t_cli.processAudioSynthesis(script)
+	.then((audiometa) => {
+		res.json(audiometa);
 	})
 	.catch((err) => {
 		console.log(err);
@@ -226,35 +263,34 @@ router.post('/api/synthesis', (req, res) => {
 	});
 });
 
-// ===== UAS SERVICES =====
+// ===== AUDIO OPERATIONS =====
 router.get('/api/front_page', (req, res) => {
 	cache.getPopularToday()
 	.then((existing_ids) => {
 		if (!existing_ids) {
-			return uas.front_page()
-			.then((uas_ids) => {
-				cache.setPopularToday(uas_ids);
-				return uas_ids;
-			});
+			return grpc.uas_cli.getPopular();
 		}
-		return existing_ids;
+		return db.audio.query({ "id": { $in: existing_ids } });
 	})
-	.then((audio_ids) => {
-		// check update and notify shared members
-
-		res.json({ "ids": audio_ids });
+	.then((audiometas) => {
+		res.json(audiometas);
 	})
 	.catch((err) => {
-		res.status(500).json({ "err": err });
+		res.status(500).send(err);
 	});
 });
 
 router.post('/api/youtube', (req, res) => {
 	var id = req.body.id;
-	uas.youtube_search(id)
-	.then((yid) => {
-        // search for yid in shared database
-        return sharedDb.getAudio(yid);
+	var searchParam = new grpcSchemas.SearchParams({
+		"query": id,
+		"response_limit": 1,
+		"source": 'YOUTUBE'
+	});
+
+	grpc.uas_cli.search(searchParam)
+	.then((audiometa) => {
+		return db.audio.get(audiometa.id);
 	})
 	.then((audio) => {
 		// check update and notify shared members
@@ -267,20 +303,27 @@ router.post('/api/youtube', (req, res) => {
 		}
 	})
 	.catch((err) => {
-		res.status(500).json({ "err": err });
+		res.status(500).send(err);
 	});
 });
 
 router.post('/api/search', (req, res) => {
 	var word = req.body.word;
-	uas.audio_search(word)
-	.then((audio_ids) => {
+
+	var searchParam = new grpcSchemas.SearchParams({
+		"query": word,
+		"response_limit": 100,
+		"source": 'AUDIOSEARCH'
+	});
+
+	grpc.uas_cli.search(searchParam)
+	.then((audiometas) => {
 		// check update and notify shared members
 
-		res.json({ "ids": audio_ids });
+		res.json(audiometas)
 	})
 	.catch((err) => {
-		res.status(500).json({ "err": err });
+		res.status(500).send(err);
 	});
 });
 

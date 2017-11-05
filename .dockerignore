@@ -4,4 +4,3 @@ dist
 .*
 !.angular-cli.json
 !.editorconfig
-server/data/database
