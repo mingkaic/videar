@@ -48,6 +48,16 @@ export class SelectableViewerComponent extends AbstractViewerComponent {
 
 	removeFromSelected(id: string) {
 		this.selector.removeAudio(id);
+		let selectedIDs = localStorage.getItem('selectedIDs');
+		let sids = [];
+		if (selectedIDs) {
+			sids = JSON.parse(selectedIDs);
+		}
+		var idx = sids.indexOf(id);
+		if (idx > -1) {
+			sids.splice(idx, 1);
+		}
+		localStorage.setItem('selectedIDs', JSON.stringify(sids));
 	}
 
 	isSelected(id: string) : boolean {

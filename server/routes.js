@@ -142,18 +142,16 @@ router.post('/api/audio', (req, res) => {
 	var reader = new Readable();
 	reader.push(file.data);
 	reader.push(null);
+	var meta = null;
 	db.audio.save([new AudioSchema({
 		"id": id,
 		"source": 'UPLOADED',
 		"title": file.name,
 		"audio": reader
-	})])
-	.then((ids) => {
-		// assert ids.length > 0
-		res.json({ "id": ids[0] });
-	})
-	.catch((err) => {
-		res.status(500).send(err);
+	})], (audiometa) => {
+		meta = audiometa;
+	}, () => {
+		res.json(meta);
 	});
 });
 
@@ -230,11 +228,10 @@ router.get('/api/health', (req, res) => {
 router.get('/api/audio_subtitles/:id', (req, res) => {
 	var id = req.params.id;
 	var request = new grpcSchemas.AudioRequest({ "id": id });
-
 	grpc.uas_cli.getCaption(request)
 	.then((captions) => {
 		if (captions.length === 0) {
-			return grpc.s2t_cli.processCaptions();
+			return grpc.s2t_cli.processCaptions(request);
 		}
 		return captions;
 	})
@@ -289,8 +286,12 @@ router.post('/api/youtube', (req, res) => {
 	});
 
 	grpc.uas_cli.search(searchParam)
-	.then((audiometa) => {
-		return db.audio.get(audiometa.id);
+	.then((audiometas) => {
+		if (audiometas.length < 1) {
+			res.status(404).json({ "err": "audio not found" });
+		}
+		var id = audiometas[0].id;
+		return db.audio.get(id);
 	})
 	.then((audio) => {
 		// check update and notify shared members
