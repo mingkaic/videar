@@ -1,17 +1,17 @@
 import { EventEmitter } from '@angular/core';
 
 export class WarningService {
-    private issue: EventEmitter<string>;
+	private issue: EventEmitter<string>;
 
-    constructor() {
-        this.issue = new EventEmitter();
-    }
+	constructor() {
+		this.issue = new EventEmitter();
+	}
 
-    getWarningEmitter() {
-        return this.issue;
-    }
+	getWarningEmitter() {
+		return this.issue;
+	}
 
-    warn(message) {
-        this.issue.emit(message);
-    }
+	warn(message) {
+		this.issue.emit(message);
+	}
 }
